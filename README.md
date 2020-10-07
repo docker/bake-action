@@ -53,7 +53,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
-        uses: crazy-max/ghaction-docker-buildx-bake@master
+        uses: crazy-max/ghaction-docker-buildx-bake@v1
         with:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
