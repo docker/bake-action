@@ -41,9 +41,9 @@ jobs:
         uses: ./
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          bake-files: |
+          files: |
             ./test/config.hcl
-          bake-targets: |
+          targets: |
             ${{ matrix.target }}
           push: false # set to true when https://github.com/docker/buildx/issues/179 is fixed
       -
