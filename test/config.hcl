@@ -13,7 +13,7 @@ target "db" {
 
 target "app" {
   context = "./test"
-  dockerfile = "Dockerfile-bake"
+  dockerfile = "Dockerfile"
   args = {
     name = "foo"
   }
