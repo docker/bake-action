@@ -1,0 +1,38 @@
+# https://help.github.com/en/articles/metadata-syntax-for-github-actions
+name: "Docker Buildx Bake"
+description: "GitHub Action to use Docker Buildx Bake as a high-level build command"
+author: crazy-max
+branding:
+  icon: 'anchor'
+  color: 'blue'
+
+inputs:
+  builder:
+    description: "Builder instance"
+    required: false
+  files:
+    description: "List of bake definition files"
+    required: true
+  targets:
+    description: "List of bake targets"
+    required: false
+  pull:
+    description: "Always attempt to pull a newer version of the image"
+    required: false
+    default: 'false'
+  load:
+    description: "Load is a shorthand for --set=*.output=type=docker"
+    required: false
+    default: 'false'
+  push:
+    description: "Push is a shorthand for --set=*.output=type=registry"
+    required: false
+    default: 'false'
+  set:
+    description: "List of targets values to override (eg. targetpattern.key=value)"
+    required: false
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+  post: 'dist/index.js'
