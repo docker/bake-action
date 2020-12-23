@@ -18,7 +18,7 @@ ___
   * [inputs](#inputs)
 * [Keep up-to-date with GitHub Dependabot](#keep-up-to-date-with-github-dependabot)
 * [Limitation](#limitation)
-* [How can I help?](#how-can-i-help)
+* [Contributing](#contributing)
 * [License](#license)
 
 ## Usage
@@ -68,28 +68,7 @@ jobs:
 
 Following inputs can be used as `step.with` keys
 
-| Name             | Type    | Description                        |
-|------------------|---------|------------------------------------|
-| `builder`        | String  | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action) |
-| `files`          | List    | List of [bake definition files](https://github.com/docker/buildx#file-definition) |
-| `targets`        | List    | List of bake targets |
-| `no-cache`       | Bool    | Do not use cache when building the image (default `false`) |
-| `pull`           | Bool    | Always attempt to pull a newer version of the image (default `false`) |
-| `load`           | Bool    | Load is a shorthand for `--set=*.output=type=docker` (default `false`) |
-| `push`           | Bool    | Push is a shorthand for `--set=*.output=type=registry` (default `false`) |
-| `set`            | CSV     | List of [targets values to override](https://github.com/docker/buildx#--set-targetpatternkeysubkeyvalue) (eg: `targetpattern.key=value`) |
-
-> `List` type can be a comma or newline-delimited string
-> ```yaml
-> targets: default,release
-> ```
-> ```yaml
-> targets: |
->   default
->   release
-> ```
-
-> `CSV` type must be a newline-delimited string
+> `List` type is a newline-delimited string
 > ```yaml
 > set: target.args.mybuildarg=value
 > ```
@@ -98,6 +77,22 @@ Following inputs can be used as `step.with` keys
 >   target.args.mybuildarg=value
 >   foo*.args.mybuildarg=value
 > ```
+
+> `CSV` type is a comma-delimited string
+> ```yaml
+> targets: default,release
+> ```
+
+| Name             | Type     | Description                        |
+|------------------|----------|------------------------------------|
+| `builder`        | String   | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action) |
+| `files`          | List/CSV | List of [bake definition files](https://github.com/docker/buildx#file-definition) |
+| `targets`        | List/CSV | List of bake targets |
+| `no-cache`       | Bool     | Do not use cache when building the image (default `false`) |
+| `pull`           | Bool     | Always attempt to pull a newer version of the image (default `false`) |
+| `load`           | Bool     | Load is a shorthand for `--set=*.output=type=docker` (default `false`) |
+| `push`           | Bool     | Push is a shorthand for `--set=*.output=type=registry` (default `false`) |
+| `set`            | List     | List of [targets values to override](https://github.com/docker/buildx#--set-targetpatternkeysubkeyvalue) (eg: `targetpattern.key=value`) |
 
 ## Keep up-to-date with GitHub Dependabot
 
@@ -119,12 +114,14 @@ updates:
 
 This action is only available for Linux [virtual environments](https://help.github.com/en/articles/virtual-environments-for-github-actions#supported-virtual-environments-and-hardware-resources).
 
-## How can I help?
+# Contributing
 
-All kinds of contributions are welcome :raised_hands:! The most basic way to show your support is to star :star2:
-the project, or to raise issues :speech_balloon: You can also support this project by
-[**becoming a sponsor on GitHub**](https://github.com/sponsors/crazy-max) :clap: or by making a
-[Paypal donation](https://www.paypal.me/crazyws) to ensure this journey continues indefinitely! :rocket:
+Want to contribute? Awesome! The most basic way to show your support is to star :star2: the project,
+or to raise issues :speech_balloon:. If you want to open a pull request, please read the
+[contributing guidelines](.github/CONTRIBUTING.md).
+
+You can also support this project by [**becoming a sponsor on GitHub**](https://github.com/sponsors/crazy-max) or by
+making a [Paypal donation](https://www.paypal.me/crazyws) to ensure this journey continues indefinitely!
 
 Thanks again for your support, it is much appreciated! :pray:
 

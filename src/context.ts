@@ -1,3 +1,4 @@
+import csvparse from 'csv-parse/lib/sync';
 import * as buildx from './buildx';
 import * as core from '@actions/core';
 
@@ -15,13 +16,13 @@ export interface Inputs {
 export async function getInputs(): Promise<Inputs> {
   return {
     builder: core.getInput('builder'),
-    files: await getInputList('files'),
-    targets: await getInputList('targets'),
+    files: getInputList('files'),
+    targets: getInputList('targets'),
     noCache: /true/i.test(core.getInput('no-cache')),
     pull: /true/i.test(core.getInput('pull')),
     load: /true/i.test(core.getInput('load')),
     push: /true/i.test(core.getInput('push')),
-    set: await getInputList('set', true)
+    set: getInputList('set', true)
   };
 }
 
@@ -64,18 +65,30 @@ async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
   return args;
 }
 
-export async function getInputList(name: string, ignoreComma?: boolean): Promise<string[]> {
+export function getInputList(name: string, ignoreComma?: boolean): string[] {
+  let res: Array<string> = [];
+
   const items = core.getInput(name);
   if (items == '') {
-    return [];
+    return res;
   }
-  return items
-    .split(/\r?\n/)
-    .filter(x => x)
-    .reduce<string[]>(
-      (acc, line) => acc.concat(!ignoreComma ? line.split(',').filter(x => x) : line).map(pat => pat.trim()),
-      []
-    );
+
+  for (let output of csvparse(items, {
+    columns: false,
+    relaxColumnCount: true,
+    skipLinesWithEmptyValues: true
+  }) as Array<string[]>) {
+    if (output.length == 1) {
+      res.push(output[0]);
+      continue;
+    } else if (!ignoreComma) {
+      res.push(...output);
+      continue;
+    }
+    res.push(output.join(','));
+  }
+
+  return res.filter(item => item).map(pat => pat.trim());
 }
 
 export const asyncForEach = async (array, callback) => {
