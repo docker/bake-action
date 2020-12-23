@@ -31,6 +31,7 @@ on:
   push:
     branches: master
     tags:
+
 jobs:
   bake:
     runs-on: ubuntu-latest
@@ -43,7 +44,6 @@ jobs:
         uses: docker/setup-qemu-action@v1
       -
         name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v1
       -
         name: Login to DockerHub
@@ -55,13 +55,11 @@ jobs:
         name: Build and push
         uses: crazy-max/ghaction-docker-buildx-bake@v1
         with:
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
           files: |
             ./config.hcl
           targets: |
-            default
             release
+          push: true
 ```
 
 ## Customizing
