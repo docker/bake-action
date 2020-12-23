@@ -535,9 +535,11 @@ function run() {
             const buildxVersion = yield buildx.getVersion();
             core.info(`📣 Buildx version: ${buildxVersion}`);
             let inputs = yield context.getInputs();
-            core.info(`🏃 Starting bake...`);
+            core.startGroup(`🏃 Starting bake...`);
             const args = yield context.getArgs(inputs, buildxVersion);
+            yield exec.exec('docker', [...args, '--print']);
             yield exec.exec('docker', args);
+            core.endGroup();
         }
         catch (error) {
             core.setFailed(error.message);
