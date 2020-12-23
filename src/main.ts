@@ -21,9 +21,11 @@ async function run(): Promise<void> {
 
     let inputs: context.Inputs = await context.getInputs();
 
-    core.info(`🏃 Starting bake...`);
+    core.startGroup(`🏃 Starting bake...`);
     const args: string[] = await context.getArgs(inputs, buildxVersion);
+    await exec.exec('docker', [...args, '--print']);
     await exec.exec('docker', args);
+    core.endGroup();
   } catch (error) {
     core.setFailed(error.message);
   }
