@@ -132,17 +132,6 @@ FOO=bar`
     ]);
   });
 
-  it('large multiline values', async () => {
-    setInput(
-      'secrets',
-      `"GPG_KEY=${pgp}"
-FOO=bar`
-    );
-    const res = await context.getInputList('secrets', true);
-    console.log(res);
-    expect(res).toEqual([`GPG_KEY=${pgp}`, 'FOO=bar']);
-  });
-
   it('multiline values escape quotes', async () => {
     setInput(
       'secrets',
