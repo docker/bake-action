@@ -114,7 +114,7 @@ updates:
 
 This action is only available for Linux [virtual environments](https://help.github.com/en/articles/virtual-environments-for-github-actions#supported-virtual-environments-and-hardware-resources).
 
-# Contributing
+## Contributing
 
 Want to contribute? Awesome! The most basic way to show your support is to star :star2: the project,
 or to raise issues :speech_balloon:. If you want to open a pull request, please read the
