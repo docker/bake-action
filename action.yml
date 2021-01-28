@@ -1,7 +1,7 @@
 # https://help.github.com/en/articles/metadata-syntax-for-github-actions
 name: "Docker Buildx Bake"
 description: "GitHub Action to use Docker Buildx Bake as a high-level build command"
-author: crazy-max
+author: 'docker'
 branding:
   icon: 'anchor'
   color: 'blue'

@@ -1,15 +1,17 @@
-[![GitHub release](https://img.shields.io/github/release/crazy-max/ghaction-docker-buildx-bake.svg?style=flat-square)](https://github.com/crazy-max/ghaction-docker-buildx-bake/releases/latest)
+[![GitHub release](https://img.shields.io/github/release/docker/bake-action.svg?style=flat-square)](https://github.com/docker/bake-action/releases/latest)
 [![GitHub marketplace](https://img.shields.io/badge/marketplace-docker--buildx--bake-blue?logo=github&style=flat-square)](https://github.com/marketplace/actions/docker-buildx-bake)
-[![Test workflow](https://img.shields.io/github/workflow/status/crazy-max/ghaction-docker-buildx-bake/test?label=test&logo=github&style=flat-square)](https://github.com/crazy-max/ghaction-docker-buildx-bake/actions?workflow=test)
-[![Codecov](https://img.shields.io/codecov/c/github/crazy-max/ghaction-docker-buildx-bake?logo=codecov&style=flat-square)](https://codecov.io/gh/crazy-max/ghaction-docker-buildx-bake)
-[![Become a sponsor](https://img.shields.io/badge/sponsor-crazy--max-181717.svg?logo=github&style=flat-square)](https://github.com/sponsors/crazy-max)
-[![Paypal Donate](https://img.shields.io/badge/donate-paypal-00457c.svg?logo=paypal&style=flat-square)](https://www.paypal.me/crazyws)
+[![Test workflow](https://img.shields.io/github/workflow/status/docker/bake-action/test?label=test&logo=github&style=flat-square)](https://github.com/docker/bake-action/actions?workflow=test)
+[![Codecov](https://img.shields.io/codecov/c/github/docker/bake-action?logo=codecov&style=flat-square)](https://codecov.io/gh/docker/bake-action)
+
+## :test_tube: Experimental
+
+This repository is considered **EXPERIMENTAL** and under active development until further notice. It is subject to
+non-backward compatible changes or removal in any future version so you should [pin to a specific tag/commit](https://docs.github.com/en/actions/creating-actions/about-actions#using-tags-for-release-management)
+of  this action in your workflow (i.e `docker/bake-action@v1.1.3`).
 
 ## About
 
 GitHub Action to use Docker [Buildx Bake](https://github.com/docker/buildx#buildx-bake-options-target) as a high-level build command.
-
-If you are interested, [check out](https://git.io/Je09Y) my other :octocat: GitHub Actions!
 
 ___
 
@@ -18,8 +20,6 @@ ___
   * [inputs](#inputs)
 * [Keep up-to-date with GitHub Dependabot](#keep-up-to-date-with-github-dependabot)
 * [Limitation](#limitation)
-* [Contributing](#contributing)
-* [License](#license)
 
 ## Usage
 
@@ -53,7 +53,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
-        uses: crazy-max/ghaction-docker-buildx-bake@v1
+        uses: docker/bake-action@master
         with:
           files: |
             ./config.hcl
@@ -113,18 +113,3 @@ updates:
 ## Limitation
 
 This action is only available for Linux [virtual environments](https://help.github.com/en/articles/virtual-environments-for-github-actions#supported-virtual-environments-and-hardware-resources).
-
-## Contributing
-
-Want to contribute? Awesome! The most basic way to show your support is to star :star2: the project,
-or to raise issues :speech_balloon:. If you want to open a pull request, please read the
-[contributing guidelines](.github/CONTRIBUTING.md).
-
-You can also support this project by [**becoming a sponsor on GitHub**](https://github.com/sponsors/crazy-max) or by
-making a [Paypal donation](https://www.paypal.me/crazyws) to ensure this journey continues indefinitely!
-
-Thanks again for your support, it is much appreciated! :pray:
-
-## License
-
-MIT. See `LICENSE` for more details.
