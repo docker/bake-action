@@ -6,14 +6,14 @@ Contributions to this project are [released](https://help.github.com/articles/gi
 
 ## Submitting a pull request
 
-1. [Fork](https://github.com/crazy-max/ghaction-docker-buildx-bake/fork) and clone the repository
+1. [Fork](https://github.com/docker/bake-action/fork) and clone the repository
 2. Configure and install the dependencies: `yarn install`
 3. Create a new branch: `git checkout -b my-branch-name`
 4. Make your changes
 5. Make sure the tests pass: `docker buildx bake test`
 6. Format code and build javascript artifacts: `docker buildx bake pre-checkin`
 7. Validate all code has correctly formatted and built: `docker buildx bake validate`
-8. Push to your fork and [submit a pull request](https://github.com/crazy-max/ghaction-docker-buildx-bake/compare)
+8. Push to your fork and [submit a pull request](https://github.com/docker/bake-action/compare)
 9. Pat your self on the back and wait for your pull request to be reviewed and merged.
 
 Here are a few things you can do that will increase the likelihood of your pull request being accepted:
