@@ -4856,7 +4856,7 @@ class Parser extends Transform {
       recordDelimiterMaxLength: options.record_delimiter.length === 0 ? 2 : Math.max(...options.record_delimiter.map( (v) => v.length)),
       trimChars: [Buffer.from(' ', options.encoding)[0], Buffer.from('\t', options.encoding)[0]],
       wasQuoting: false,
-      wasRecordDelimiter: false
+      wasRowDelimiter: false
     }
   }
   // Implementation of `Transform._transform`
@@ -4929,12 +4929,12 @@ class Parser extends Transform {
       if(this.__needMoreData(pos, bufLen, end)){
         break
       }
-      if(this.state.wasRecordDelimiter === true){
+      if(this.state.wasRowDelimiter === true){
         this.info.lines++
         if(info === true && this.state.record.length === 0 && this.state.field.length === 0 && this.state.wasQuoting === false){
           this.state.info = Object.assign({}, this.info)
         }
-        this.state.wasRecordDelimiter = false
+        this.state.wasRowDelimiter = false
       }
       if(to_line !== -1 && this.info.lines > to_line){
         this.state.stop = true
@@ -4952,8 +4952,8 @@ class Parser extends Transform {
       if(raw === true){
         rawBuffer.append(chr)
       }
-      if((chr === cr || chr === nl) && this.state.wasRecordDelimiter === false ){
-        this.state.wasRecordDelimiter = true
+      if((chr === cr || chr === nl) && this.state.wasRowDelimiter === false ){
+        this.state.wasRowDelimiter = true
       }
       // Previous char was a valid escape char
       // treat the current char as a regular char
@@ -5041,25 +5041,24 @@ class Parser extends Transform {
               this.info.comment_lines++
               // Skip full comment line
             }else{
+              // Activate records emition if above from_line
+              if(this.state.enabled === false && this.info.lines + (this.state.wasRowDelimiter === true ? 1: 0) >= from_line){
+                this.state.enabled = true
+                this.__resetField()
+                this.__resetRecord()
+                pos += recordDelimiterLength - 1
+                continue
+              }
               // Skip if line is empty and skip_empty_lines activated
               if(skip_empty_lines === true && this.state.wasQuoting === false && this.state.record.length === 0 && this.state.field.length === 0){
                 this.info.empty_lines++
                 pos += recordDelimiterLength - 1
                 continue
               }
-              // Activate records emition if above from_line
-              if(this.state.enabled === false && this.info.lines + (this.state.wasRecordDelimiter === true ? 1: 0 ) >= from_line){
-                this.state.enabled = true
-                this.__resetField()
-                this.__resetRecord()
-                pos += recordDelimiterLength - 1
-                continue
-              }else{
-                const errField = this.__onField()
-                if(errField !== undefined) return errField
-                const errRecord = this.__onRecord()
-                if(errRecord !== undefined) return errRecord
-              }
+              const errField = this.__onField()
+              if(errField !== undefined) return errField
+              const errRecord = this.__onRecord()
+              if(errRecord !== undefined) return errRecord
               if(to !== -1 && this.info.records >= to){
                 this.state.stop = true
                 this.push(null)
@@ -5134,7 +5133,7 @@ class Parser extends Transform {
           if(errField !== undefined) return errField
           const errRecord = this.__onRecord()
           if(errRecord !== undefined) return errRecord
-        }else if(this.state.wasRecordDelimiter === true){
+        }else if(this.state.wasRowDelimiter === true){
           this.info.empty_lines++
         }else if(this.state.commenting === true){
           this.info.comment_lines++
@@ -5143,9 +5142,9 @@ class Parser extends Transform {
     }else{
       this.state.previousBuf = buf.slice(pos)
     }
-    if(this.state.wasRecordDelimiter === true){
+    if(this.state.wasRowDelimiter === true){
       this.info.lines++
-      this.state.wasRecordDelimiter = false
+      this.state.wasRowDelimiter = false
     }
   }
   __onRecord(){
