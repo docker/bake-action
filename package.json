@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
-    "csv-parse": "^4.15.0",
+    "csv-parse": "^4.15.3",
     "semver": "^7.3.4"
   },
   "devDependencies": {
