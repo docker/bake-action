@@ -5,13 +5,10 @@ on:
     branches:
       - 'master'
       - 'releases/v*'
-    paths-ignore:
-      - '**.md'
   pull_request:
     branches:
       - 'master'
-    paths-ignore:
-      - '**.md'
+      - 'releases/v*'
 
 jobs:
   test:
@@ -22,10 +19,11 @@ jobs:
         uses: actions/checkout@v2
       -
         name: Test
-        run: docker buildx bake test
+        uses: docker/bake-action@v1
+        with:
+          targets: test
       -
         name: Upload coverage
         uses: codecov/codecov-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/clover.xml

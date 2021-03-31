@@ -1,12 +1,18 @@
 name: ci
 
 on:
+  schedule:
+    - cron: '0 10 * * *' # everyday at 10am
   push:
     branches:
-      - master
+      - 'master'
+      - 'releases/v*'
+    tags:
+      - 'v*'
   pull_request:
     branches:
-      - master
+      - 'master'
+      - 'releases/v*'
 
 jobs:
   bake:
