@@ -11,7 +11,8 @@ of  this action in your workflow (i.e `docker/bake-action@v1.1.3`).
 
 ## About
 
-GitHub Action to use Docker [Buildx Bake](https://github.com/docker/buildx#buildx-bake-options-target) as a high-level build command.
+GitHub Action to use Docker [Buildx Bake](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md)
+as a high-level build command.
 
 ___
 
@@ -25,12 +26,11 @@ ___
 
 ```yaml
 name: ci
+
 on:
-  pull_request:
-    branches: master
   push:
-    branches: master
-    tags:
+    branches:
+      - 'master'
 
 jobs:
   bake:
@@ -39,9 +39,6 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -55,10 +52,6 @@ jobs:
         name: Build and push
         uses: docker/bake-action@master
         with:
-          files: |
-            ./config.hcl
-          targets: |
-            release
           push: true
 ```
 
@@ -86,13 +79,13 @@ Following inputs can be used as `step.with` keys
 | Name             | Type     | Description                        |
 |------------------|----------|------------------------------------|
 | `builder`        | String   | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action) |
-| `files`          | List/CSV | List of [bake definition files](https://github.com/docker/buildx#file-definition) |
+| `files`          | List/CSV | List of [bake definition files](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#file) |
 | `targets`        | List/CSV | List of bake targets |
 | `no-cache`       | Bool     | Do not use cache when building the image (default `false`) |
 | `pull`           | Bool     | Always attempt to pull a newer version of the image (default `false`) |
 | `load`           | Bool     | Load is a shorthand for `--set=*.output=type=docker` (default `false`) |
 | `push`           | Bool     | Push is a shorthand for `--set=*.output=type=registry` (default `false`) |
-| `set`            | List     | List of [targets values to override](https://github.com/docker/buildx#--set-targetpatternkeysubkeyvalue) (eg: `targetpattern.key=value`) |
+| `set`            | List     | List of [targets values to override](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#set) (eg: `targetpattern.key=value`) |
 
 ## Keep up-to-date with GitHub Dependabot
 
