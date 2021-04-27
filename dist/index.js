@@ -516,7 +516,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(__webpack_require__(87));
 const buildx = __importStar(__webpack_require__(295));
 const context = __importStar(__webpack_require__(842));
 const core = __importStar(__webpack_require__(186));
@@ -524,22 +523,22 @@ const exec = __importStar(__webpack_require__(514));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (os.platform() !== 'linux') {
-                core.setFailed('Only supported on linux platform');
-                return;
-            }
+            core.startGroup(`Docker info`);
+            yield exec.exec('docker', ['version']);
+            yield exec.exec('docker', ['info']);
+            core.endGroup();
             if (!(yield buildx.isAvailable())) {
-                core.setFailed(`Buildx is required. See https://github.com/docker/setup-buildx-action to set up buildx.`);
+                core.setFailed(`Docker buildx is required. See https://github.com/docker/setup-buildx-action to set up buildx.`);
                 return;
             }
             const buildxVersion = yield buildx.getVersion();
-            core.info(`📣 Buildx version: ${buildxVersion}`);
+            core.info(`Using buildx ${buildxVersion}`);
             let inputs = yield context.getInputs();
             const args = yield context.getArgs(inputs, buildxVersion);
-            core.startGroup(`💡 Bake definition`);
+            core.startGroup(`Bake definition`);
             yield exec.exec('docker', [...args, '--print']);
             core.endGroup();
-            core.info(`🏃 Building...`);
+            core.info(`Building...`);
             yield exec.exec('docker', args);
         }
         catch (error) {

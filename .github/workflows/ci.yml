@@ -43,7 +43,6 @@ jobs:
           driver-opts: network=host
       -
         name: Build and push
-        id: docker_build
         uses: ./
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -52,6 +51,37 @@ jobs:
           targets: |
             ${{ matrix.target }}
           push: false # set to true when https://github.com/docker/buildx/issues/179 is fixed
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v1
+
+  error:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Stop docker
+        run: |
+          sudo systemctl stop docker
+      -
+        name: Build
+        id: bake
+        continue-on-error: true
+        uses: ./
+        with:
+          files: |
+            ./test/config.hcl
+      -
+        name: Check
+        run: |
+          echo "${{ toJson(steps.bake) }}"
+          if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
+            echo "::error::Should have failed"
+            exit 1
+          fi
       -
         name: Dump context
         if: always()
