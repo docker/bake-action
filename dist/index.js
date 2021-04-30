@@ -5716,9 +5716,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.asyncForEach = exports.getInputList = exports.getArgs = exports.getInputs = void 0;
+exports.setOutput = exports.asyncForEach = exports.getInputList = exports.getArgs = exports.getInputs = void 0;
 const sync_1 = __importDefault(__webpack_require__(750));
 const core = __importStar(__webpack_require__(186));
+const command_1 = __webpack_require__(241);
 function getInputs() {
     return __awaiter(this, void 0, void 0, function* () {
         return {
@@ -5806,6 +5807,11 @@ exports.asyncForEach = (array, callback) => __awaiter(void 0, void 0, void 0, fu
         yield callback(array[index], index, array);
     }
 });
+// FIXME: Temp fix https://github.com/actions/toolkit/issues/777
+function setOutput(name, value) {
+    command_1.issueCommand('set-output', { name }, value);
+}
+exports.setOutput = setOutput;
 //# sourceMappingURL=context.js.map
 
 /***/ }),
