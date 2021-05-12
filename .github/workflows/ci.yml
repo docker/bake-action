@@ -54,7 +54,7 @@ jobs:
       -
         name: Dump context
         if: always()
-        uses: crazy-max/ghaction-dump-context@v1
+        uses: crazy-max/ghaction-dump-context@v1.2.0
 
   error:
     runs-on: ubuntu-latest
@@ -85,4 +85,4 @@ jobs:
       -
         name: Dump context
         if: always()
-        uses: crazy-max/ghaction-dump-context@v1
+        uses: crazy-max/ghaction-dump-context@v1.2.0
