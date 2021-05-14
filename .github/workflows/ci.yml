@@ -56,7 +56,27 @@ jobs:
         if: always()
         uses: crazy-max/ghaction-dump-context@v1
 
-  error:
+  error-msg:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Build
+        continue-on-error: true
+        uses: ./
+        with:
+          files: |
+            ./test/config.hcl
+          set: |
+            *.platform=linux/amd64,linux/ppc64le,linux/s390x
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v1
+
+  error-check:
     runs-on: ubuntu-latest
     steps:
       -

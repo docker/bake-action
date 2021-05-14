@@ -518,6 +518,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const buildx = __importStar(__webpack_require__(295));
 const context = __importStar(__webpack_require__(842));
+const mexec = __importStar(__webpack_require__(757));
 const core = __importStar(__webpack_require__(186));
 const exec = __importStar(__webpack_require__(514));
 function run() {
@@ -531,15 +532,18 @@ function run() {
                 core.setFailed(`Docker buildx is required. See https://github.com/docker/setup-buildx-action to set up buildx.`);
                 return;
             }
-            const buildxVersion = yield buildx.getVersion();
-            core.info(`Using buildx ${buildxVersion}`);
-            let inputs = yield context.getInputs();
-            const args = yield context.getArgs(inputs, buildxVersion);
+            const bxVersion = yield buildx.getVersion();
+            core.debug(`buildx version: ${bxVersion}`);
+            const inputs = yield context.getInputs();
+            const args = yield context.getArgs(inputs, bxVersion);
             core.startGroup(`Bake definition`);
             yield exec.exec('docker', [...args, '--print']);
             core.endGroup();
-            core.info(`Building...`);
-            yield exec.exec('docker', args);
+            yield mexec.exec('docker', args).then(res => {
+                if (res.stderr.length > 0 && !res.success) {
+                    throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
+                }
+            });
         }
         catch (error) {
             core.setFailed(error.message);

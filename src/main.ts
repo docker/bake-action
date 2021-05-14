@@ -1,5 +1,6 @@
 import * as buildx from './buildx';
 import * as context from './context';
+import * as mexec from './exec';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
@@ -15,18 +16,21 @@ async function run(): Promise<void> {
       return;
     }
 
-    const buildxVersion = await buildx.getVersion();
-    core.info(`Using buildx ${buildxVersion}`);
+    const bxVersion = await buildx.getVersion();
+    core.debug(`buildx version: ${bxVersion}`);
 
-    let inputs: context.Inputs = await context.getInputs();
-    const args: string[] = await context.getArgs(inputs, buildxVersion);
+    const inputs: context.Inputs = await context.getInputs();
+    const args: string[] = await context.getArgs(inputs, bxVersion);
 
     core.startGroup(`Bake definition`);
     await exec.exec('docker', [...args, '--print']);
     core.endGroup();
 
-    core.info(`Building...`);
-    await exec.exec('docker', args);
+    await mexec.exec('docker', args).then(res => {
+      if (res.stderr.length > 0 && !res.success) {
+        throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
+      }
+    });
   } catch (error) {
     core.setFailed(error.message);
   }
