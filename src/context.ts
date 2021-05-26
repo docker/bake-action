@@ -19,10 +19,10 @@ export async function getInputs(): Promise<Inputs> {
     builder: core.getInput('builder'),
     files: getInputList('files'),
     targets: getInputList('targets'),
-    noCache: /true/i.test(core.getInput('no-cache')),
-    pull: /true/i.test(core.getInput('pull')),
-    load: /true/i.test(core.getInput('load')),
-    push: /true/i.test(core.getInput('push')),
+    noCache: core.getBooleanInput('no-cache'),
+    pull: core.getBooleanInput('pull'),
+    load: core.getBooleanInput('load'),
+    push: core.getBooleanInput('push'),
     set: getInputList('set', true)
   };
 }

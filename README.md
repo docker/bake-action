@@ -14,6 +14,8 @@ of  this action in your workflow (i.e `docker/bake-action@v1.1.3`).
 GitHub Action to use Docker [Buildx Bake](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md)
 as a high-level build command.
 
+![Screenshot](.github/bake-action.png)
+
 ___
 
 * [Usage](#usage)

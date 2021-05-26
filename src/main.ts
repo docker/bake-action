@@ -17,8 +17,6 @@ async function run(): Promise<void> {
     }
 
     const bxVersion = await buildx.getVersion();
-    core.debug(`buildx version: ${bxVersion}`);
-
     const inputs: context.Inputs = await context.getInputs();
     const args: string[] = await context.getArgs(inputs, bxVersion);
 
