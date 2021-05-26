@@ -533,7 +533,6 @@ function run() {
                 return;
             }
             const bxVersion = yield buildx.getVersion();
-            core.debug(`buildx version: ${bxVersion}`);
             const inputs = yield context.getInputs();
             const args = yield context.getArgs(inputs, bxVersion);
             core.startGroup(`Bake definition`);
@@ -5797,10 +5796,10 @@ function getInputs() {
             builder: core.getInput('builder'),
             files: getInputList('files'),
             targets: getInputList('targets'),
-            noCache: /true/i.test(core.getInput('no-cache')),
-            pull: /true/i.test(core.getInput('pull')),
-            load: /true/i.test(core.getInput('load')),
-            push: /true/i.test(core.getInput('push')),
+            noCache: core.getBooleanInput('no-cache'),
+            pull: core.getBooleanInput('pull'),
+            load: core.getBooleanInput('load'),
+            push: core.getBooleanInput('push'),
             set: getInputList('set', true)
         };
     });

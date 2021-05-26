@@ -188,7 +188,7 @@ describe('setOutput', () => {
   });
 });
 
-// See: https://github.com/actions/toolkit/blob/master/packages/core/src/core.ts#L67
+// See: https://github.com/actions/toolkit/blob/a1b068ec31a042ff1e10a522d8fdf0b8869d53ca/packages/core/src/core.ts#L89
 function getInputName(name: string): string {
   return `INPUT_${name.replace(/ /g, '_').toUpperCase()}`;
 }
