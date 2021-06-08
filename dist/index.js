@@ -518,7 +518,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const buildx = __importStar(__webpack_require__(295));
 const context = __importStar(__webpack_require__(842));
-const mexec = __importStar(__webpack_require__(757));
 const core = __importStar(__webpack_require__(186));
 const exec = __importStar(__webpack_require__(514));
 function run() {
@@ -538,9 +537,13 @@ function run() {
             core.startGroup(`Bake definition`);
             yield exec.exec('docker', [...args, '--print']);
             core.endGroup();
-            yield mexec.exec('docker', args).then(res => {
-                if (res.stderr.length > 0 && !res.success) {
-                    throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)[0]}`);
+            yield exec
+                .getExecOutput('docker', args, {
+                ignoreReturnCode: true
+            })
+                .then(res => {
+                if (res.stderr.length > 0 && res.exitCode != 0) {
+                    throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)[0].trim()}`);
                 }
             });
         }
@@ -2116,22 +2119,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseVersion = exports.getVersion = exports.isAvailable = void 0;
 const semver = __importStar(__webpack_require__(383));
-const exec = __importStar(__webpack_require__(757));
+const exec = __importStar(__webpack_require__(514));
 function isAvailable() {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield exec.exec(`docker`, ['buildx'], true).then(res => {
-            if (res.stderr != '' && !res.success) {
+        return yield exec
+            .getExecOutput('docker', ['buildx'], {
+            ignoreReturnCode: true,
+            silent: true
+        })
+            .then(res => {
+            if (res.stderr.length > 0 && res.exitCode != 0) {
                 return false;
             }
-            return res.success;
+            return res.exitCode == 0;
         });
     });
 }
 exports.isAvailable = isAvailable;
 function getVersion() {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield exec.exec(`docker`, ['buildx', 'version'], true).then(res => {
-            if (res.stderr != '' && !res.success) {
+        return yield exec
+            .getExecOutput('docker', ['buildx', 'version'], {
+            ignoreReturnCode: true,
+            silent: true
+        })
+            .then(res => {
+            if (res.stderr.length > 0 && res.exitCode != 0) {
                 throw new Error(res.stderr);
             }
             return parseVersion(res.stdout);
@@ -2143,7 +2156,7 @@ function parseVersion(stdout) {
     return __awaiter(this, void 0, void 0, function* () {
         const matches = /\sv?([0-9.]+)/.exec(stdout);
         if (!matches) {
-            throw new Error(`Cannot parse Buildx version`);
+            throw new Error(`Cannot parse buildx version`);
         }
         return semver.clean(matches[1]);
     });
@@ -3961,68 +3974,6 @@ module.exports = function(data, options={}){
   return records
 }
 
-
-/***/ }),
-
-/***/ 757:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.exec = void 0;
-const aexec = __importStar(__webpack_require__(514));
-exports.exec = (command, args = [], silent) => __awaiter(void 0, void 0, void 0, function* () {
-    let stdout = '';
-    let stderr = '';
-    const options = {
-        silent: silent,
-        ignoreReturnCode: true
-    };
-    options.listeners = {
-        stdout: (data) => {
-            stdout += data.toString();
-        },
-        stderr: (data) => {
-            stderr += data.toString();
-        }
-    };
-    const returnCode = yield aexec.exec(command, args, options);
-    return {
-        success: returnCode === 0,
-        stdout: stdout.trim(),
-        stderr: stderr.trim()
-    };
-});
-//# sourceMappingURL=exec.js.map
 
 /***/ }),
 

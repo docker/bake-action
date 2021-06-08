@@ -1,5 +1,6 @@
 module.exports = {
   clearMocks: true,
+  restoreMocks: true,
   moduleFileExtensions: ['js', 'ts'],
   setupFiles: ["dotenv/config"],
   testEnvironment: 'node',
