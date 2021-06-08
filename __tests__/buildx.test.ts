@@ -2,9 +2,26 @@ import * as semver from 'semver';
 import * as buildx from '../src/buildx';
 import * as exec from '@actions/exec';
 
+describe('isAvailable', () => {
+  const execSpy: jest.SpyInstance = jest.spyOn(exec, 'getExecOutput');
+  execSpy.mockImplementation(() =>
+    Promise.resolve({
+      exitCode: expect.any(Number),
+      stdout: expect.any(Function),
+      stderr: expect.any(Function)
+    })
+  );
+
+  buildx.isAvailable();
+
+  expect(execSpy).toHaveBeenCalledWith(`docker`, ['buildx'], {
+    silent: true,
+    ignoreReturnCode: true
+  });
+});
+
 describe('getVersion', () => {
   it('valid', async () => {
-    await exec.exec('docker', ['buildx', 'version']);
     const version = await buildx.getVersion();
     console.log(`version: ${version}`);
     expect(semver.valid(version)).not.toBeNull();

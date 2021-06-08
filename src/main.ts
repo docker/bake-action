@@ -1,6 +1,5 @@
 import * as buildx from './buildx';
 import * as context from './context';
-import * as mexec from './exec';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
@@ -24,11 +23,15 @@ async function run(): Promise<void> {
     await exec.exec('docker', [...args, '--print']);
     core.endGroup();
 
-    await mexec.exec('docker', args).then(res => {
-      if (res.stderr.length > 0 && !res.success) {
-        throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)![0]}`);
-      }
-    });
+    await exec
+      .getExecOutput('docker', args, {
+        ignoreReturnCode: true
+      })
+      .then(res => {
+        if (res.stderr.length > 0 && res.exitCode != 0) {
+          throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)![0].trim()}`);
+        }
+      });
   } catch (error) {
     core.setFailed(error.message);
   }
