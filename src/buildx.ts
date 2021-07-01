@@ -29,10 +29,10 @@ export async function getVersion(): Promise<string> {
     });
 }
 
-export async function parseVersion(stdout: string): Promise<string> {
-  const matches = /\sv?([0-9.]+)/.exec(stdout);
+export function parseVersion(stdout: string): string {
+  const matches = /\sv?([0-9a-f]{7}|[0-9.]+)/.exec(stdout);
   if (!matches) {
     throw new Error(`Cannot parse buildx version`);
   }
-  return semver.clean(matches[1]);
+  return matches[1];
 }
