@@ -26,8 +26,8 @@ export async function getInputs(): Promise<Inputs> {
     load: core.getBooleanInput('load'),
     push: core.getBooleanInput('push'),
     set: getInputList('set', true),
-    cacheFrom: await getInputList('cache-from', true),
-    cacheTo: await getInputList('cache-to', true)
+    cacheFrom: getInputList('cache-from', true),
+    cacheTo: getInputList('cache-to', true)
   };
 }
 
@@ -48,10 +48,10 @@ async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array
     args.push('--set', set);
   });
   await asyncForEach(inputs.cacheTo, async cacheTo => {
-    args.push('--set *.cache-to=', cacheTo);
+    args.push(`--set *.cache-to=${cacheTo}`);
   });
   await asyncForEach(inputs.cacheFrom, async cacheFrom => {
-    args.push('--set *.cache-from=', cacheFrom);
+    args.push(`--set *.cache-from=${cacheFrom}`);
   });
   return args;
 }

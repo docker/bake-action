@@ -133,8 +133,8 @@ function getInputs() {
             load: core.getBooleanInput('load'),
             push: core.getBooleanInput('push'),
             set: getInputList('set', true),
-            cacheFrom: yield getInputList('cache-from', true),
-            cacheTo: yield getInputList('cache-to', true)
+            cacheFrom: getInputList('cache-from', true),
+            cacheTo: getInputList('cache-to', true)
         };
     });
 }
@@ -159,10 +159,10 @@ function getBakeArgs(inputs, buildxVersion) {
             args.push('--set', set);
         }));
         yield exports.asyncForEach(inputs.cacheTo, (cacheTo) => __awaiter(this, void 0, void 0, function* () {
-            args.push('--set *.cache-to=', cacheTo);
+            args.push(`--set *.cache-to=${cacheTo}`);
         }));
         yield exports.asyncForEach(inputs.cacheFrom, (cacheFrom) => __awaiter(this, void 0, void 0, function* () {
-            args.push('--set *.cache-from=', cacheFrom);
+            args.push(`--set *.cache-from=${cacheFrom}`);
         }));
         return args;
     });
