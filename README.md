@@ -87,8 +87,8 @@ Following inputs can be used as `step.with` keys
 | `load`           | Bool     | Load is a shorthand for `--set=*.output=type=docker` (default `false`) |
 | `push`           | Bool     | Push is a shorthand for `--set=*.output=type=registry` (default `false`) |
 | `set`            | List     | List of [targets values to override](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#set) (eg: `targetpattern.key=value`) |
-| `cacheTo`       | List     | List of [cache destinations](https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-to) (eg: `type=local,src=/tmp/.buildx-cache`) |
-| `cacheFrom`      | List     | List of [cache sources](https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-from) (eg: `type=local,dest=/tmp/.buildx-cache`) |
+| `cacheTo`       | List     | List of [cache destinations](https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-to) (eg: `type=local,src=/tmp/.buildx-cache`) Shorthand for `--set *.cache-to=<target>` |
+| `cacheFrom`      | List     | List of [cache sources](https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#cache-from) Shorthand for `--set *.cache-from=<target>` (eg: `type=local,dest=/tmp/.buildx-cache`) |
 
 ## Keep up-to-date with GitHub Dependabot
 
