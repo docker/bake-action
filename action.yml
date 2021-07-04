@@ -35,6 +35,12 @@ inputs:
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
     required: false
+  cache-from:
+    description: "List of external cache sources for buildx (eg. user/app:cache, type=local,src=path/to/dir)"
+    required: false
+  cache-to:
+    description: "List of cache export destinations for buildx (eg. user/app:cache, type=local,dest=path/to/dir)"
+    required: false
 
 runs:
   using: 'node12'
