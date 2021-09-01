@@ -31,7 +31,8 @@
     "@actions/core": "^1.5.0",
     "@actions/exec": "^1.1.0",
     "csv-parse": "^4.16.2",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
