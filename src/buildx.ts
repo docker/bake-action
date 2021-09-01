@@ -1,5 +1,21 @@
+import fs from 'fs';
+import path from 'path';
 import * as semver from 'semver';
 import * as exec from '@actions/exec';
+
+import * as context from './context';
+
+export async function getMetadataFile(): Promise<string> {
+  return path.join(context.tmpDir(), 'metadata-file').split(path.sep).join(path.posix.sep);
+}
+
+export async function getMetadata(): Promise<string | undefined> {
+  const metadataFile = await getMetadataFile();
+  if (!fs.existsSync(metadataFile)) {
+    return undefined;
+  }
+  return fs.readFileSync(metadataFile, {encoding: 'utf-8'});
+}
 
 export async function isAvailable(): Promise<Boolean> {
   return await exec
@@ -35,4 +51,8 @@ export function parseVersion(stdout: string): string {
     throw new Error(`Cannot parse buildx version`);
   }
   return matches[1];
+}
+
+export function satisfies(version: string, range: string): boolean {
+  return semver.satisfies(version, range) || /^[0-9a-f]{7}$/.exec(version) !== null;
 }

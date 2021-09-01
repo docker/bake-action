@@ -1,7 +1,13 @@
 import csvparse from 'csv-parse/lib/sync';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import * as tmp from 'tmp';
 import * as buildx from './buildx';
 import * as core from '@actions/core';
 import {issueCommand} from '@actions/core/lib/command';
+
+let _tmpDir: string;
 
 export interface Inputs {
   builder: string;
@@ -12,6 +18,17 @@ export interface Inputs {
   load: boolean;
   push: boolean;
   set: string[];
+}
+
+export function tmpDir(): string {
+  if (!_tmpDir) {
+    _tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'docker-build-push-')).split(path.sep).join(path.posix.sep);
+  }
+  return _tmpDir;
+}
+
+export function tmpNameSync(options?: tmp.TmpNameOptions): string {
+  return tmp.tmpNameSync(options);
 }
 
 export async function getInputs(): Promise<Inputs> {
@@ -43,6 +60,9 @@ async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array
   await asyncForEach(inputs.set, async set => {
     args.push('--set', set);
   });
+  if (buildx.satisfies(buildxVersion, '>=0.6.0')) {
+    args.push('--metadata-file', await buildx.getMetadataFile());
+  }
   return args;
 }
 

@@ -21,6 +21,7 @@ ___
 * [Usage](#usage)
 * [Customizing](#customizing)
   * [inputs](#inputs)
+  * [outputs](#outputs)
 * [Keep up-to-date with GitHub Dependabot](#keep-up-to-date-with-github-dependabot)
 
 ## Usage
@@ -87,6 +88,14 @@ Following inputs can be used as `step.with` keys
 | `load`           | Bool     | Load is a shorthand for `--set=*.output=type=docker` (default `false`) |
 | `push`           | Bool     | Push is a shorthand for `--set=*.output=type=registry` (default `false`) |
 | `set`            | List     | List of [targets values to override](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#set) (eg: `targetpattern.key=value`) |
+
+### outputs
+
+Following outputs are available
+
+| Name              | Type    | Description                           |
+|-------------------|---------|---------------------------------------|
+| `metadata`        | JSON    | Build result metadata |
 
 ## Keep up-to-date with GitHub Dependabot
 
