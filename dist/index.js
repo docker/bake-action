@@ -56,7 +56,11 @@ function getMetadata() {
         if (!fs_1.default.existsSync(metadataFile)) {
             return undefined;
         }
-        return fs_1.default.readFileSync(metadataFile, { encoding: 'utf-8' });
+        const content = fs_1.default.readFileSync(metadataFile, { encoding: 'utf-8' }).trim();
+        if (content === 'null') {
+            return undefined;
+        }
+        return content;
     });
 }
 exports.getMetadata = getMetadata;
