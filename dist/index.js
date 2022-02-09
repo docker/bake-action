@@ -337,13 +337,13 @@ function run() {
                     throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)[0].trim()}`);
                 }
             });
-            yield core.group(`Setting outputs`, () => __awaiter(this, void 0, void 0, function* () {
-                const metadata = yield buildx.getMetadata();
-                if (metadata) {
-                    core.info(`metadata=${metadata}`);
+            const metadata = yield buildx.getMetadata();
+            if (metadata) {
+                yield core.group(`Metadata output`, () => __awaiter(this, void 0, void 0, function* () {
+                    core.info(metadata);
                     context.setOutput('metadata', metadata);
-                }
-            }));
+                }));
+            }
         }
         catch (error) {
             core.setFailed(error.message);
