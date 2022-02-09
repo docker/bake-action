@@ -36,13 +36,13 @@ async function run(): Promise<void> {
         }
       });
 
-    await core.group(`Setting outputs`, async () => {
-      const metadata = await buildx.getMetadata();
-      if (metadata) {
-        core.info(`metadata=${metadata}`);
+    const metadata = await buildx.getMetadata();
+    if (metadata) {
+      await core.group(`Metadata output`, async () => {
+        core.info(metadata);
         context.setOutput('metadata', metadata);
-      }
-    });
+      });
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
