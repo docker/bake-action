@@ -21,7 +21,7 @@ export async function getMetadata(): Promise<string | undefined> {
   return content;
 }
 
-export async function isAvailable(): Promise<Boolean> {
+export async function isAvailable(): Promise<boolean> {
   return await exec
     .getExecOutput('docker', ['buildx'], {
       ignoreReturnCode: true,

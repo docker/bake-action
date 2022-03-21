@@ -1,3 +1,4 @@
+import {describe, expect, it, jest, test} from '@jest/globals';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as semver from 'semver';
@@ -26,26 +27,17 @@ jest.spyOn(context, 'tmpNameSync').mockImplementation((): string => {
 describe('getMetadata', () => {
   it('matches', async () => {
     const metadataFile = await buildx.getMetadataFile();
-    console.log(`metadataFile: ${metadataFile}`);
     await fs.writeFileSync(metadataFile, metadata);
     const expected = await buildx.getMetadata();
-    console.log(`metadata: ${expected}`);
     expect(expected).toEqual(metadata);
   });
 });
 
 describe('isAvailable', () => {
-  const execSpy: jest.SpyInstance = jest.spyOn(exec, 'getExecOutput');
-  execSpy.mockImplementation(() =>
-    Promise.resolve({
-      exitCode: expect.any(Number),
-      stdout: expect.any(Function),
-      stderr: expect.any(Function)
-    })
-  );
-
+  const execSpy = jest.spyOn(exec, 'getExecOutput');
   buildx.isAvailable();
 
+  // eslint-disable-next-line jest/no-standalone-expect
   expect(execSpy).toHaveBeenCalledWith(`docker`, ['buildx'], {
     silent: true,
     ignoreReturnCode: true
@@ -55,7 +47,6 @@ describe('isAvailable', () => {
 describe('getVersion', () => {
   it('valid', async () => {
     const version = await buildx.getVersion();
-    console.log(`version: ${version}`);
     expect(semver.valid(version)).not.toBeNull();
   }, 100000);
 });

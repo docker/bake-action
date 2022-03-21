@@ -45,15 +45,17 @@ export async function getInputs(): Promise<Inputs> {
 }
 
 export async function getArgs(inputs: Inputs, buildxVersion: string): Promise<Array<string>> {
-  let args: Array<string> = ['buildx'];
-  args.push.apply(args, await getBakeArgs(inputs, buildxVersion));
-  args.push.apply(args, await getCommonArgs(inputs));
-  args.push.apply(args, inputs.targets);
-  return args;
+  // prettier-ignore
+  return [
+    'buildx',
+    ...await getBakeArgs(inputs, buildxVersion),
+    ...await getCommonArgs(inputs),
+    ...inputs.targets
+  ];
 }
 
 async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array<string>> {
-  let args: Array<string> = ['bake'];
+  const args: Array<string> = ['bake'];
   await asyncForEach(inputs.files, async file => {
     args.push('--file', file);
   });
@@ -67,7 +69,7 @@ async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array
 }
 
 async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
-  let args: Array<string> = [];
+  const args: Array<string> = [];
   if (inputs.noCache) {
     args.push('--no-cache');
   }
@@ -87,14 +89,14 @@ async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
 }
 
 export function getInputList(name: string, ignoreComma?: boolean): string[] {
-  let res: Array<string> = [];
+  const res: Array<string> = [];
 
   const items = core.getInput(name);
   if (items == '') {
     return res;
   }
 
-  for (let output of csvparse(items, {
+  for (const output of csvparse(items, {
     columns: false,
     relaxColumnCount: true,
     skipLinesWithEmptyValues: true
@@ -119,6 +121,6 @@ export const asyncForEach = async (array, callback) => {
 };
 
 // FIXME: Temp fix https://github.com/actions/toolkit/issues/777
-export function setOutput(name: string, value: any): void {
+export function setOutput(name: string, value: unknown): void {
   issueCommand('set-output', {name}, value);
 }
