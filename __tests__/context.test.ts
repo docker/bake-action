@@ -1,67 +1,59 @@
+import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import * as os from 'os';
 import * as context from '../src/context';
 
 describe('getInputList', () => {
   it('single line correctly', async () => {
     await setInput('foo', 'bar');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar']);
   });
 
   it('multiline correctly', async () => {
     setInput('foo', 'bar\nbaz');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('empty lines correctly', async () => {
     setInput('foo', 'bar\n\nbaz');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('comma correctly', async () => {
     setInput('foo', 'bar,baz');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('empty result correctly', async () => {
     setInput('foo', 'bar,baz,');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('different new lines correctly', async () => {
     setInput('foo', 'bar\r\nbaz');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('different new lines and comma correctly', async () => {
     setInput('foo', 'bar\r\nbaz,bat');
-    const res = await context.getInputList('foo');
-    console.log(res);
+    const res = context.getInputList('foo');
     expect(res).toEqual(['bar', 'baz', 'bat']);
   });
 
   it('multiline and ignoring comma correctly', async () => {
     setInput('cache-from', 'user/app:cache\ntype=local,src=path/to/dir');
-    const res = await context.getInputList('cache-from', true);
-    console.log(res);
+    const res = context.getInputList('cache-from', true);
     expect(res).toEqual(['user/app:cache', 'type=local,src=path/to/dir']);
   });
 
   it('different new lines and ignoring comma correctly', async () => {
     setInput('cache-from', 'user/app:cache\r\ntype=local,src=path/to/dir');
-    const res = await context.getInputList('cache-from', true);
-    console.log(res);
+    const res = context.getInputList('cache-from', true);
     expect(res).toEqual(['user/app:cache', 'type=local,src=path/to/dir']);
   });
 
@@ -74,8 +66,7 @@ bbbbbbb
 ccccccccc"
 FOO=bar`
     );
-    const res = await context.getInputList('secrets', true);
-    console.log(res);
+    const res = context.getInputList('secrets', true);
     expect(res).toEqual([
       'GIT_AUTH_TOKEN=abcdefgh,ijklmno=0123456789',
       `MYSECRET=aaaaaaaa
@@ -98,8 +89,7 @@ FOO=bar
 bbbb
 ccc"`
     );
-    const res = await context.getInputList('secrets', true);
-    console.log(res);
+    const res = context.getInputList('secrets', true);
     expect(res).toEqual([
       'GIT_AUTH_TOKEN=abcdefgh,ijklmno=0123456789',
       `MYSECRET=aaaaaaaa
@@ -122,8 +112,7 @@ bbbbbbb
 ccccccccc
 FOO=bar`
     );
-    const res = await context.getInputList('secrets', true);
-    console.log(res);
+    const res = context.getInputList('secrets', true);
     expect(res).toEqual(['GIT_AUTH_TOKEN=abcdefgh,ijklmno=0123456789', 'MYSECRET=aaaaaaaa', 'bbbbbbb', 'ccccccccc', 'FOO=bar']);
   });
 
@@ -136,12 +125,11 @@ bbbb""bbb
 ccccccccc"
 FOO=bar`
     );
-    const res = await context.getInputList('secrets', true);
-    console.log(res);
+    const res = context.getInputList('secrets', true);
     expect(res).toEqual([
       'GIT_AUTH_TOKEN=abcdefgh,ijklmno=0123456789',
       `MYSECRET=aaaaaaaa
-bbbb\"bbb
+bbbb"bbb
 ccccccccc`,
       'FOO=bar'
     ]);
@@ -163,19 +151,22 @@ describe('asyncForEach', () => {
 
 describe('setOutput', () => {
   beforeEach(() => {
-    process.stdout.write = jest.fn();
+    process.stdout.write = jest.fn() as typeof process.stdout.write;
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('setOutput produces the correct command', () => {
     context.setOutput('some output', 'some value');
     assertWriteCalls([`::set-output name=some output::some value${os.EOL}`]);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('setOutput handles bools', () => {
     context.setOutput('some output', false);
     assertWriteCalls([`::set-output name=some output::false${os.EOL}`]);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('setOutput handles numbers', () => {
     context.setOutput('some output', 1.01);
     assertWriteCalls([`::set-output name=some output::1.01${os.EOL}`]);
