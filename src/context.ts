@@ -1,4 +1,4 @@
-import csvparse from 'csv-parse/lib/sync';
+import {parse} from 'csv-parse/sync';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -96,19 +96,21 @@ export function getInputList(name: string, ignoreComma?: boolean): string[] {
     return res;
   }
 
-  for (const output of csvparse(items, {
+  const records = parse(items, {
     columns: false,
     relaxColumnCount: true,
-    skipLinesWithEmptyValues: true
-  }) as Array<string[]>) {
-    if (output.length == 1) {
-      res.push(output[0]);
+    skipEmptyLines: true
+  });
+
+  for (const record of records as Array<string[]>) {
+    if (record.length == 1) {
+      res.push(record[0]);
       continue;
     } else if (!ignoreComma) {
-      res.push(...output);
+      res.push(...record);
       continue;
     }
-    res.push(output.join(','));
+    res.push(record.join(','));
   }
 
   return res.filter(item => item).map(pat => pat.trim());
