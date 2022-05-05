@@ -1,33 +1,54 @@
 import * as fs from 'fs';
 import * as buildx from './buildx';
 import * as context from './context';
+import * as docker from './docker';
 import * as stateHelper from './state-helper';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
 async function run(): Promise<void> {
   try {
+    const inputs: context.Inputs = await context.getInputs();
+
+    // standalone if docker cli not available
+    const standalone = !(await docker.isAvailable());
+
     core.startGroup(`Docker info`);
-    await exec.exec('docker', ['version']);
-    await exec.exec('docker', ['info']);
+    if (standalone) {
+      core.info(`Docker info skipped in standalone mode`);
+    } else {
+      await exec.exec('docker', ['version'], {
+        failOnStdErr: false
+      });
+      await exec.exec('docker', ['info'], {
+        failOnStdErr: false
+      });
+    }
     core.endGroup();
 
-    if (!(await buildx.isAvailable())) {
+    if (!(await buildx.isAvailable(standalone))) {
       core.setFailed(`Docker buildx is required. See https://github.com/docker/setup-buildx-action to set up buildx.`);
       return;
     }
     stateHelper.setTmpDir(context.tmpDir());
 
-    const bxVersion = await buildx.getVersion();
-    const inputs: context.Inputs = await context.getInputs();
-    const args: string[] = await context.getArgs(inputs, bxVersion);
+    const buildxVersion = await buildx.getVersion(standalone);
+    await core.group(`Buildx version`, async () => {
+      const versionCmd = buildx.getCommand(['version'], standalone);
+      await exec.exec(versionCmd.command, versionCmd.args, {
+        failOnStdErr: false
+      });
+    });
+
+    const args: string[] = await context.getArgs(inputs, buildxVersion);
+    const buildCmd = buildx.getCommand(args, standalone);
 
     core.startGroup(`Bake definition`);
-    await exec.exec('docker', [...args, '--print']);
+    await exec.exec(buildCmd.command, [...buildCmd.args, '--print']);
     core.endGroup();
 
     await exec
-      .getExecOutput('docker', args, {
+      .getExecOutput(buildCmd.command, buildCmd.args, {
         ignoreReturnCode: true
       })
       .then(res => {

@@ -47,7 +47,6 @@ export async function getInputs(): Promise<Inputs> {
 export async function getArgs(inputs: Inputs, buildxVersion: string): Promise<Array<string>> {
   // prettier-ignore
   return [
-    'buildx',
     ...await getBakeArgs(inputs, buildxVersion),
     ...await getCommonArgs(inputs),
     ...inputs.targets
