@@ -78,16 +78,17 @@ Following inputs can be used as `step.with` keys
 > targets: default,release
 > ```
 
-| Name             | Type     | Description                        |
-|------------------|----------|------------------------------------|
-| `builder`        | String   | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action) |
-| `files`          | List/CSV | List of [bake definition files](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#file) |
-| `targets`        | List/CSV | List of bake targets |
-| `no-cache`       | Bool     | Do not use cache when building the image (default `false`) |
-| `pull`           | Bool     | Always attempt to pull a newer version of the image (default `false`) |
-| `load`           | Bool     | Load is a shorthand for `--set=*.output=type=docker` (default `false`) |
-| `push`           | Bool     | Push is a shorthand for `--set=*.output=type=registry` (default `false`) |
-| `set`            | List     | List of [targets values to override](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#set) (eg: `targetpattern.key=value`) |
+| Name       | Type     | Description                                                                                                                                          |
+|------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `builder`  | String   | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action)                                                          |
+| `files`    | List/CSV | List of [bake definition files](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#file)                                     |
+| `targets`  | List/CSV | List of bake targets                                                                                                                                 |
+| `no-cache` | Bool     | Do not use cache when building the image (default `false`)                                                                                           |
+| `pull`     | Bool     | Always attempt to pull a newer version of the image (default `false`)                                                                                |
+| `load`     | Bool     | Load is a shorthand for `--set=*.output=type=docker` (default `false`)                                                                               |
+| `push`     | Bool     | Push is a shorthand for `--set=*.output=type=registry` (default `false`)                                                                             |
+| `set`      | List     | List of [targets values to override](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#set) (eg: `targetpattern.key=value`) |
+| `source`   | String   | [Remote bake definition](https://github.com/docker/buildx/blob/master/docs/guides/bake/file-definition.md#remote-definition) to build from           |
 
 ### outputs
 

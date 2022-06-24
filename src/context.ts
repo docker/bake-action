@@ -18,6 +18,7 @@ export interface Inputs {
   load: boolean;
   push: boolean;
   set: string[];
+  source: string;
 }
 
 export function tmpDir(): string {
@@ -40,7 +41,8 @@ export async function getInputs(): Promise<Inputs> {
     pull: core.getBooleanInput('pull'),
     load: core.getBooleanInput('load'),
     push: core.getBooleanInput('push'),
-    set: getInputList('set', true)
+    set: getInputList('set', true),
+    source: core.getInput('source')
   };
 }
 
@@ -55,6 +57,9 @@ export async function getArgs(inputs: Inputs, buildxVersion: string): Promise<Ar
 
 async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array<string>> {
   const args: Array<string> = ['bake'];
+  if (inputs.source) {
+    args.push(inputs.source);
+  }
   await asyncForEach(inputs.files, async file => {
     args.push('--file', file);
   });
