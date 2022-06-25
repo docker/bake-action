@@ -57,6 +57,64 @@ jobs:
           push: true
 ```
 
+### `compose`
+
+To access the cached images from `compose`:
+
+- Set `load: true` so that the `GitHub Actions` runner can access the cached images in subsequent steps.
+- Tag the cached image with the same name as in your `compose.yaml`.
+
+`.github/workflows/tests.yml`
+```yml
+name: tests
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/bake-action@master
+        with:
+          push: false
+          load: true
+        set: |
+            web.cache-from=type=gha
+            web.cache-to=type=gha
+      -
+        name: Test via compose
+        command: docker compose run web tests
+```
+
+`compose.yaml`
+```yml
+services:
+  web:
+    build:
+      context: .
+    image: username/imagename
+    command: echo "Test run successful!"
+```
+
+> **Note:** avoid running `docker compose build` after `docker/bake-action@master` as this will rebuild the image from scratch [#81](https://github.com/docker/bake-action/issues/81#issuecomment-1162922572)
+
 ## Customizing
 
 ### inputs
