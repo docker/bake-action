@@ -51,10 +51,6 @@ jobs:
           targets: |
             ${{ matrix.target }}
           push: false # set to true when https://github.com/docker/buildx/issues/179 is fixed
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
 
   error-msg:
     runs-on: ubuntu-latest
@@ -71,10 +67,6 @@ jobs:
             ./test/config.hcl
           set: |
             *.platform=linux/amd64,linux/ppc64le,linux/s390x
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
 
   error-check:
     runs-on: ubuntu-latest
@@ -102,10 +94,6 @@ jobs:
             echo "::error::Should have failed"
             exit 1
           fi
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
 
   standalone:
     runs-on: ubuntu-latest
@@ -126,3 +114,16 @@ jobs:
         with:
           files: |
             ./test/config.hcl
+
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Build
+        uses: ./
+        with:
+          source: https://github.com/docker/buildx.git#v0.8.2
+          targets: update-docs

@@ -35,6 +35,9 @@ inputs:
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
     required: false
+  source:
+    description: "Remote bake definition to build from"
+    required: false
 
 outputs:
   metadata:
