@@ -44,11 +44,14 @@ async function run(): Promise<void> {
     const buildCmd = buildx.getCommand(args, standalone);
 
     core.startGroup(`Bake definition`);
-    await exec.exec(buildCmd.command, [...buildCmd.args, '--print']);
+    await exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
+      cwd: inputs.workdir
+    });
     core.endGroup();
 
     await exec
       .getExecOutput(buildCmd.command, buildCmd.args, {
+        cwd: inputs.workdir,
         ignoreReturnCode: true
       })
       .then(res => {
