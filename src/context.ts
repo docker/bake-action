@@ -12,6 +12,7 @@ let _tmpDir: string;
 export interface Inputs {
   builder: string;
   files: string[];
+  workdir: string;
   targets: string[];
   noCache: boolean;
   pull: boolean;
@@ -36,6 +37,7 @@ export async function getInputs(): Promise<Inputs> {
   return {
     builder: core.getInput('builder'),
     files: getInputList('files'),
+    workdir: core.getInput('workdir') || '.',
     targets: getInputList('targets'),
     noCache: core.getBooleanInput('no-cache'),
     pull: core.getBooleanInput('pull'),

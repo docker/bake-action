@@ -82,6 +82,7 @@ Following inputs can be used as `step.with` keys
 |------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `builder`  | String   | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action)                                                          |
 | `files`    | List/CSV | List of [bake definition files](https://github.com/docker/buildx/blob/master/docs/reference/buildx_bake.md#file)                                     |
+| `workdir`  | String   | Working directory of execution                                                                                                                       |
 | `targets`  | List/CSV | List of bake targets                                                                                                                                 |
 | `no-cache` | Bool     | Do not use cache when building the image (default `false`)                                                                                           |
 | `pull`     | Bool     | Always attempt to pull a newer version of the image (default `false`)                                                                                |

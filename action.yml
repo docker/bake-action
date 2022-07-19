@@ -13,6 +13,10 @@ inputs:
   files:
     description: "List of bake definition files"
     required: true
+  workdir:
+    description: "Working directory of bake execution"
+    required: false
+    default: '.'
   targets:
     description: "List of bake targets"
     required: false
