@@ -64,7 +64,7 @@ async function run(): Promise<void> {
     if (metadata) {
       await core.group(`Metadata output`, async () => {
         core.info(metadata);
-        context.setOutput('metadata', metadata);
+        core.setOutput('metadata', metadata);
       });
     }
   } catch (error) {
