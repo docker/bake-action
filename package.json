@@ -1,13 +1,12 @@
 {
   "name": "docker-buildx-bake",
   "description": "GitHub Action to use Docker Buildx Bake as a high-level build command",
-  "main": "lib/main.js",
+  "main": "src/main.ts",
   "scripts": {
-    "build": "ncc build src/main.ts --source-map --minify --license licenses.txt",
+    "build": "ncc build --source-map --minify --license licenses.txt",
     "lint": "eslint src/**/*.ts __tests__/**/*.ts",
     "format": "eslint --fix src/**/*.ts __tests__/**/*.ts",
-    "test": "jest --coverage",
-    "all": "yarn run build && yarn run format && yarn test"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
