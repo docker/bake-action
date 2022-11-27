@@ -8,7 +8,7 @@ to the public under the [project's open source license](LICENSE).
 ## Submitting a pull request
 
 1. [Fork](https://github.com/docker/bake-action/fork) and clone the repository
-2. Configure and install the dependencies: `yarn install`
+2. Configure and install the dependencies: `npm install`
 3. Create a new branch: `git checkout -b my-branch-name`
 4. Make your changes
 5. Make sure the tests pass: `docker buildx bake test`
