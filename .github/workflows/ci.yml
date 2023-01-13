@@ -51,6 +51,7 @@ jobs:
           targets: |
             ${{ matrix.target }}
           push: false # set to true when https://github.com/docker/buildx/issues/179 is fixed
+          gha-cache: min
 
   error-msg:
     runs-on: ubuntu-latest

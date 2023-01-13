@@ -42,6 +42,10 @@ inputs:
   source:
     description: "Remote bake definition to build from"
     required: false
+  gha-cache:
+    description: "Assign each target a type=gha cache-from and cache-to. Possible values: off | min | max"
+    required: false
+    default: 'off'
 
 outputs:
   metadata:

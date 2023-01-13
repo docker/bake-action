@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as tmp from 'tmp';
 import * as buildx from './buildx';
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 import {parse} from 'csv-parse/sync';
 
 let _tmpDir: string;
@@ -19,6 +20,17 @@ export interface Inputs {
   push: boolean;
   set: string[];
   source: string;
+  ghaCache: GhaCache;
+}
+
+export enum GhaCache {
+  Off = 'off',
+  Min = 'min',
+  Max = 'max'
+}
+
+interface BuildDefinitionTargets {
+  target: Map<string, object>;
 }
 
 export function tmpDir(): string {
@@ -33,6 +45,10 @@ export function tmpNameSync(options?: tmp.TmpNameOptions): string {
 }
 
 export async function getInputs(): Promise<Inputs> {
+  const ghaCache = Object.values(GhaCache).find(ghaCache => ghaCache == core.getInput('gha-cache'));
+  if (ghaCache === undefined) {
+    throw new Error(`gha-cache must be one of: off | min | max`);
+  }
   return {
     builder: core.getInput('builder'),
     files: getInputList('files'),
@@ -43,20 +59,21 @@ export async function getInputs(): Promise<Inputs> {
     load: core.getBooleanInput('load'),
     push: core.getBooleanInput('push'),
     set: getInputList('set', true),
-    source: core.getInput('source')
+    source: core.getInput('source'),
+    ghaCache: ghaCache
   };
 }
 
-export async function getArgs(inputs: Inputs, buildxVersion: string): Promise<Array<string>> {
+export async function getArgs(inputs: Inputs, buildxVersion: string, buildDefinition?: string): Promise<Array<string>> {
   // prettier-ignore
   return [
-    ...await getBakeArgs(inputs, buildxVersion),
+    ...await getBakeArgs(inputs, buildxVersion, buildDefinition),
     ...await getCommonArgs(inputs),
     ...inputs.targets
   ];
 }
 
-async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array<string>> {
+async function getBakeArgs(inputs: Inputs, buildxVersion: string, buildDefinition?: string): Promise<Array<string>> {
   const args: Array<string> = ['bake'];
   if (inputs.source) {
     args.push(inputs.source);
@@ -67,6 +84,13 @@ async function getBakeArgs(inputs: Inputs, buildxVersion: string): Promise<Array
   await asyncForEach(inputs.set, async set => {
     args.push('--set', set);
   });
+  if (buildDefinition !== undefined && inputs.ghaCache != GhaCache.Off) {
+    const targetsDefinition: BuildDefinitionTargets = JSON.parse(buildDefinition);
+    for (const target in targetsDefinition.target) {
+      args.push('--set', `${target}.cache-from=type=gha,scope=${github.context.ref}-${target}`);
+      args.push('--set', `${target}.cache-to=type=gha,mode=${inputs.ghaCache},scope=${github.context.ref}-${target}`);
+    }
+  }
   if (buildx.satisfies(buildxVersion, '>=0.6.0')) {
     args.push('--metadata-file', await buildx.getMetadataFile());
   }

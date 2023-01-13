@@ -40,8 +40,7 @@ async function run(): Promise<void> {
       });
     });
 
-    const args: string[] = await context.getArgs(inputs, buildxVersion);
-    const buildCmd = buildx.getCommand(args, standalone);
+    const buildCmd = await getBuildCommand(inputs, buildxVersion, standalone);
 
     core.startGroup(`Bake definition`);
     await exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
@@ -70,6 +69,26 @@ async function run(): Promise<void> {
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+
+async function getBuildCommand(inputs: context.Inputs, buildxVersion: string, standalone: boolean) {
+  // Two step process: invoke buildx --print to get the list of targets
+  // then generate the full buildx command line with that knowledge
+  const args: string[] = await context.getArgs(inputs, buildxVersion);
+  const buildCmd = buildx.getCommand(args, standalone);
+  let buildDefinition = '';
+  await exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
+    cwd: inputs.workdir,
+    ignoreReturnCode: true,
+    silent: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        buildDefinition += data.toString();
+      }
+    }
+  });
+  const fullArgs = await context.getArgs(inputs, buildxVersion, buildDefinition);
+  return buildx.getCommand(fullArgs, standalone);
 }
 
 async function cleanup(): Promise<void> {
