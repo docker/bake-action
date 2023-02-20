@@ -1,87 +1,72 @@
 import * as fs from 'fs';
-import * as buildx from './buildx';
-import * as context from './context';
-import * as docker from './docker';
-import * as stateHelper from './state-helper';
 import * as core from '@actions/core';
-import * as exec from '@actions/exec';
+import * as actionsToolkit from '@docker/actions-toolkit';
+import {Context} from '@docker/actions-toolkit/lib/context';
+import {Docker} from '@docker/actions-toolkit/lib/docker';
+import {Exec} from '@docker/actions-toolkit/lib/exec';
+import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 
-async function run(): Promise<void> {
-  try {
+import * as context from './context';
+import * as stateHelper from './state-helper';
+
+actionsToolkit.run(
+  // main
+  async () => {
     const inputs: context.Inputs = await context.getInputs();
+    const toolkit = new Toolkit();
 
-    // standalone if docker cli not available
-    const standalone = !(await docker.isAvailable());
+    await core.group(`Docker info`, async () => {
+      try {
+        await Docker.printVersion();
+        await Docker.printInfo();
+      } catch (e) {
+        core.info(e.message);
+      }
+    });
 
-    core.startGroup(`Docker info`);
-    if (standalone) {
-      core.info(`Docker info skipped in standalone mode`);
-    } else {
-      await exec.exec('docker', ['version'], {
-        failOnStdErr: false
-      });
-      await exec.exec('docker', ['info'], {
-        failOnStdErr: false
-      });
-    }
-    core.endGroup();
-
-    if (!(await buildx.isAvailable(standalone))) {
+    if (!(await toolkit.buildx.isAvailable())) {
       core.setFailed(`Docker buildx is required. See https://github.com/docker/setup-buildx-action to set up buildx.`);
       return;
     }
-    stateHelper.setTmpDir(context.tmpDir());
 
-    const buildxVersion = await buildx.getVersion(standalone);
+    stateHelper.setTmpDir(Context.tmpDir());
+
     await core.group(`Buildx version`, async () => {
-      const versionCmd = buildx.getCommand(['version'], standalone);
-      await exec.exec(versionCmd.command, versionCmd.args, {
-        failOnStdErr: false
+      await toolkit.buildx.printVersion();
+    });
+
+    const args: string[] = await context.getArgs(inputs, toolkit);
+    const buildCmd = await toolkit.buildx.getCommand(args);
+
+    await core.group(`Bake definition`, async () => {
+      await Exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
+        cwd: inputs.workdir
       });
     });
 
-    const args: string[] = await context.getArgs(inputs, buildxVersion);
-    const buildCmd = buildx.getCommand(args, standalone);
-
-    core.startGroup(`Bake definition`);
-    await exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
-      cwd: inputs.workdir
+    await Exec.getExecOutput(buildCmd.command, buildCmd.args, {
+      cwd: inputs.workdir,
+      ignoreReturnCode: true
+    }).then(res => {
+      if (res.stderr.length > 0 && res.exitCode != 0) {
+        throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)?.[0]?.trim() ?? 'unknown error'}`);
+      }
     });
-    core.endGroup();
 
-    await exec
-      .getExecOutput(buildCmd.command, buildCmd.args, {
-        cwd: inputs.workdir,
-        ignoreReturnCode: true
-      })
-      .then(res => {
-        if (res.stderr.length > 0 && res.exitCode != 0) {
-          throw new Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)?.[0]?.trim() ?? 'unknown error'}`);
-        }
-      });
-
-    const metadata = await buildx.getMetadata();
+    const metadata = await toolkit.buildx.inputs.resolveBuildMetadata();
     if (metadata) {
-      await core.group(`Metadata output`, async () => {
+      await core.group(`Metadata`, async () => {
         core.info(metadata);
         core.setOutput('metadata', metadata);
       });
     }
-  } catch (error) {
-    core.setFailed(error.message);
+  },
+  // post
+  async () => {
+    if (stateHelper.tmpDir.length > 0) {
+      await core.group(`Removing temp folder ${stateHelper.tmpDir}`, async () => {
+        fs.rmSync(stateHelper.tmpDir, {recursive: true});
+      });
+    }
   }
-}
-
-async function cleanup(): Promise<void> {
-  if (stateHelper.tmpDir.length > 0) {
-    core.startGroup(`Removing temp folder ${stateHelper.tmpDir}`);
-    fs.rmdirSync(stateHelper.tmpDir, {recursive: true});
-    core.endGroup();
-  }
-}
-
-if (!stateHelper.IsPost) {
-  run();
-} else {
-  cleanup();
-}
+);
