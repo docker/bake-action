@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
+import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs';
 import {Context} from '@docker/actions-toolkit/lib/context';
-import {Docker} from '@docker/actions-toolkit/lib/docker';
+import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Exec} from '@docker/actions-toolkit/lib/exec';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 
@@ -53,7 +54,7 @@ actionsToolkit.run(
       }
     });
 
-    const metadata = await toolkit.buildx.inputs.resolveBuildMetadata();
+    const metadata = await BuildxInputs.resolveBuildMetadata();
     if (metadata) {
       await core.group(`Metadata`, async () => {
         core.info(metadata);
