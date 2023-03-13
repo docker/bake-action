@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 import {Util} from '@docker/actions-toolkit/lib/util';
 
@@ -51,7 +52,7 @@ async function getBakeArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<stri
     args.push('--set', set);
   });
   if (await toolkit.buildx.versionSatisfies('>=0.6.0')) {
-    args.push('--metadata-file', toolkit.buildx.inputs.getBuildMetadataFilePath());
+    args.push('--metadata-file', BuildxInputs.getBuildMetadataFilePath());
   }
   return args;
 }

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx';
 import {Context} from '@docker/actions-toolkit/lib/context';
-import {Docker} from '@docker/actions-toolkit/lib/docker';
+import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 
 import * as context from '../src/context';
