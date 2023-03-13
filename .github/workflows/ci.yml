@@ -145,3 +145,102 @@ jobs:
         with:
           source: https://github.com/docker/buildx.git#v0.8.2
           targets: update-docs
+
+  provenance:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        attrs:
+          - ''
+          - mode=max
+          - builder-id=foo
+          - false
+          - true
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            network=host
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        uses: ./
+        with:
+          workdir: ./test/go
+          targets: binary
+          provenance: ${{ matrix.attrs }}
+          set: |
+            *.output=type=oci,dest=/tmp/build.tar
+            *.cache-from=type=gha,scope=provenance
+            *.cache-to=type=gha,scope=provenance,mode=max
+
+  sbom:
+    runs-on: ubuntu-latest
+    env:
+      DESTDIR: /tmp/bake-build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: image
+            output: type=image,name=localhost:5000/name/app:latest,push=true
+          - target: binary
+            output: /tmp/bake-build
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            network=host
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        uses: ./
+        with:
+          workdir: ./test/go
+          targets: ${{ matrix.target }}
+          sbom: true
+          set: |
+            *.output=${{ matrix.output }}
+            *.cache-from=type=gha,scope=attests-${{ matrix.target }}
+            *.cache-to=type=gha,scope=attests-${{ matrix.target }},mode=max
+      -
+        name: Inspect image
+        if: matrix.target == 'image'
+        run: |
+          docker buildx imagetools inspect localhost:5000/name/app:latest --format '{{json .}}'
+      -
+        name: Check output folder
+        if: matrix.target == 'binary'
+        working-directory: ${{ env.DESTDIR }}
+        run: |
+          tree .
+      -
+        name: Print provenance
+        if: matrix.target == 'binary'
+        working-directory: ${{ env.DESTDIR }}
+        run: |
+          cat provenance.json | jq
+      -
+        name: Print SBOM
+        if: matrix.target == 'binary'
+        working-directory: ${{ env.DESTDIR }}
+        run: |
+          cat sbom.spdx.json | jq

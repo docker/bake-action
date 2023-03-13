@@ -32,10 +32,16 @@ inputs:
     description: "Load is a shorthand for --set=*.output=type=docker"
     required: false
     default: 'false'
+  provenance:
+    description: "Provenance is a shorthand for --set=*.attest=type=provenance"
+    required: false
   push:
     description: "Push is a shorthand for --set=*.output=type=registry"
     required: false
     default: 'false'
+  sbom:
+    description: "SBOM is a shorthand for --set=*.attest=type=sbom"
+    required: false
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
     required: false
