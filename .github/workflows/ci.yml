@@ -244,3 +244,19 @@ jobs:
         working-directory: ${{ env.DESTDIR }}
         run: |
           cat sbom.spdx.json | jq
+
+  set:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Build
+        uses: ./
+        with:
+          workdir: ./test/go
+          set: |
+            *.platform=linux/amd64
+            *.output=type=image,name="registry.local/foo:v1.0.0,registry.local/foo:latest",push=false
+            *.tags=
