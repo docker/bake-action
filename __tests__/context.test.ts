@@ -265,6 +265,26 @@ describe('getArgs', () => {
         "--provenance", 'builder-id=foo'
       ]
     ],
+    [
+      9,
+      '0.10.0',
+      new Map<string, string>([
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+        ['set', `*.platform=linux/amd64,linux/ppc64le,linux/s390x\n*.output=type=image,"name=moby/buildkit:v0.11.0,moby/buildkit:latest",push=true`],
+        ['targets', `"image-all"`],
+      ]),
+      [
+        'bake',
+        '--set', '*.platform=linux/amd64,linux/ppc64le,linux/s390x',
+        '--set', `*.output=type=image,"name=moby/buildkit:v0.11.0,moby/buildkit:latest",push=true`,
+        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+        'image-all'
+      ]
+    ],
   ])(
     '[%d] given %p with %p as inputs, returns %p',
     async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>) => {
