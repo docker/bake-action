@@ -56,7 +56,7 @@ jest.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<Bu
   };
 });
 
-jest.spyOn(Bake.prototype, 'parseDefinitions').mockImplementation(async (files: Array<string>, targets: Array<string>): Promise<BakeDefinition> => {
+jest.spyOn(Bake.prototype, 'parseDefinitions').mockImplementation(async (): Promise<BakeDefinition> => {
   return JSON.parse(`{
     "group": {
       "default": {

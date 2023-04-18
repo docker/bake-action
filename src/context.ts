@@ -61,7 +61,7 @@ async function getBakeArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<stri
     args.push('--metadata-file', BuildxInputs.getBuildMetadataFilePath());
   }
   if (await toolkit.buildx.versionSatisfies('>=0.10.0')) {
-    const bakedef = await toolkit.bake.parseDefinitions([...inputs.files, inputs.source], inputs.targets, inputs.workdir);
+    const bakedef = await toolkit.bake.parseDefinitions([...inputs.files, inputs.source], inputs.targets, inputs.set, inputs.load, inputs.push, inputs.workdir);
     if (inputs.provenance) {
       args.push('--provenance', inputs.provenance);
     } else if ((await toolkit.buildkit.versionSatisfies(inputs.builder, '>=0.11.0')) && !Bake.hasDockerExporter(bakedef, inputs.load)) {
