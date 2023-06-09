@@ -32,7 +32,7 @@ export async function getInputs(): Promise<Inputs> {
     provenance: BuildxInputs.getProvenanceInput('provenance'),
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
-    set: Util.getInputList('set', {ignoreComma: true, quote: false}),
+    set: Util.getInputList('set', {ignoreComma: true}),
     source: core.getInput('source')
   };
 }
