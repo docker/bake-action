@@ -5,6 +5,7 @@ import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs'
 import {Context} from '@docker/actions-toolkit/lib/context';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Exec} from '@docker/actions-toolkit/lib/exec';
+import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 
 import * as context from './context';
@@ -15,6 +16,14 @@ actionsToolkit.run(
   async () => {
     const inputs: context.Inputs = await context.getInputs();
     const toolkit = new Toolkit();
+
+    await core.group(`GitHub Actions runtime token ACs`, async () => {
+      try {
+        await GitHub.printActionsRuntimeTokenACs();
+      } catch (e) {
+        core.warning(e.message);
+      }
+    });
 
     await core.group(`Docker info`, async () => {
       try {
