@@ -263,5 +263,6 @@ jobs:
           workdir: ./test/go
           set: |
             *.platform=linux/amd64
-            *.output=type=image,"name=localhost:5000/name/app:v1.0.0,localhost:5000/name/app:latest",push=true
+            "*.output=type=image,""name=localhost:5000/name/app:v1.0.0,localhost:5000/name/app:latest"",push=true"
+            "*.labels.foo=bar#baz"
             *.tags=
