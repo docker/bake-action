@@ -285,6 +285,25 @@ describe('getArgs', () => {
         'image-all'
       ]
     ],
+    [
+      10,
+      '0.10.0',
+      new Map<string, string>([
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+        ['set', `*.labels.foo=bar=#baz`],
+        ['targets', `"image-all"`],
+      ]),
+      [
+        'bake',
+        '--set', `*.labels.foo=bar=#baz`,
+        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+        'image-all'
+      ]
+    ],
   ])(
     '[%d] given %p with %p as inputs, returns %p',
     async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>) => {
