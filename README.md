@@ -99,9 +99,10 @@ Following inputs can be used as `step.with` keys
 
 Following outputs are available
 
-| Name       | Type | Description           |
-|------------|------|-----------------------|
-| `metadata` | JSON | Build result metadata |
+| Name       | Type   | Description           |
+|------------|--------|-----------------------|
+| `metadata` | JSON   | Build result metadata |
+| `stderr`   | String | Build stderr          |
 
 ## Contributing
 

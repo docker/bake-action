@@ -57,6 +57,7 @@ jobs:
             network=host
       -
         name: Build and push
+        id: build
         uses: ./
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -65,6 +66,29 @@ jobs:
           targets: |
             ${{ matrix.target }}
           push: false # set to true when https://github.com/docker/buildx/issues/179 is fixed
+      -
+        name: Build stderr
+        env:
+          STDERR: ${{ steps.build.outputs.stderr }}
+        run: |
+          # Confirm
+          [ ${#STDERR} -gt 0 ]
+
+          # Echo
+          cat <<'EOF'
+          ${{ steps.build.outputs.stderr }}
+          EOF
+
+          # Summary
+          cat >> $GITHUB_STEP_SUMMARY <<'EOF'
+          ## Stderr
+
+          ```
+          ${{ steps.build.outputs.stderr }}
+          ```
+
+          EOF
+
 
   error-msg:
     runs-on: ubuntu-latest
