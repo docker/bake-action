@@ -37,3 +37,8 @@ target "app-plus" {
     IAMPLUS = "true"
   }
 }
+
+target "app-proxy" {
+  inherits = ["app"]
+  dockerfile = "proxy.Dockerfile"
+}
