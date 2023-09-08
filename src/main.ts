@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
 import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs';
@@ -7,6 +8,7 @@ import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Exec} from '@docker/actions-toolkit/lib/exec';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
+import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker';
 
 import * as context from './context';
 import * as stateHelper from './state-helper';
@@ -31,6 +33,31 @@ actionsToolkit.run(
         await Docker.printInfo();
       } catch (e) {
         core.info(e.message);
+      }
+    });
+
+    await core.group(`Proxy configuration`, async () => {
+      let dockerConfig: ConfigFile | undefined;
+      let dockerConfigMalformed = false;
+      try {
+        dockerConfig = await Docker.configFile();
+      } catch (e) {
+        dockerConfigMalformed = true;
+        core.warning(`Unable to parse config file ${path.join(Docker.configDir, 'config.json')}: ${e}`);
+      }
+      if (dockerConfig && dockerConfig.proxies) {
+        for (const host in dockerConfig.proxies) {
+          let prefix = '';
+          if (Object.keys(dockerConfig.proxies).length > 1) {
+            prefix = '  ';
+            core.info(host);
+          }
+          for (const key in dockerConfig.proxies[host]) {
+            core.info(`${prefix}${key}: ${dockerConfig.proxies[host][key]}`);
+          }
+        }
+      } else if (!dockerConfigMalformed) {
+        core.info('No proxy configuration found');
       }
     });
 
