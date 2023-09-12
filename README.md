@@ -4,13 +4,6 @@
 [![Test workflow](https://img.shields.io/github/actions/workflow/status/docker/bake-action/test.yml?branch=master&label=test&logo=github&style=flat-square)](https://github.com/docker/bake-action/actions?workflow=test)
 [![Codecov](https://img.shields.io/codecov/c/github/docker/bake-action?logo=codecov&style=flat-square)](https://codecov.io/gh/docker/bake-action)
 
-## :test_tube: Experimental
-
-This repository is considered **EXPERIMENTAL** and under active development
-until further notice. It is subject to non-backward compatible changes or
-removal in any future version, so you should [pin to a specific tag/commit](https://docs.github.com/en/actions/creating-actions/about-actions#using-tags-for-release-management)
-of this action in your workflow (i.e `docker/bake-action@v1.1.3`).
-
 ## About
 
 GitHub Action to use Docker [Buildx Bake](https://docs.docker.com/build/customize/bake/)
