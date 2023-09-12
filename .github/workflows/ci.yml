@@ -53,7 +53,7 @@ jobs:
       -
         name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
@@ -129,7 +129,7 @@ jobs:
           fi
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
@@ -171,7 +171,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
@@ -212,7 +212,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
@@ -287,7 +287,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
@@ -344,7 +344,7 @@ jobs:
           echo '{"proxies":{"default":{"httpProxy":"http://127.0.0.1:3128","httpsProxy":"http://127.0.0.1:3128"}}}' > ~/.docker/config.json
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
@@ -377,7 +377,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
           driver-opts: |
