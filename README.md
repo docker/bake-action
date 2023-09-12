@@ -4,13 +4,6 @@
 [![Test workflow](https://img.shields.io/github/actions/workflow/status/docker/bake-action/test.yml?branch=master&label=test&logo=github&style=flat-square)](https://github.com/docker/bake-action/actions?workflow=test)
 [![Codecov](https://img.shields.io/codecov/c/github/docker/bake-action?logo=codecov&style=flat-square)](https://codecov.io/gh/docker/bake-action)
 
-## :test_tube: Experimental
-
-This repository is considered **EXPERIMENTAL** and under active development
-until further notice. It is subject to non-backward compatible changes or
-removal in any future version, so you should [pin to a specific tag/commit](https://docs.github.com/en/actions/creating-actions/about-actions#using-tags-for-release-management)
-of this action in your workflow (i.e `docker/bake-action@v1.1.3`).
-
 ## About
 
 GitHub Action to use Docker [Buildx Bake](https://docs.docker.com/build/customize/bake/)
@@ -42,19 +35,19 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v4
         with:
           push: true
 ```
@@ -89,7 +82,7 @@ Following inputs can be used as `step.with` keys
 | `no-cache`   | Bool        | Do not use cache when building the image (default `false`)                                                                                  |
 | `pull`       | Bool        | Always attempt to pull a newer version of the image (default `false`)                                                                       |
 | `load`       | Bool        | Load is a shorthand for `--set=*.output=type=docker` (default `false`)                                                                      |
-| `provenance` | Bool/String | [Provenance](https://docs.docker.com/build/attestations/slsa-provenance/) is a shorthand for `--set=*.attest=type=provenance`                    |
+| `provenance` | Bool/String | [Provenance](https://docs.docker.com/build/attestations/slsa-provenance/) is a shorthand for `--set=*.attest=type=provenance`               |
 | `push`       | Bool        | Push is a shorthand for `--set=*.output=type=registry` (default `false`)                                                                    |
 | `sbom`       | Bool/String | [SBOM](https://docs.docker.com/build/attestations/sbom/) is a shorthand for `--set=*.attest=type=sbom`                                      |
 | `set`        | List        | List of [targets values to override](https://docs.docker.com/engine/reference/commandline/buildx_bake/#set) (eg: `targetpattern.key=value`) |
@@ -97,7 +90,7 @@ Following inputs can be used as `step.with` keys
 
 ### outputs
 
-Following outputs are available
+The following outputs are available
 
 | Name       | Type | Description           |
 |------------|------|-----------------------|
