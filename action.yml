@@ -12,7 +12,7 @@ inputs:
     required: false
   files:
     description: "List of bake definition files"
-    required: true
+    required: false
   workdir:
     description: "Working directory of bake execution"
     required: false
