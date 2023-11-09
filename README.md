@@ -14,6 +14,8 @@ as a high-level build command.
 ___
 
 * [Usage](#usage)
+* [Subactions](#subactions)
+  * [`list-targets`](#list-targets)
 * [Customizing](#customizing)
   * [inputs](#inputs)
   * [outputs](#outputs)
@@ -50,6 +52,64 @@ jobs:
         uses: docker/bake-action@v4
         with:
           push: true
+```
+
+## Subactions
+
+### `list-targets`
+
+This subaction generates a list of Bake targets that can be used in a [GitHub matrix](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix),
+so you can distribute your builds across multiple runners.
+
+```hcl
+# docker-bake.hcl
+group "validate" {
+  targets = ["lint", "doctoc"]
+}
+
+target "lint" {
+  target = "lint"
+}
+
+target "doctoc" {
+  target = "doctoc"
+}
+```
+
+```yaml
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.matrix.outputs.targets }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Matrix
+        id: matrix
+        uses: docker/bake-action/subaction/list-targets@v4
+        with:
+          target: validate
+
+  validate:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.prepare.outputs.targets) }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Validate
+        uses: docker/bake-action@v4
+        with:
+          targets: ${{ matrix.target }}
 ```
 
 ## Customizing
