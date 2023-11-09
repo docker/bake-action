@@ -29,8 +29,9 @@ jobs:
       -
         name: Targets matrix
         id: targets
-        run: |
-          echo "matrix=$(docker buildx bake validate --print | jq -cr '.group.validate.targets')" >> $GITHUB_OUTPUT
+        uses: ./subaction/list-targets
+        with:
+          target: validate
 
   validate:
     runs-on: ubuntu-latest
