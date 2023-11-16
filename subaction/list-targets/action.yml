@@ -1,0 +1,61 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'List Bake targets'
+description: 'Generate a list of Bake targets to help distributing builds in your workflow'
+
+inputs:
+  workdir:
+    description: Working directory
+    default: '.'
+    required: false
+  files:
+    description: Comma separated list of Bake files
+    required: false
+  target:
+    description: Bake target
+    required: false
+
+outputs:
+  targets:
+    description: List of targets
+    value: ${{ steps.generate.outputs.targets }}
+
+runs:
+  using: composite
+  steps:
+    -
+      name: Generate
+      id: generate
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let def;
+          const files = `${{ inputs.files }}` ? `${{ inputs.files }}`.split(',') : [];
+          const target = `${{ inputs.target }}`;
+
+          await core.group(`Validating definition`, async () => {
+            let args = ['buildx', 'bake'];
+            for (const file of files) {
+              args.push('--file', file);
+            }
+            if (target) {
+              args.push(target);
+            }
+            args.push('--print');
+
+            const res = await exec.getExecOutput('docker', args, {
+              ignoreReturnCode: true,
+              silent: true,
+              cwd: `${{ inputs.workdir }}`
+            });
+            if (res.stderr.length > 0 && res.exitCode != 0) {
+              throw new Error(res.stderr);
+            }
+            def = JSON.parse(res.stdout.trim());
+            core.info(JSON.stringify(def, null, 2));
+          });
+
+          await core.group(`Set output`, async () => {
+            const targets = Object.keys(def.target);
+            core.info(`targets: ${JSON.stringify(targets)}`);
+            core.setOutput('targets', JSON.stringify(targets));
+          });

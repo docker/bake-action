@@ -1,0 +1,61 @@
+name: ci-subaction
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'
+  push:
+    branches:
+      - 'master'
+      - 'releases/v*'
+    tags:
+      - 'v*'
+    paths:
+      - '.github/workflows/ci-subaction.yml'
+      - 'subaction/**'
+      - 'test/**'
+  pull_request:
+    paths:
+      - '.github/workflows/ci-subaction.yml'
+      - 'subaction/**'
+      - 'test/**'
+
+jobs:
+  list-targets-group:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Matrix gen
+        id: gen
+        uses: ./subaction/list-targets
+        with:
+          workdir: ./test/group
+      -
+        name: Show matrix
+        run: |
+          echo matrix=${{ steps.gen.outputs.matrix }}
+
+  list-targets-group-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Matrix gen
+        id: gen
+        uses: ./subaction/list-targets
+        with:
+          workdir: ./test/group-matrix
+          target: validate
+      -
+        name: Show matrix
+        run: |
+          echo matrix=${{ steps.gen.outputs.matrix }}

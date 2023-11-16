@@ -23,7 +23,13 @@ on:
       - 'releases/v*'
     tags:
       - 'v*'
+    paths-ignore:
+      - '.github/workflows/ci-subaction.yml'
+      - 'subaction/**'
   pull_request:
+    paths-ignore:
+      - '.github/workflows/ci-subaction.yml'
+      - 'subaction/**'
 
 env:
   BUILDX_VERSION: latest
