@@ -81,14 +81,14 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      targets: ${{ steps.matrix.outputs.targets }}
+      targets: ${{ steps.generate.outputs.targets }}
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
       -
-        name: Matrix
-        id: matrix
+        name: List targets
+        id: generate
         uses: docker/bake-action/subaction/list-targets@v4
         with:
           target: validate
