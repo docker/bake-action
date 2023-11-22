@@ -111,6 +111,21 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 ```
+#### inputs
+
+| Name         | Type        | Description                                                                                                                                 |
+|--------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `workdir`    | String      | Working directory to use (defaults to `.`)                                                                                                  |
+| `files`      | List/CSV    | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/)                                              |
+| `target`     | String      | The target to use within the bake file                                                                                                      |
+
+#### outputs
+
+The following outputs are available
+
+| Name       | Type     | Description                |
+|------------|----------|----------------------------|
+| `targets`  | List/CSV | List of extracted targest  |
 
 ## Customizing
 
