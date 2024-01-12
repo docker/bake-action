@@ -10,6 +10,9 @@ inputs:
   builder:
     description: "Builder instance"
     required: false
+  source:
+    description: "Context to build from. Can be either local or a remote bake definition"
+    required: false
   files:
     description: "List of bake definition files"
     required: false
@@ -44,9 +47,6 @@ inputs:
     required: false
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
-    required: false
-  source:
-    description: "Remote bake definition to build from"
     required: false
 
 outputs:

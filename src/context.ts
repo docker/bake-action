@@ -1,5 +1,7 @@
 import * as core from '@actions/core';
+import * as handlebars from 'handlebars';
 import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
+import {Context} from '@docker/actions-toolkit/lib/context';
 import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
@@ -48,8 +50,14 @@ export async function getArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<s
 
 async function getBakeArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<string>> {
   const args: Array<string> = ['bake'];
-  if (inputs.source) {
-    args.push(inputs.source);
+  let source = handlebars.compile(inputs.source)({
+    defaultContext: Context.gitContext()
+  });
+  if (source === '.') {
+    source = '';
+  }
+  if (source) {
+    args.push(source);
   }
   await Util.asyncForEach(inputs.files, async file => {
     args.push('--file', file);
@@ -61,7 +69,7 @@ async function getBakeArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<stri
     args.push('--metadata-file', BuildxInputs.getBuildMetadataFilePath());
   }
   if (await toolkit.buildx.versionSatisfies('>=0.10.0')) {
-    const bakedef = await toolkit.bake.parseDefinitions([...inputs.files, inputs.source], inputs.targets, inputs.set, inputs.load, inputs.push, inputs.workdir);
+    const bakedef = await toolkit.bake.parseDefinitions([...inputs.files, source], inputs.targets, inputs.set, inputs.load, inputs.push, inputs.workdir);
     if (inputs.provenance) {
       args.push('--provenance', inputs.provenance);
     } else if ((await toolkit.buildkit.versionSatisfies(inputs.builder, '>=0.11.0')) && !Bake.hasDockerExporter(bakedef, inputs.load)) {
