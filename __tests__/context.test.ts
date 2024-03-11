@@ -304,6 +304,25 @@ describe('getArgs', () => {
         'image-all'
       ]
     ],
+    [
+      11,
+      '0.10.0',
+      new Map<string, string>([
+        ['source', '{{defaultContext}}'],
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+        ['files', './foo.hcl'],
+      ]),
+      [
+        'bake',
+        'https://github.com/docker/build-push-action.git#refs/heads/master',
+        '--file', './foo.hcl',
+        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+      ]
+    ],
   ])(
     '[%d] given %p with %p as inputs, returns %p',
     async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>) => {

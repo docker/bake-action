@@ -398,3 +398,47 @@ jobs:
         with:
           files: |
             ./test/config.hcl
+
+  git-context:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        uses: ./
+        with:
+          source: "{{defaultContext}}"
+
+  git-context-and-local:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+      -
+        name: Build
+        uses: ./
+        with:
+          source: "{{defaultContext}}"
+          files: |
+            cwd://${{ steps.meta.outputs.bake-file }}
