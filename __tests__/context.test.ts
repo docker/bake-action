@@ -130,6 +130,7 @@ describe('getArgs', () => {
       0,
       '0.4.1',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -143,6 +144,7 @@ describe('getArgs', () => {
       1,
       '0.8.2',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -157,6 +159,7 @@ describe('getArgs', () => {
       2,
       '0.8.2',
       new Map<string, string>([
+        ['source', '.'],
         ['targets', 'webapp\nvalidate'],
         ['load', 'false'],
         ['no-cache', 'false'],
@@ -173,6 +176,7 @@ describe('getArgs', () => {
       3,
       '0.8.2',
       new Map<string, string>([
+        ['source', '.'],
         ['set', '*.cache-from=type=gha\n*.cache-to=type=gha'],
         ['load', 'false'],
         ['no-cache', 'false'],
@@ -190,6 +194,7 @@ describe('getArgs', () => {
       4,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -205,6 +210,7 @@ describe('getArgs', () => {
       5,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -221,6 +227,7 @@ describe('getArgs', () => {
       6,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -237,6 +244,7 @@ describe('getArgs', () => {
       7,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -253,6 +261,7 @@ describe('getArgs', () => {
       8,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -269,6 +278,7 @@ describe('getArgs', () => {
       9,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -289,6 +299,7 @@ describe('getArgs', () => {
       10,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -308,7 +319,6 @@ describe('getArgs', () => {
       11,
       '0.10.0',
       new Map<string, string>([
-        ['source', '{{defaultContext}}'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
