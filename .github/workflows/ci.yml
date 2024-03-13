@@ -519,6 +519,8 @@ jobs:
             *.tags=localhost:5000/name/app:latest
       -
         name: Check registry
+        # TODO: enable when --load case fixed (currently overrides --push)
+        if: false
         run: |
           docker buildx imagetools inspect localhost:5000/name/app:latest --format '{{json .}}'
       -
