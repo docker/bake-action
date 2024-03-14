@@ -35,7 +35,7 @@ export async function getInputs(): Promise<Inputs> {
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
-    source: core.getInput('source')
+    source: core.getInput('source') || Context.gitContext()
   };
 }
 
