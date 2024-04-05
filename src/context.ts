@@ -6,6 +6,7 @@ import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs'
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 import {Util} from '@docker/actions-toolkit/lib/util';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
 
 export interface Inputs {
   builder: string;
@@ -35,29 +36,23 @@ export async function getInputs(): Promise<Inputs> {
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
-    source: core.getInput('source')
+    source: getSourceInput('source')
   };
 }
 
-export async function getArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<string>> {
+export async function getArgs(inputs: Inputs, definition: BakeDefinition, toolkit: Toolkit): Promise<Array<string>> {
   // prettier-ignore
   return [
-    ...await getBakeArgs(inputs, toolkit),
+    ...await getBakeArgs(inputs, definition, toolkit),
     ...await getCommonArgs(inputs),
     ...inputs.targets
   ];
 }
 
-async function getBakeArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<string>> {
+async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: Toolkit): Promise<Array<string>> {
   const args: Array<string> = ['bake'];
-  let source = handlebars.compile(inputs.source)({
-    defaultContext: Context.gitContext()
-  });
-  if (source === '.') {
-    source = '';
-  }
-  if (source) {
-    args.push(source);
+  if (inputs.source) {
+    args.push(inputs.source);
   }
   await Util.asyncForEach(inputs.files, async file => {
     args.push('--file', file);
@@ -69,10 +64,9 @@ async function getBakeArgs(inputs: Inputs, toolkit: Toolkit): Promise<Array<stri
     args.push('--metadata-file', BuildxInputs.getBuildMetadataFilePath());
   }
   if (await toolkit.buildx.versionSatisfies('>=0.10.0')) {
-    const bakedef = await toolkit.bake.parseDefinitions([...inputs.files, source], inputs.targets, inputs.set, inputs.load, inputs.push, inputs.workdir);
     if (inputs.provenance) {
       args.push('--provenance', inputs.provenance);
-    } else if ((await toolkit.buildkit.versionSatisfies(inputs.builder, '>=0.11.0')) && !Bake.hasDockerExporter(bakedef, inputs.load)) {
+    } else if ((await toolkit.buildkit.versionSatisfies(inputs.builder, '>=0.11.0')) && !Bake.hasDockerExporter(definition, inputs.load)) {
       // if provenance not specified and BuildKit version compatible for
       // attestation, set default provenance. Also needs to make sure user
       // doesn't want to explicitly load the image to docker.
@@ -110,4 +104,14 @@ async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
     args.push('--push');
   }
   return args;
+}
+
+function getSourceInput(name: string): string {
+  let source = handlebars.compile(core.getInput(name))({
+    defaultContext: Context.gitContext()
+  });
+  if (source === '.') {
+    source = '';
+  }
+  return source;
 }
