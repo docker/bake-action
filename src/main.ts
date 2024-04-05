@@ -8,6 +8,7 @@ import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Exec} from '@docker/actions-toolkit/lib/exec';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
 import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker';
 
 import * as context from './context';
@@ -72,7 +73,30 @@ actionsToolkit.run(
       await toolkit.buildx.printVersion();
     });
 
-    const args: string[] = await context.getArgs(inputs, toolkit);
+    let definition: BakeDefinition | undefined;
+    await core.group(`Parsing raw definition`, async () => {
+      definition = await toolkit.bake.getDefinition(
+        {
+          files: inputs.files,
+          load: inputs.load,
+          noCache: inputs.noCache,
+          overrides: inputs.set,
+          provenance: inputs.provenance,
+          push: inputs.push,
+          sbom: inputs.sbom,
+          source: inputs.source,
+          targets: inputs.targets
+        },
+        {
+          cwd: inputs.workdir
+        }
+      );
+    });
+    if (!definition) {
+      throw new Error('Bake definition not set');
+    }
+
+    const args: string[] = await context.getArgs(inputs, definition, toolkit);
     const buildCmd = await toolkit.buildx.getCommand(args);
 
     await core.group(`Bake definition`, async () => {

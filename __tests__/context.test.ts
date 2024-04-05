@@ -56,7 +56,7 @@ jest.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<Bu
   };
 });
 
-jest.spyOn(Bake.prototype, 'parseDefinitions').mockImplementation(async (): Promise<BakeDefinition> => {
+jest.spyOn(Bake.prototype, 'getDefinition').mockImplementation(async (): Promise<BakeDefinition> => {
   return JSON.parse(`{
     "group": {
       "default": {
@@ -334,7 +334,23 @@ describe('getArgs', () => {
         return buildxVersion;
       });
       const inp = await context.getInputs();
-      const res = await context.getArgs(inp, toolkit);
+      const definition = await toolkit.bake.getDefinition(
+        {
+          files: inp.files,
+          load: inp.load,
+          noCache: inp.noCache,
+          overrides: inp.set,
+          provenance: inp.provenance,
+          push: inp.push,
+          sbom: inp.sbom,
+          source: inp.source,
+          targets: inp.targets
+        },
+        {
+          cwd: inp.workdir
+        }
+      );
+      const res = await context.getArgs(inp, definition, toolkit);
       expect(res).toEqual(expected);
     }
   );
