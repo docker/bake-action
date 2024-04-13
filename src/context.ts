@@ -21,6 +21,7 @@ export interface Inputs {
   sbom: string;
   set: string[];
   source: string;
+  githubToken: string;
 }
 
 export async function getInputs(): Promise<Inputs> {
@@ -36,7 +37,8 @@ export async function getInputs(): Promise<Inputs> {
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
-    source: getSourceInput('source')
+    source: getSourceInput('source'),
+    githubToken: core.getInput('github-token')
   };
 }
 
