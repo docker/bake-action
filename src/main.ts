@@ -19,6 +19,7 @@ actionsToolkit.run(
   async () => {
     const inputs: context.Inputs = await context.getInputs();
     const toolkit = new Toolkit();
+    const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs.githubToken;
 
     await core.group(`GitHub Actions runtime token ACs`, async () => {
       try {
@@ -85,7 +86,8 @@ actionsToolkit.run(
           push: inputs.push,
           sbom: inputs.sbom,
           source: inputs.source,
-          targets: inputs.targets
+          targets: inputs.targets,
+          githubToken: gitAuthToken
         },
         {
           cwd: inputs.workdir
@@ -98,15 +100,22 @@ actionsToolkit.run(
 
     const args: string[] = await context.getArgs(inputs, definition, toolkit);
     const buildCmd = await toolkit.buildx.getCommand(args);
+    const buildEnv = Object.assign({}, process.env, {
+      BUILDX_BAKE_GIT_AUTH_TOKEN: gitAuthToken
+    }) as {
+      [key: string]: string;
+    };
 
     await core.group(`Bake definition`, async () => {
       await Exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
-        cwd: inputs.workdir
+        cwd: inputs.workdir,
+        env: buildEnv
       });
     });
 
     await Exec.getExecOutput(buildCmd.command, buildCmd.args, {
       cwd: inputs.workdir,
+      env: buildEnv,
       ignoreReturnCode: true
     }).then(res => {
       if (res.stderr.length > 0 && res.exitCode != 0) {

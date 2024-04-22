@@ -48,6 +48,10 @@ inputs:
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
     required: false
+  github-token:
+    description: "API token used to authenticate to a Git repository for remote definitions"
+    default: ${{ github.token }}
+    required: false
 
 outputs:
   metadata:

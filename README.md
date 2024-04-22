@@ -117,6 +117,26 @@ to the default Git context:
           push: true
 ```
 
+Building from the current repository automatically uses the `GITHUB_TOKEN`
+secret that GitHub [automatically creates for workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication),
+so you don't need to pass that manually. If you want to authenticate against
+another private repository for remote definitions, you can set the
+[`BUILDX_BAKE_GIT_AUTH_TOKEN` environment variable](https://docs.docker.com/build/building/variables/#buildx_bake_git_auth_token).
+
+> [!NOTE]
+> Supported since Buildx 0.14.0
+
+```yaml
+      -
+        name: Build and push
+        uses: docker/bake-action@v4
+        with:
+          source: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}"
+          push: true
+        env:
+          BUILDX_BAKE_GIT_AUTH_TOKEN: ${{ secrets.MYTOKEN }}
+```
+
 ## Customizing
 
 ### inputs
@@ -138,20 +158,21 @@ The following inputs can be used as `step.with` keys
 > targets: default,release
 > ```
 
-| Name         | Type        | Description                                                                                                                                                     |
-|--------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `builder`    | String      | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action)                                                                     |
-| `source`     | String      | Context to build from. Can be either local (`.`) or a [remote bake definition](https://docs.docker.com/build/customize/bake/file-definition/#remote-definition) |
-| `files`      | List/CSV    | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/)                                                                  |
-| `workdir`    | String      | Working directory of execution                                                                                                                                  |
-| `targets`    | List/CSV    | List of bake targets (`default` target used if empty)                                                                                                           |
-| `no-cache`   | Bool        | Do not use cache when building the image (default `false`)                                                                                                      |
-| `pull`       | Bool        | Always attempt to pull a newer version of the image (default `false`)                                                                                           |
-| `load`       | Bool        | Load is a shorthand for `--set=*.output=type=docker` (default `false`)                                                                                          |
-| `provenance` | Bool/String | [Provenance](https://docs.docker.com/build/attestations/slsa-provenance/) is a shorthand for `--set=*.attest=type=provenance`                                   |
-| `push`       | Bool        | Push is a shorthand for `--set=*.output=type=registry` (default `false`)                                                                                        |
-| `sbom`       | Bool/String | [SBOM](https://docs.docker.com/build/attestations/sbom/) is a shorthand for `--set=*.attest=type=sbom`                                                          |
-| `set`        | List        | List of [targets values to override](https://docs.docker.com/engine/reference/commandline/buildx_bake/#set) (eg: `targetpattern.key=value`)                     |
+| Name           | Type        | Description                                                                                                                                                        |
+|----------------|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `builder`      | String      | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action)                                                                        |
+| `source`       | String      | Context to build from. Can be either local (`.`) or a [remote bake definition](https://docs.docker.com/build/customize/bake/file-definition/#remote-definition)    |
+| `files`        | List/CSV    | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/)                                                                     |
+| `workdir`      | String      | Working directory of execution                                                                                                                                     |
+| `targets`      | List/CSV    | List of bake targets (`default` target used if empty)                                                                                                              |
+| `no-cache`     | Bool        | Do not use cache when building the image (default `false`)                                                                                                         |
+| `pull`         | Bool        | Always attempt to pull a newer version of the image (default `false`)                                                                                              |
+| `load`         | Bool        | Load is a shorthand for `--set=*.output=type=docker` (default `false`)                                                                                             |
+| `provenance`   | Bool/String | [Provenance](https://docs.docker.com/build/attestations/slsa-provenance/) is a shorthand for `--set=*.attest=type=provenance`                                      |
+| `push`         | Bool        | Push is a shorthand for `--set=*.output=type=registry` (default `false`)                                                                                           |
+| `sbom`         | Bool/String | [SBOM](https://docs.docker.com/build/attestations/sbom/) is a shorthand for `--set=*.attest=type=sbom`                                                             |
+| `set`          | List        | List of [targets values to override](https://docs.docker.com/engine/reference/commandline/buildx_bake/#set) (eg: `targetpattern.key=value`)                        |
+| `github-token` | String      | API token used to authenticate to a Git repository for [remote definitions](https://docs.docker.com/build/bake/remote-definition/) (default `${{ github.token }}`) |
 
 ### outputs
 
