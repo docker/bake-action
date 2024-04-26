@@ -2,12 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
-import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs';
+
+import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
 import {Context} from '@docker/actions-toolkit/lib/context';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Exec} from '@docker/actions-toolkit/lib/exec';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
+
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
 import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker';
 
@@ -123,11 +125,12 @@ actionsToolkit.run(
       }
     });
 
-    const metadata = await BuildxInputs.resolveBuildMetadata();
+    const metadata = Bake.resolveMetadata();
     if (metadata) {
       await core.group(`Metadata`, async () => {
-        core.info(metadata);
-        core.setOutput('metadata', metadata);
+        const metadatadt = JSON.stringify(metadata, null, 2);
+        core.info(metadatadt);
+        core.setOutput('metadata', metadatadt);
       });
     }
   },
