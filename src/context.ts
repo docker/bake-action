@@ -1,11 +1,13 @@
 import * as core from '@actions/core';
 import * as handlebars from 'handlebars';
+
 import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
+import {Build} from '@docker/actions-toolkit/lib/buildx/build';
 import {Context} from '@docker/actions-toolkit/lib/context';
-import {Inputs as BuildxInputs} from '@docker/actions-toolkit/lib/buildx/inputs';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 import {Util} from '@docker/actions-toolkit/lib/util';
+
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
 
 export interface Inputs {
@@ -33,7 +35,7 @@ export async function getInputs(): Promise<Inputs> {
     noCache: core.getBooleanInput('no-cache'),
     pull: core.getBooleanInput('pull'),
     load: core.getBooleanInput('load'),
-    provenance: BuildxInputs.getProvenanceInput('provenance'),
+    provenance: Build.getProvenanceInput('provenance'),
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
@@ -63,7 +65,7 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
     args.push('--set', set);
   });
   if (await toolkit.buildx.versionSatisfies('>=0.6.0')) {
-    args.push('--metadata-file', BuildxInputs.getBuildMetadataFilePath());
+    args.push('--metadata-file', Bake.getMetadataFilePath());
   }
   if (await toolkit.buildx.versionSatisfies('>=0.10.0')) {
     if (inputs.provenance) {
@@ -75,10 +77,10 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
       if (GitHub.context.payload.repository?.private ?? false) {
         // if this is a private repository, we set the default provenance
         // attributes being set in buildx: https://github.com/docker/buildx/blob/fb27e3f919dcbf614d7126b10c2bc2d0b1927eb6/build/build.go#L603
-        args.push('--provenance', BuildxInputs.resolveProvenanceAttrs(`mode=min,inline-only=true`));
+        args.push('--provenance', Build.resolveProvenanceAttrs(`mode=min,inline-only=true`));
       } else {
         // for a public repository, we set max provenance mode.
-        args.push('--provenance', BuildxInputs.resolveProvenanceAttrs(`mode=max`));
+        args.push('--provenance', Build.resolveProvenanceAttrs(`mode=max`));
       }
     }
     if (inputs.sbom) {

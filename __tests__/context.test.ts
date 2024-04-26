@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, jest, test} from '@jest/globals';
 import * as fs from 'fs';
 import * as path from 'path';
+
 import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
 import {Builder} from '@docker/actions-toolkit/lib/buildx/builder';
 import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx';
@@ -8,6 +9,7 @@ import {Context} from '@docker/actions-toolkit/lib/context';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
+
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
 import {BuilderInfo} from '@docker/actions-toolkit/lib/types/builder';
 import {GitHubRepo} from '@docker/actions-toolkit/lib/types/github';
