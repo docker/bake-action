@@ -5,9 +5,16 @@ ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}-alpine AS base
 RUN apk add --no-cache cpio findutils git
 WORKDIR /src
+RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/src/.yarn/cache <<EOT
+  corepack enable
+  yarn --version
+  yarn config set --home enableTelemetry 0
+EOT
 
 FROM base AS deps
 RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/src/.yarn/cache \
   --mount=type=cache,target=/src/node_modules \
   yarn install && mkdir /vendor && cp yarn.lock /vendor
 
@@ -28,6 +35,7 @@ EOT
 
 FROM deps AS build
 RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/src/.yarn/cache \
   --mount=type=cache,target=/src/node_modules \
   yarn run build && mkdir /out && cp -Rf dist /out/
 
@@ -48,20 +56,23 @@ EOT
 
 FROM deps AS format
 RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/src/.yarn/cache \
   --mount=type=cache,target=/src/node_modules \
   yarn run format \
-  && mkdir /out && find . -name '*.ts' -not -path './node_modules/*' | cpio -pdm /out
+  && mkdir /out && find . -name '*.ts' -not -path './node_modules/*' -not -path './.yarn/*' | cpio -pdm /out
 
 FROM scratch AS format-update
 COPY --from=format /out /
 
 FROM deps AS lint
 RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/src/.yarn/cache \
   --mount=type=cache,target=/src/node_modules \
   yarn run lint
 
 FROM deps AS test
 RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/src/.yarn/cache \
   --mount=type=cache,target=/src/node_modules \
   yarn run test --coverage --coverageDirectory=/tmp/coverage
 
