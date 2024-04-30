@@ -60,9 +60,9 @@ runs:
 
           await core.group(`Generating matrix`, async () => {
             let includes = [];
-            let include = { target: targetName };
             for (const targetName of Object.keys(def.target)) {
               const target = def.target[targetName];
+              let include = { target: targetName };
               if (fields.length > 0) {
                 let hasFields = false;
                 fields.forEach(field => {
