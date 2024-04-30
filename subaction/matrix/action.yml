@@ -70,12 +70,11 @@ runs:
                     hasFields = true;
                     if (Array.isArray(target[field])) {
                       target[field].forEach(value => {
-                        include[field] = value;
-                        includes.push({ ...include });
+                        const newInclude = { ...include, [field]: value };
+                        includes.push(newInclude);
                       });
                     } else {
                       include[field] = target[field];
-                      includes.push({ ...include });
                     }
                   }
                 });
