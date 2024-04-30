@@ -62,12 +62,10 @@ runs:
             let includes = [];
             for (const targetName of Object.keys(def.target)) {
               const target = def.target[targetName];
-              let include = { target: targetName };
+              let include = {};
               if (fields.length > 0) {
-                let hasFields = false;
                 fields.forEach(field => {
                   if (target[field]) {
-                    hasFields = true;
                     if (Array.isArray(target[field])) {
                       target[field].forEach(value => {
                         const newInclude = { ...include, [field]: value };
@@ -78,11 +76,12 @@ runs:
                     }
                   }
                 });
-                if (!hasFields) {
+                if (Object.keys(include).length > 0) {
+                  include['target'] = targetName;
                   includes.push(include);
                 }
               } else {
-                includes.push(include);
+                includes.push({ target: targetName });
               }
             }
             core.info(JSON.stringify(includes, null, 2));
