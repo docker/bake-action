@@ -59,30 +59,18 @@ runs:
           });
 
           await core.group(`Generating matrix`, async () => {
-            let includes = [];
+            const result: any[] = [];
             for (const targetName of Object.keys(def.target)) {
               const target = def.target[targetName];
-              let include = {};
-              if (fields.length > 0) {
-                fields.forEach(field => {
-                  if (target[field]) {
-                    if (Array.isArray(target[field])) {
-                      target[field].forEach(value => {
-                        const newInclude = { ...include, [field]: value };
-                        includes.push(newInclude);
-                      });
-                    } else {
-                      include[field] = target[field];
-                    }
-                  }
-                });
-                if (Object.keys(include).length > 0) {
-                  includes.push({ ...include, target: targetName });
-                }
+              let include = { target: targetName };
+              if (fields.every(field => field in target)) {
+                const entry: any = { target: targetName };
+                fields.forEach(field => entry[field] = target[field]);
+                result.push(entry);
               } else {
-                includes.push({ target: targetName });
+                result.push({ target: targetName, ...target });
               }
             }
-            core.info(JSON.stringify(includes, null, 2));
-            core.setOutput('includes', JSON.stringify(includes));
+            core.info(JSON.stringify(result, null, 2));
+            core.setOutput('includes', JSON.stringify(result));
           });
