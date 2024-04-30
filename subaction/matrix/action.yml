@@ -1,0 +1,98 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'Matrix'
+description: 'Generate a matrix from a Bake definition to help distributing builds in your workflow'
+
+inputs:
+  workdir:
+    description: Working directory
+    default: '.'
+    required: false
+  files:
+    description: List of Bake files
+    required: false
+  target:
+    description: Bake target
+    required: false
+  fields:
+    description: Comma separated list of extra fields to include in the matrix
+    required: false
+
+outputs:
+  matrix:
+    description: List of includes as matrix
+    value: ${{ steps.generate.outputs.includes }}
+
+runs:
+  using: composite
+  steps:
+    -
+      name: Generate
+      id: generate
+      uses: actions/github-script@v7
+      with:
+        script: |
+          let def;
+          const files = `${{ inputs.files }}` ? `${{ inputs.files }}`.split('\n') : [];
+          const target = `${{ inputs.target }}`;
+          const fields = `${{ inputs.fields }}` ? `${{ inputs.fields }}`.split(',') : [];
+
+          await core.group(`Parsing definition`, async () => {
+            let args = ['buildx', 'bake'];
+            for (const file of files) {
+              args.push('--file', file);
+            }
+            if (target) {
+              args.push(target);
+            }
+            args.push('--print');
+
+            const res = await exec.getExecOutput('docker', args, {
+              ignoreReturnCode: true,
+              silent: true,
+              cwd: `${{ inputs.workdir }}`
+            });
+            if (res.stderr.length > 0 && res.exitCode != 0) {
+              throw new Error(res.stderr);
+            }
+            def = JSON.parse(res.stdout.trim());
+            core.info(JSON.stringify(def, null, 2));
+          });
+
+          await core.group(`Generating matrix`, async () => {
+            let includes = [];
+            for (const targetName of Object.keys(def.target)) {
+              const target = def.target[targetName];
+              if (fields.length > 0) {
+                let hasFields = false;
+                fields.forEach(field => {
+                  if (target[field]) {
+                    hasFields = true;
+                    if (Array.isArray(target[field])) {
+                      target[field].forEach(value => {
+                        const include = { target: targetName };
+                        include[field] = value;
+                        includes.push(include);
+                      });
+                    } else {
+                      const include = { target: targetName };
+                      include[field] = target[field];
+                      includes.push(include);
+                    }
+                  } else {
+                    core.warning(`Field "${field}" not found in target ${targetName}`);
+                  }
+                });
+                if (!hasFields) {
+                  includes.push({
+                    target: targetName
+                  });
+                }
+              } else {
+                includes.push({
+                  target: targetName
+                });
+              }
+            }
+            core.info(JSON.stringify(includes, null, 2));
+            core.setOutput('includes', JSON.stringify(includes));
+          });
