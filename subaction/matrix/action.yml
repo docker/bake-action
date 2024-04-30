@@ -62,14 +62,21 @@ runs:
             const result = [];
             for (const targetName of Object.keys(def.target)) {
               const target = def.target[targetName];
-              let include = { target: targetName };
-              if (fields.every(field => field in target)) {
-                const entry = { target: targetName };
-                fields.forEach(field => entry[field] = target[field]);
-                result.push(entry);
-              } else {
-                result.push({ target: targetName, ...target });
-              }
+              const entry = { target: targetName };
+              Object.keys(target).forEach(field => {
+                if (fields.includes(field)) {
+                  const value = target[field];
+                  if (Array.isArray(value)) {
+                    value.forEach((v: string) => {
+                      entry[field] = v
+                      result.push({ ...entry });
+                    });
+                  } else {
+                      entry[field] = value;
+                      result.push({ ...entry });
+                  }
+                }
+              });
             }
             core.info(JSON.stringify(result, null, 2));
             core.setOutput('includes', JSON.stringify(result));
