@@ -60,6 +60,7 @@ runs:
 
           await core.group(`Generating matrix`, async () => {
             let includes = [];
+            let include = { target: targetName };
             for (const targetName of Object.keys(def.target)) {
               const target = def.target[targetName];
               if (fields.length > 0) {
@@ -69,28 +70,20 @@ runs:
                     hasFields = true;
                     if (Array.isArray(target[field])) {
                       target[field].forEach(value => {
-                        const include = { target: targetName };
                         include[field] = value;
-                        includes.push(include);
+                        includes.push({ ...include });
                       });
                     } else {
-                      const include = { target: targetName };
                       include[field] = target[field];
-                      includes.push(include);
+                      includes.push({ ...include });
                     }
-                  } else {
-                    core.warning(`Field "${field}" not found in target ${targetName}`);
                   }
                 });
                 if (!hasFields) {
-                  includes.push({
-                    target: targetName
-                  });
+                  includes.push(include);
                 }
               } else {
-                includes.push({
-                  target: targetName
-                });
+                includes.push(include);
               }
             }
             core.info(JSON.stringify(includes, null, 2));
