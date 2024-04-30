@@ -77,8 +77,7 @@ runs:
                   }
                 });
                 if (Object.keys(include).length > 0) {
-                  include['target'] = targetName;
-                  includes.push(include);
+                  includes.push({ ...include, target: targetName });
                 }
               } else {
                 includes.push({ target: targetName });
