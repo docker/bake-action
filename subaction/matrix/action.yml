@@ -59,12 +59,12 @@ runs:
           });
 
           await core.group(`Generating matrix`, async () => {
-            const result: any[] = [];
+            const result = [];
             for (const targetName of Object.keys(def.target)) {
               const target = def.target[targetName];
               let include = { target: targetName };
               if (fields.every(field => field in target)) {
-                const entry: any = { target: targetName };
+                const entry = { target: targetName };
                 fields.forEach(field => entry[field] = target[field]);
                 result.push(entry);
               } else {
