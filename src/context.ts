@@ -15,7 +15,7 @@ export interface Inputs {
   files: string[];
   workdir: string;
   targets: string[];
-  noCache: boolean;
+  'no-cache': boolean;
   pull: boolean;
   load: boolean;
   provenance: string;
@@ -23,7 +23,7 @@ export interface Inputs {
   sbom: string;
   set: string[];
   source: string;
-  githubToken: string;
+  'github-token': string;
 }
 
 export async function getInputs(): Promise<Inputs> {
@@ -32,7 +32,7 @@ export async function getInputs(): Promise<Inputs> {
     files: Util.getInputList('files'),
     workdir: core.getInput('workdir') || '.',
     targets: Util.getInputList('targets'),
-    noCache: core.getBooleanInput('no-cache'),
+    'no-cache': core.getBooleanInput('no-cache'),
     pull: core.getBooleanInput('pull'),
     load: core.getBooleanInput('load'),
     provenance: Build.getProvenanceInput('provenance'),
@@ -40,7 +40,7 @@ export async function getInputs(): Promise<Inputs> {
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
     source: getSourceInput('source'),
-    githubToken: core.getInput('github-token')
+    'github-token': core.getInput('github-token')
   };
 }
 
@@ -92,7 +92,7 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
 
 async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
   const args: Array<string> = [];
-  if (inputs.noCache) {
+  if (inputs['no-cache']) {
     args.push('--no-cache');
   }
   if (inputs.builder) {

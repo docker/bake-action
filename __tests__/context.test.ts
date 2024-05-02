@@ -340,7 +340,7 @@ describe('getArgs', () => {
         {
           files: inp.files,
           load: inp.load,
-          noCache: inp.noCache,
+          noCache: inp['no-cache'],
           overrides: inp.set,
           provenance: inp.provenance,
           push: inp.push,
