@@ -25,6 +25,7 @@ actionsToolkit.run(
 
     const inputs: context.Inputs = await context.getInputs();
     core.debug(`inputs: ${JSON.stringify(inputs)}`);
+    stateHelper.setInputs(inputs);
 
     const toolkit = new Toolkit();
     const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs['github-token'];
@@ -110,6 +111,7 @@ actionsToolkit.run(
     if (!definition) {
       throw new Error('Bake definition not set');
     }
+    stateHelper.setBakeDefinition(definition);
 
     const args: string[] = await context.getArgs(inputs, definition, toolkit);
     const buildCmd = await toolkit.buildx.getCommand(args);
@@ -170,10 +172,16 @@ actionsToolkit.run(
             refs: stateHelper.buildRefs
           });
           core.info(`Build records exported to ${exportRes.dockerbuildFilename} (${Util.formatFileSize(exportRes.dockerbuildSize)})`);
-          await GitHub.uploadArtifact({
+          const uploadRes = await GitHub.uploadArtifact({
             filename: exportRes.dockerbuildFilename,
             mimeType: 'application/gzip',
             retentionDays: 90
+          });
+          await GitHub.writeBuildSummary({
+            exportRes: exportRes,
+            uploadRes: uploadRes,
+            inputs: stateHelper.inputs,
+            bakeDefinition: stateHelper.bakeDefinition
           });
         } catch (e) {
           core.warning(e.message);
