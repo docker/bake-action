@@ -21,7 +21,7 @@ actionsToolkit.run(
   async () => {
     const inputs: context.Inputs = await context.getInputs();
     const toolkit = new Toolkit();
-    const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs.githubToken;
+    const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs['github-token'];
 
     await core.group(`GitHub Actions runtime token ACs`, async () => {
       try {
@@ -82,7 +82,7 @@ actionsToolkit.run(
         {
           files: inputs.files,
           load: inputs.load,
-          noCache: inputs.noCache,
+          noCache: inputs['no-cache'],
           overrides: inputs.set,
           provenance: inputs.provenance,
           push: inputs.push,
