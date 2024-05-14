@@ -65,7 +65,7 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
     args.push('--set', set);
   });
   if (await toolkit.buildx.versionSatisfies('>=0.6.0')) {
-    args.push('--metadata-file', Bake.getMetadataFilePath());
+    args.push('--metadata-file', toolkit.buildxBake.getMetadataFilePath());
   }
   if (await toolkit.buildx.versionSatisfies('>=0.10.0')) {
     if (inputs.provenance) {

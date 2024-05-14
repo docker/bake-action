@@ -39,6 +39,11 @@ jest.spyOn(Docker, 'isAvailable').mockImplementation(async (): Promise<boolean> 
   return true;
 });
 
+const metadataJson = path.join(tmpDir, 'metadata.json');
+jest.spyOn(Bake.prototype, 'getMetadataFilePath').mockImplementation((): string => {
+  return metadataJson;
+});
+
 jest.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<BuilderInfo> => {
   return {
     name: 'builder2',
@@ -152,7 +157,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file')
+        '--metadata-file', metadataJson
       ]
     ],
     [
@@ -167,7 +172,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         'webapp', 'validate'
       ]
     ],
@@ -185,7 +190,7 @@ describe('getArgs', () => {
         'bake',
         '--set', '*.cache-from=type=gha',
         '--set', '*.cache-to=type=gha',
-        '--metadata-file', path.join(tmpDir, 'metadata-file')
+        '--metadata-file', metadataJson
       ]
     ],
     [
@@ -199,7 +204,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
       ]
     ],
@@ -215,7 +220,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         "--provenance", `builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`
       ]
     ],
@@ -231,7 +236,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         "--provenance", `mode=max,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`
       ]
     ],
@@ -247,7 +252,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         "--provenance", 'false'
       ]
     ],
@@ -263,7 +268,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         "--provenance", 'builder-id=foo'
       ]
     ],
@@ -282,7 +287,7 @@ describe('getArgs', () => {
         'bake',
         '--set', '*.platform=linux/amd64,linux/ppc64le,linux/s390x',
         '--set', `*.output=type=image,"name=moby/buildkit:v0.11.0,moby/buildkit:latest",push=true`,
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
         'image-all'
       ]
@@ -301,7 +306,7 @@ describe('getArgs', () => {
       [
         'bake',
         '--set', `*.labels.foo=bar=#baz`,
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
         'image-all'
       ]
@@ -321,7 +326,7 @@ describe('getArgs', () => {
         'bake',
         'https://github.com/docker/build-push-action.git#refs/heads/master',
         '--file', './foo.hcl',
-        '--metadata-file', path.join(tmpDir, 'metadata-file'),
+        '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
       ]
     ],
@@ -336,7 +341,7 @@ describe('getArgs', () => {
         return buildxVersion;
       });
       const inp = await context.getInputs();
-      const definition = await toolkit.bake.getDefinition(
+      const definition = await toolkit.buildxBake.getDefinition(
         {
           files: inp.files,
           load: inp.load,

@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
 
-import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
 import {Context} from '@docker/actions-toolkit/lib/context';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import {Exec} from '@docker/actions-toolkit/lib/exec';
@@ -78,7 +77,7 @@ actionsToolkit.run(
 
     let definition: BakeDefinition | undefined;
     await core.group(`Parsing raw definition`, async () => {
-      definition = await toolkit.bake.getDefinition(
+      definition = await toolkit.buildxBake.getDefinition(
         {
           files: inputs.files,
           load: inputs.load,
@@ -125,7 +124,7 @@ actionsToolkit.run(
       }
     });
 
-    const metadata = Bake.resolveMetadata();
+    const metadata = toolkit.buildxBake.resolveMetadata();
     if (metadata) {
       await core.group(`Metadata`, async () => {
         const metadatadt = JSON.stringify(metadata, null, 2);
