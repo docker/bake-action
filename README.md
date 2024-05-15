@@ -19,6 +19,7 @@ ___
 * [Customizing](#customizing)
   * [inputs](#inputs)
   * [outputs](#outputs)
+  * [environment variables](#environment-variables)
 * [Subactions](#subactions)
   * [`list-targets`](#list-targets)
 * [Contributing](#contributing)
@@ -254,6 +255,12 @@ The following outputs are available
 | Name       | Type     | Description                |
 |------------|----------|----------------------------|
 | `targets`  | List/CSV | List of extracted targest  |
+
+### environment variables
+
+| Name                      | Type | Description                                                                                                       |
+|---------------------------|------|-------------------------------------------------------------------------------------------------------------------|
+| `DOCKER_BUILD_NO_SUMMARY` | Bool | If `true`, [build summary](https://docs.docker.com/build/ci/github-actions/build-summary/) generation is disabled |
 
 ## Contributing
 
