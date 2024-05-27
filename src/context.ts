@@ -8,7 +8,7 @@ import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 import {Util} from '@docker/actions-toolkit/lib/util';
 
-import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
 
 export interface Inputs {
   builder: string;

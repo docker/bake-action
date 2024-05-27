@@ -9,8 +9,8 @@ import {Exec} from '@docker/actions-toolkit/lib/exec';
 import {GitHub} from '@docker/actions-toolkit/lib/github';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 
-import {BakeDefinition} from '@docker/actions-toolkit/lib/types/bake';
-import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
+import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker/docker';
 
 import * as context from './context';
 import * as stateHelper from './state-helper';
