@@ -75,6 +75,11 @@ actionsToolkit.run(
       await toolkit.buildx.printVersion();
     });
 
+    await core.group(`Builder info`, async () => {
+      const builder = await toolkit.builder.inspect(inputs.builder);
+      core.info(JSON.stringify(builder, null, 2));
+    });
+
     let definition: BakeDefinition | undefined;
     await core.group(`Parsing raw definition`, async () => {
       definition = await toolkit.buildxBake.getDefinition(
