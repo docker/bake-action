@@ -205,7 +205,7 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson,
-        "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+        "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
       ]
     ],
     [
@@ -221,7 +221,7 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson,
-        "--provenance", `builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`
+        "--provenance", `builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
       ]
     ],
     [
@@ -237,7 +237,7 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson,
-        "--provenance", `mode=max,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`
+        "--provenance", `mode=max,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
       ]
     ],
     [
@@ -288,7 +288,7 @@ describe('getArgs', () => {
         '--set', '*.platform=linux/amd64,linux/ppc64le,linux/s390x',
         '--set', `*.output=type=image,"name=moby/buildkit:v0.11.0,moby/buildkit:latest",push=true`,
         '--metadata-file', metadataJson,
-        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
         'image-all'
       ]
     ],
@@ -307,7 +307,7 @@ describe('getArgs', () => {
         'bake',
         '--set', `*.labels.foo=bar=#baz`,
         '--metadata-file', metadataJson,
-        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
         'image-all'
       ]
     ],
@@ -327,7 +327,7 @@ describe('getArgs', () => {
         'https://github.com/docker/build-push-action.git#refs/heads/master',
         '--file', './foo.hcl',
         '--metadata-file', metadataJson,
-        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789`,
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
       ]
     ],
   ])(
