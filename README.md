@@ -58,7 +58,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v5
         with:
           push: true
 ```
@@ -93,7 +93,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v5
         with:
           source: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}"
           push: true
@@ -112,7 +112,7 @@ to the default Git context:
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v5
         with:
           source: "{{defaultContext}}:mysubdir"
           push: true
@@ -130,7 +130,7 @@ another private repository for remote definitions, you can set the
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v5
         with:
           source: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}"
           push: true
@@ -236,7 +236,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Validate
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v5
         with:
           targets: ${{ matrix.target }}
 ```
