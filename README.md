@@ -14,8 +14,8 @@ as a high-level build command.
 ___
 
 * [Usage](#usage)
-  * [Path context](#path-context)
   * [Git context](#git-context)
+  * [Path context](#path-context)
 * [Summaries](#summaries)
 * [Customizing](#customizing)
   * [inputs](#inputs)
@@ -27,19 +27,95 @@ ___
 
 ## Usage
 
-### Path context
+### Git context
 
-By default, this action will use the local bake definition (`source: .`), so
-you need to use the [`actions/checkout`](https://github.com/actions/checkout/)
-action to check out the repository.
+Since `v6` this action uses the [Git context](https://docs.docker.com/build/bake/remote-definition/)
+to build from a remote bake definition by default like the [build-push-action](https://github.com/docker/build-push-action)
+does. This means that you don't need to use the [`actions/checkout`](https://github.com/actions/checkout/)
+action to check out the repository as [BuildKit](https://docs.docker.com/build/buildkit/)
+will do this directly.
+
+The git reference will be based on the [event that triggered your workflow](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+and will result in the following context: `https://github.com/<owner>/<repo>.git#<ref>`.
 
 ```yaml
 name: ci
 
 on:
   push:
-    branches:
-      - 'master'
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Build and push
+        uses: docker/bake-action@v5
+        with:
+          push: true
+          set: |
+            *.tags=user/app:latest
+```
+
+Be careful because **any file mutation in the steps that precede the build step
+will be ignored, including processing of the `.dockerignore` file** since
+the context is based on the Git reference. However, you can use the
+[Path context](#path-context) using the [`source` input](#inputs) alongside
+the [`actions/checkout`](https://github.com/actions/checkout/) action to remove
+this restriction.
+
+Default Git context can also be provided using the [Handlebars template](https://handlebarsjs.com/guide/)
+expression `{{defaultContext}}`. Here we can use it to provide a subdirectory
+to the default Git context:
+
+```yaml
+      -
+        name: Build and push
+        uses: docker/bake-action@v5
+        with:
+          source: "{{defaultContext}}:mysubdir"
+          push: true
+          set: |
+            *.tags=user/app:latest
+```
+
+Building from the current repository automatically uses the `GITHUB_TOKEN`
+secret that GitHub [automatically creates for workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication),
+so you don't need to pass that manually. If you want to authenticate against
+another private repository for remote definitions, you can set the
+[`BUILDX_BAKE_GIT_AUTH_TOKEN` environment variable](https://docs.docker.com/build/building/variables/#buildx_bake_git_auth_token).
+
+> [!NOTE]
+> Supported since Buildx 0.14.0
+
+```yaml
+      -
+        name: Build and push
+        uses: docker/bake-action@v5
+        with:
+          push: true
+          set: |
+            *.tags=user/app:latest
+        env:
+          BUILDX_BAKE_GIT_AUTH_TOKEN: ${{ secrets.MYTOKEN }}
+```
+
+### Path context
+
+```yaml
+name: ci
+
+on:
+  push:
 
 jobs:
   bake:
@@ -61,82 +137,10 @@ jobs:
         name: Build and push
         uses: docker/bake-action@v5
         with:
+          source: .
           push: true
-```
-
-### Git context
-
-Git context can be provided using the [`source` input](#inputs). This means
-that you don't need to use the [`actions/checkout`](https://github.com/actions/checkout/)
-action to check out the repository as [BuildKit](https://docs.docker.com/build/buildkit/)
-will do this directly.
-
-```yaml
-name: ci
-
-on:
-  push:
-    branches:
-      - 'master'
-
-jobs:
-  bake:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
-        name: Build and push
-        uses: docker/bake-action@v5
-        with:
-          source: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}"
-          push: true
-```
-
-Be careful because **any file mutation in the steps that precede the build step
-will be ignored, including processing of the `.dockerignore` file** since
-the context is based on the Git reference. However, you can use the
-[Path context](#path-context) alongside the [`actions/checkout`](https://github.com/actions/checkout/)
-action to remove this restriction.
-
-Default Git context can also be provided using the [Handlebars template](https://handlebarsjs.com/guide/)
-expression `{{defaultContext}}`. Here we can use it to provide a subdirectory
-to the default Git context:
-
-```yaml
-      -
-        name: Build and push
-        uses: docker/bake-action@v5
-        with:
-          source: "{{defaultContext}}:mysubdir"
-          push: true
-```
-
-Building from the current repository automatically uses the `GITHUB_TOKEN`
-secret that GitHub [automatically creates for workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication),
-so you don't need to pass that manually. If you want to authenticate against
-another private repository for remote definitions, you can set the
-[`BUILDX_BAKE_GIT_AUTH_TOKEN` environment variable](https://docs.docker.com/build/building/variables/#buildx_bake_git_auth_token).
-
-> [!NOTE]
-> Supported since Buildx 0.14.0
-
-```yaml
-      -
-        name: Build and push
-        uses: docker/bake-action@v5
-        with:
-          source: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}"
-          push: true
-        env:
-          BUILDX_BAKE_GIT_AUTH_TOKEN: ${{ secrets.MYTOKEN }}
+          set: |
+            *.tags=user/app:latest
 ```
 
 ## Summaries
