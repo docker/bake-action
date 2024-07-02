@@ -523,7 +523,7 @@ jobs:
         run: |
           docker image inspect localhost:5000/name/app:latest
 
-  disable-summary:
+  summary-disable:
     runs-on: ubuntu-latest
     steps:
       -
@@ -545,6 +545,27 @@ jobs:
           targets: app
         env:
           DOCKER_BUILD_NO_SUMMARY: true
+
+  summary-not-supported:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: v0.12.1
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        uses: ./
+        with:
+          files: |
+            ./test/config.hcl
+          targets: app
 
   export-retention-days:
     runs-on: ubuntu-latest

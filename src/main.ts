@@ -13,6 +13,7 @@ import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
 import {Util} from '@docker/actions-toolkit/lib/util';
 
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
+import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder';
 import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker/docker';
 
 import * as context from './context';
@@ -83,10 +84,10 @@ actionsToolkit.run(
       await toolkit.buildx.printVersion();
     });
 
+    let builder: BuilderInfo;
     await core.group(`Builder info`, async () => {
-      const builder = await toolkit.builder.inspect(inputs.builder);
+      builder = await toolkit.builder.inspect(inputs.builder);
       core.info(JSON.stringify(builder, null, 2));
-      stateHelper.setBuilder(builder);
     });
 
     let definition: BakeDefinition | undefined;
@@ -148,33 +149,45 @@ actionsToolkit.run(
         core.setOutput('metadata', metadatadt);
       });
     }
+
+    let refs: Array<string> = [];
     await core.group(`Build references`, async () => {
-      const refs = await buildRefs(toolkit, startedTime, inputs.builder);
-      if (refs) {
+      refs = await buildRefs(toolkit, startedTime, inputs.builder);
+      if (refs.length > 0) {
         for (const ref of refs) {
           core.info(ref);
         }
         stateHelper.setBuildRefs(refs);
       } else {
-        core.warning('No build refs found');
+        core.info('No build references found');
       }
     });
+
+    await core.group(`Check build summary support`, async () => {
+      if (process.env.DOCKER_BUILD_NO_SUMMARY && Util.parseBool(process.env.DOCKER_BUILD_NO_SUMMARY)) {
+        core.info('Build summary disabled');
+      } else if (GitHub.isGHES) {
+        core.warning('Build summary is not yet supported on GHES');
+      } else if (!(await toolkit.buildx.versionSatisfies('>=0.13.0'))) {
+        core.warning('Build summary requires Buildx >= 0.13.0');
+      } else if (builder && builder.driver === 'cloud') {
+        core.warning('Build summary is not yet supported with Docker Build Cloud');
+      } else if (refs.length == 0) {
+        core.warning('Build summary requires at least one build reference');
+      } else {
+        core.info('Build summary supported!');
+        stateHelper.setSummarySupported();
+      }
+    });
+
     if (err) {
       throw err;
     }
   },
   // post
   async () => {
-    if (stateHelper.buildRefs.length > 0) {
+    if (stateHelper.isSummarySupported) {
       await core.group(`Generating build summary`, async () => {
-        if (process.env.DOCKER_BUILD_NO_SUMMARY && Util.parseBool(process.env.DOCKER_BUILD_NO_SUMMARY)) {
-          core.info('Summary disabled');
-          return;
-        }
-        if (stateHelper.builder && stateHelper.builder.driver === 'cloud') {
-          core.info('Summary is not yet supported with Docker Build Cloud');
-          return;
-        }
         try {
           const exportRetentionDays = buildExportRetentionDays();
           const buildxHistory = new BuildxHistory();
