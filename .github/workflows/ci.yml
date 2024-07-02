@@ -544,7 +544,30 @@ jobs:
             ./test/config.hcl
           targets: app
         env:
-          DOCKER_BUILD_SUMMARY_DISABLE: true
+          DOCKER_BUILD_SUMMARY: false
+
+  summary-disable-deprecated:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        uses: ./
+        with:
+          files: |
+            ./test/config.hcl
+          targets: app
+        env:
+          DOCKER_BUILD_NO_SUMMARY: true
 
   summary-not-supported:
     runs-on: ubuntu-latest
