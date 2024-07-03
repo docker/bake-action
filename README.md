@@ -23,6 +23,8 @@ ___
   * [environment variables](#environment-variables)
 * [Subactions](#subactions)
   * [`list-targets`](#list-targets)
+    * [inputs](#inputs-1)
+    * [outputs](#outputs-1)
 * [Contributing](#contributing)
 
 ## Usage
@@ -204,6 +206,14 @@ The following outputs are available
 |------------|------|-----------------------|
 | `metadata` | JSON | Build result metadata |
 
+### environment variables
+
+| Name                                 | Type   | Default | Description                                                                                                                                                                                                                                                        |
+|--------------------------------------|--------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `DOCKER_BUILD_SUMMARY`               | Bool   | `true`  | If `false`, [build summary](https://docs.docker.com/build/ci/github-actions/build-summary/) generation is disabled                                                                                                                                                 |
+| `DOCKER_BUILD_RECORD_UPLOAD`         | Bool   | `true`  | If `false`, build record upload as [GitHub artifact](https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts) is disabled                                                                                                            |
+| `DOCKER_BUILD_RECORD_RETENTION_DAYS` | Number |         | Duration after which build record artifact will expire in days. Defaults to repository/org [retention settings](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#artifact-and-log-retention-policy) if unset or `0` |
+
 ## Subactions
 
 ### `list-targets`
@@ -276,14 +286,6 @@ The following outputs are available
 | Name       | Type     | Description                |
 |------------|----------|----------------------------|
 | `targets`  | List/CSV | List of extracted targest  |
-
-### environment variables
-
-| Name                                 | Type   | Default | Description                                                                                                                                                                                                                                                        |
-|--------------------------------------|--------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DOCKER_BUILD_SUMMARY`               | Bool   | `true`  | If `false`, [build summary](https://docs.docker.com/build/ci/github-actions/build-summary/) generation is disabled                                                                                                                                                 |
-| `DOCKER_BUILD_RECORD_UPLOAD`         | Bool   | `true`  | If `false`, build record upload as [GitHub artifact](https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts) is disabled                                                                                                            |
-| `DOCKER_BUILD_RECORD_RETENTION_DAYS` | Number |         | Duration after which build record artifact will expire in days. Defaults to repository/org [retention settings](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#artifact-and-log-retention-policy) if unset or `0` |
 
 ## Contributing
 
