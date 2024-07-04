@@ -22,7 +22,7 @@ ___
   * [outputs](#outputs)
   * [environment variables](#environment-variables)
 * [Subactions](#subactions)
-  * [`list-targets`](#list-targets)
+  * [`list-targets`](subaction/list-targets)
 * [Contributing](#contributing)
 
 ## Usage
@@ -204,79 +204,6 @@ The following outputs are available
 |------------|------|-----------------------|
 | `metadata` | JSON | Build result metadata |
 
-## Subactions
-
-### `list-targets`
-
-This subaction generates a list of Bake targets that can be used in a [GitHub matrix](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix),
-so you can distribute your builds across multiple runners.
-
-```hcl
-# docker-bake.hcl
-group "validate" {
-  targets = ["lint", "doctoc"]
-}
-
-target "lint" {
-  target = "lint"
-}
-
-target "doctoc" {
-  target = "doctoc"
-}
-```
-
-```yaml
-jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      targets: ${{ steps.generate.outputs.targets }}
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: List targets
-        id: generate
-        uses: docker/bake-action/subaction/list-targets@v4
-        with:
-          target: validate
-
-  validate:
-    runs-on: ubuntu-latest
-    needs:
-      - prepare
-    strategy:
-      fail-fast: false
-      matrix:
-        target: ${{ fromJson(needs.prepare.outputs.targets) }}
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: Validate
-        uses: docker/bake-action@v5
-        with:
-          targets: ${{ matrix.target }}
-```
-#### inputs
-
-| Name         | Type        | Description                                                                                                                                 |
-|--------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `workdir`    | String      | Working directory to use (defaults to `.`)                                                                                                  |
-| `files`      | List/CSV    | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/)                                              |
-| `target`     | String      | The target to use within the bake file                                                                                                      |
-
-#### outputs
-
-The following outputs are available
-
-| Name       | Type     | Description                |
-|------------|----------|----------------------------|
-| `targets`  | List/CSV | List of extracted targest  |
-
 ### environment variables
 
 | Name                                 | Type   | Default | Description                                                                                                                                                                                                                                                        |
@@ -284,6 +211,10 @@ The following outputs are available
 | `DOCKER_BUILD_SUMMARY`               | Bool   | `true`  | If `false`, [build summary](https://docs.docker.com/build/ci/github-actions/build-summary/) generation is disabled                                                                                                                                                 |
 | `DOCKER_BUILD_RECORD_UPLOAD`         | Bool   | `true`  | If `false`, build record upload as [GitHub artifact](https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts) is disabled                                                                                                            |
 | `DOCKER_BUILD_RECORD_RETENTION_DAYS` | Number |         | Duration after which build record artifact will expire in days. Defaults to repository/org [retention settings](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#artifact-and-log-retention-policy) if unset or `0` |
+
+## Subactions
+
+* [`list-targets`](subaction/list-targets)
 
 ## Contributing
 
