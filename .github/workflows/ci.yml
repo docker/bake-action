@@ -668,3 +668,26 @@ jobs:
           workdir: ./test
           files: |
             ./lint.hcl
+
+  annotations-disabled:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        uses: ./
+        with:
+          workdir: ./test
+          files: |
+            ./lint.hcl
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
