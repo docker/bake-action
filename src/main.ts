@@ -119,7 +119,8 @@ actionsToolkit.run(
     const args: string[] = await context.getArgs(inputs, definition, toolkit);
     const buildCmd = await toolkit.buildx.getCommand(args);
     const buildEnv = Object.assign({}, process.env, {
-      BUILDX_BAKE_GIT_AUTH_TOKEN: gitAuthToken
+      BUILDX_BAKE_GIT_AUTH_TOKEN: gitAuthToken,
+      BUILDX_METADATA_WARNINGS: 'true'
     }) as {
       [key: string]: string;
     };
@@ -163,6 +164,21 @@ actionsToolkit.run(
         core.info('No build references found');
       }
     });
+
+    if (buildChecksAnnotationsEnabled()) {
+      const warnings = toolkit.buildxBake.resolveWarnings(metadata);
+      if (refs.length > 0 && warnings && warnings.length > 0) {
+        const annotations = await Buildx.convertWarningsToGitHubAnnotations(warnings, refs);
+        core.debug(`annotations: ${JSON.stringify(annotations, null, 2)}`);
+        if (annotations && annotations.length > 0) {
+          await core.group(`Generating GitHub annotations (${annotations.length} build checks found)`, async () => {
+            for (const annotation of annotations) {
+              core.warning(annotation.message, annotation);
+            }
+          });
+        }
+      }
+    }
 
     await core.group(`Check build summary support`, async () => {
       if (!buildSummaryEnabled()) {
@@ -253,6 +269,13 @@ async function buildRefs(toolkit: Toolkit, since: Date, builder?: string): Promi
     }
   }
   return refs;
+}
+
+function buildChecksAnnotationsEnabled(): boolean {
+  if (process.env.DOCKER_BUILD_CHECKS_ANNOTATIONS) {
+    return Util.parseBool(process.env.DOCKER_BUILD_CHECKS_ANNOTATIONS);
+  }
+  return true;
 }
 
 function buildSummaryEnabled(): boolean {
