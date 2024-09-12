@@ -136,6 +136,9 @@ function getSourceInput(name: string): string {
   let source = handlebars.compile(core.getInput(name))({
     defaultContext: Context.gitContext()
   });
+  if (!source) {
+    source = Context.gitContext();
+  }
   if (source === '.') {
     source = '';
   }
