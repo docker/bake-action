@@ -29,7 +29,7 @@ runs:
       with:
         script: |
           let def;
-          const files = `${{ inputs.files }}` ? `${{ inputs.files }}`.split(',') : [];
+          const files = `${{ inputs.files }}` ? `${{ inputs.files }}`.split(/[\r?\n,]+/).filter(Boolean) : [];
           const target = `${{ inputs.target }}`;
 
           await core.group(`Validating definition`, async () => {

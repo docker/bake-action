@@ -1,0 +1,14 @@
+{
+  "t3": [
+    {
+      "version": "v1",
+      "arg": "v1-value",
+      "tag": "v1-tag"
+    },
+    {
+      "version": "v2",
+      "arg": "v2-value",
+      "tag": "v2-tag"
+    }
+  ]
+}
