@@ -25,8 +25,15 @@ on:
       - 'test/**'
 
 jobs:
-  list-targets-group:
+  list-targets:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - testdir: group
+          - testdir: group-matrix
+            target: validate
     steps:
       -
         name: Checkout
@@ -36,14 +43,26 @@ jobs:
         id: gen
         uses: ./subaction/list-targets
         with:
-          workdir: ./test/group
-      -
-        name: Show matrix
-        run: |
-          echo matrix=${{ steps.gen.outputs.matrix }}
+          workdir: ./test/${{ matrix.testdir }}
+          target: ${{ matrix.target }}
 
-  list-targets-group-matrix:
+  matrix:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - testdir: group
+          - testdir: group-matrix
+            target: validate
+          - testdir: group-with-platform
+            target: validate
+          - testdir: group-with-platform
+            target: validate
+            fields: platforms
+          - testdir: group-with-platform
+            target: validate
+            fields: platforms,dockerfile
     steps:
       -
         name: Checkout
@@ -51,11 +70,8 @@ jobs:
       -
         name: Matrix gen
         id: gen
-        uses: ./subaction/list-targets
+        uses: ./subaction/matrix
         with:
-          workdir: ./test/group-matrix
-          target: validate
-      -
-        name: Show matrix
-        run: |
-          echo matrix=${{ steps.gen.outputs.matrix }}
+          workdir: ./test/${{ matrix.testdir }}
+          target: ${{ matrix.target }}
+          fields: ${{ matrix.fields }}
