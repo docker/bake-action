@@ -330,6 +330,23 @@ describe('getArgs', () => {
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
       ]
     ],
+    [
+      12,
+      '0.17.0',
+      new Map<string, string>([
+        ['allow', 'network.host'],
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+      ]),
+      [
+        'bake',
+        '--allow', 'network.host',
+        '--metadata-file', metadataJson,
+        "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+      ]
+    ],
   ])(
     '[%d] given %p with %p as inputs, returns %p',
     async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>) => {

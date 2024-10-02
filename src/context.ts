@@ -11,6 +11,7 @@ import {Util} from '@docker/actions-toolkit/lib/util';
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
 
 export interface Inputs {
+  allow: string[];
   builder: string;
   files: string[];
   workdir: string;
@@ -28,6 +29,7 @@ export interface Inputs {
 
 export async function getInputs(): Promise<Inputs> {
   return {
+    allow: Util.getInputList('allow'),
     builder: core.getInput('builder'),
     files: Util.getInputList('files'),
     workdir: core.getInput('workdir') || '.',
@@ -79,6 +81,11 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
   const args: Array<string> = ['bake'];
   if (inputs.source) {
     args.push(inputs.source);
+  }
+  if (await toolkit.buildx.versionSatisfies('>=0.17.0')) {
+    if (inputs.allow.length > 0) {
+      args.push('--allow', inputs.allow.join(','));
+    }
   }
   await Util.asyncForEach(inputs.files, async file => {
     args.push('--file', file);
