@@ -13,6 +13,9 @@ inputs:
   source:
     description: "Context to build from. Can be either local or a remote bake definition"
     required: false
+  allow:
+    description: "Allow build to access specified resources (e.g., network.host)"
+    required: false
   files:
     description: "List of bake definition files"
     required: false

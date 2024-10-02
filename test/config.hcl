@@ -42,3 +42,8 @@ target "app-proxy" {
   inherits = ["app"]
   dockerfile = "proxy.Dockerfile"
 }
+
+target "app-entitlements" {
+  inherits = ["app"]
+  entitlements = ["network.host"]
+}
