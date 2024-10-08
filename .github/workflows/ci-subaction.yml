@@ -38,9 +38,9 @@ jobs:
         with:
           workdir: ./test/group
       -
-        name: Show matrix
+        name: Show targets
         run: |
-          echo matrix=${{ steps.gen.outputs.matrix }}
+          echo targets=${{ steps.gen.outputs.targets }}
 
   list-targets-group-matrix:
     runs-on: ubuntu-latest
@@ -56,6 +56,26 @@ jobs:
           workdir: ./test/group-matrix
           target: validate
       -
-        name: Show matrix
+        name: Show targets
         run: |
-          echo matrix=${{ steps.gen.outputs.matrix }}
+          echo targets=${{ steps.gen.outputs.targets }}
+
+  list-targets-multi-files:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Matrix gen
+        id: gen
+        uses: ./subaction/list-targets
+        with:
+          workdir: ./test/multi-files
+          files: |
+            docker-bake.json
+            docker-bake.hcl
+      -
+        name: Show targets
+        run: |
+          echo targets=${{ steps.gen.outputs.targets }}
