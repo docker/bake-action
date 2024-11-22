@@ -83,9 +83,13 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
     args.push(inputs.source);
   }
   if (await toolkit.buildx.versionSatisfies('>=0.17.0')) {
-    if (inputs.allow.length > 0) {
-      args.push('--allow', inputs.allow.join(','));
+    if (await toolkit.buildx.versionSatisfies('>=0.18.0')) {
+      // allow filesystem entitlements by default
+      inputs.allow.push('fs=*');
     }
+    await Util.asyncForEach(inputs.allow, async allow => {
+      args.push('--allow', allow);
+    });
   }
   await Util.asyncForEach(inputs.files, async file => {
     args.push('--file', file);
