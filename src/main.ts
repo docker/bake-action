@@ -126,9 +126,14 @@ actionsToolkit.run(
     };
 
     await core.group(`Bake definition`, async () => {
-      await Exec.exec(buildCmd.command, [...buildCmd.args, '--print'], {
+      await Exec.getExecOutput(buildCmd.command, [...buildCmd.args, '--print'], {
         cwd: inputs.workdir,
-        env: buildEnv
+        env: buildEnv,
+        ignoreReturnCode: true
+      }).then(res => {
+        if (res.stderr.length > 0 && res.exitCode != 0) {
+          throw Error(res.stderr);
+        }
       });
     });
 
