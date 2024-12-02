@@ -694,6 +694,13 @@ jobs:
 
   allow:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        buildx-version:
+          - v0.19.0-rc2
+          - v0.18.0
+          - v0.17.1
     steps:
       -
         name: Checkout
@@ -702,7 +709,7 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          version: ${{ matrix.buildx-version }}
           driver-opts: |
             image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
       -
