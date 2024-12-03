@@ -95,6 +95,7 @@ actionsToolkit.run(
     await core.group(`Parsing raw definition`, async () => {
       definition = await toolkit.buildxBake.getDefinition(
         {
+          allow: inputs.allow,
           files: inputs.files,
           load: inputs.load,
           noCache: inputs['no-cache'],
