@@ -49,14 +49,14 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4
       -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
         name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       -
         name: Build and push
         uses: docker/bake-action@v5
@@ -84,14 +84,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      -
         name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       -
         name: Build and push
         uses: docker/bake-action@v5
