@@ -137,6 +137,7 @@ describe('getArgs', () => {
       0,
       '0.4.1',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -150,6 +151,7 @@ describe('getArgs', () => {
       1,
       '0.8.2',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -164,6 +166,7 @@ describe('getArgs', () => {
       2,
       '0.8.2',
       new Map<string, string>([
+        ['source', '.'],
         ['targets', 'webapp\nvalidate'],
         ['load', 'false'],
         ['no-cache', 'false'],
@@ -180,6 +183,7 @@ describe('getArgs', () => {
       3,
       '0.8.2',
       new Map<string, string>([
+        ['source', '.'],
         ['set', '*.cache-from=type=gha\n*.cache-to=type=gha'],
         ['load', 'false'],
         ['no-cache', 'false'],
@@ -197,6 +201,7 @@ describe('getArgs', () => {
       4,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -212,6 +217,7 @@ describe('getArgs', () => {
       5,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -228,6 +234,7 @@ describe('getArgs', () => {
       6,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -244,6 +251,7 @@ describe('getArgs', () => {
       7,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -260,6 +268,7 @@ describe('getArgs', () => {
       8,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -276,6 +285,7 @@ describe('getArgs', () => {
       9,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -296,6 +306,7 @@ describe('getArgs', () => {
       10,
       '0.10.0',
       new Map<string, string>([
+        ['source', '.'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -315,7 +326,6 @@ describe('getArgs', () => {
       11,
       '0.10.0',
       new Map<string, string>([
-        ['source', '{{defaultContext}}'],
         ['load', 'false'],
         ['no-cache', 'false'],
         ['push', 'false'],
@@ -334,6 +344,7 @@ describe('getArgs', () => {
       12,
       '0.17.0',
       new Map<string, string>([
+        ['source', '.'],
         ['allow', 'network.host'],
         ['load', 'false'],
         ['no-cache', 'false'],
@@ -345,6 +356,25 @@ describe('getArgs', () => {
         '--allow', 'network.host',
         '--metadata-file', metadataJson,
         "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+      ]
+    ],
+    [
+      13,
+      '0.15.0',
+      new Map<string, string>([
+        ['source', '{{defaultContext}}:subdir'],
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+        ['files', './foo.hcl'],
+      ]),
+      [
+        'bake',
+        'https://github.com/docker/build-push-action.git#refs/heads/master:subdir',
+        '--file', './foo.hcl',
+        '--metadata-file', metadataJson,
+        '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
       ]
     ],
   ])(
