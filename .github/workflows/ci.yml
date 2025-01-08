@@ -69,6 +69,7 @@ jobs:
         name: Build and push
         uses: ./
         with:
+          source: .
           builder: ${{ steps.buildx.outputs.name }}
           files: |
             ./test/config.hcl
@@ -87,6 +88,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
           set: |
@@ -108,6 +110,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
       -
@@ -144,10 +147,11 @@ jobs:
         name: Build
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
 
-  source:
+  remote:
     runs-on: ubuntu-latest
     steps:
       -
@@ -188,6 +192,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test/go
+          source: .
           targets: binary
           provenance: ${{ matrix.attrs }}
           set: |
@@ -229,6 +234,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test/go
+          source: .
           targets: ${{ matrix.target }}
           sbom: true
           set: |
@@ -275,6 +281,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test/go
+          source: .
           set: |
             *.platform=linux/amd64
             *.output=type=image,"name=localhost:5000/name/app:v1.0.0,localhost:5000/name/app:latest",push=true
@@ -304,6 +311,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test/group
+          source: .
           push: true
           set: |
             t1.tags=localhost:5000/name/app:t1
@@ -324,6 +332,7 @@ jobs:
         name: Build
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
 
@@ -361,6 +370,7 @@ jobs:
         name: Build
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
           targets: app-proxy
@@ -396,6 +406,7 @@ jobs:
         name: Build
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
 
@@ -415,8 +426,6 @@ jobs:
       -
         name: Build
         uses: ./
-        with:
-          source: "{{defaultContext}}"
 
   git-context-and-local:
     runs-on: ubuntu-latest
@@ -439,7 +448,6 @@ jobs:
         name: Build
         uses: ./
         with:
-          source: "{{defaultContext}}"
           files: |
             cwd://${{ steps.meta.outputs.bake-file }}
 
@@ -466,6 +474,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test/go
+          source: .
           set: |
             *.output=type=image,name=localhost:5000/name/app:latest,push=true
             *.output=type=docker,name=app:local
@@ -509,6 +518,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test/go
+          source: .
           targets: image
           load: true
           push: true
@@ -563,6 +573,7 @@ jobs:
         name: Build
         uses: ./
         with:
+          source: .
           files: |
             ./test/config.hcl
           targets: app
@@ -666,6 +677,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test
+          source: .
           files: |
             ./lint.hcl
 
@@ -687,6 +699,7 @@ jobs:
         uses: ./
         with:
           workdir: ./test
+          source: .
           files: |
             ./lint.hcl
         env:
