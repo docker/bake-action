@@ -59,7 +59,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       -
         name: Build and push
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           push: true
           set: |
@@ -80,7 +80,7 @@ to the default Git context:
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           source: "{{defaultContext}}:mysubdir"
           push: true
@@ -100,7 +100,7 @@ another private repository for remote definitions, you can set the
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           push: true
           set: |
@@ -135,7 +135,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       -
         name: Build and push
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           source: .
           push: true
