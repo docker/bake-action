@@ -42,7 +42,7 @@ jobs:
       -
         name: List targets
         id: generate
-        uses: docker/bake-action/subaction/list-targets@v4
+        uses: docker/bake-action/subaction/list-targets@v6
         with:
           target: validate
 
@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Validate
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           targets: ${{ matrix.target }}
 ```
