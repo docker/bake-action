@@ -68,6 +68,10 @@ export function sanitizeInputs(inputs: Inputs) {
   return res;
 }
 
+export function getGitAuthToken(inputs: Inputs): string {
+  return process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs['github-token'];
+}
+
 export async function getArgs(inputs: Inputs, definition: BakeDefinition, toolkit: Toolkit): Promise<Array<string>> {
   // prettier-ignore
   return [
@@ -97,6 +101,15 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
   await Util.asyncForEach(inputs.set, async set => {
     args.push('--set', set);
   });
+  if (await toolkit.buildx.versionSatisfies('<0.20.0')) {
+    // For buildx versions < 0.20.0, we need to set GIT_AUTH_TOKEN secret as it
+    // doesn't infer BUILDX_BAKE_GIT_AUTH_TOKEN environment variable for build
+    // request: https://github.com/docker/buildx/pull/2905
+    const gitAuthToken = getGitAuthToken(inputs);
+    if (gitAuthToken && !Bake.hasGitAuthTokenSecret(definition) && inputs.source.startsWith(Context.gitContext())) {
+      args.push('--set', `*.secrets=${Build.resolveSecretString(`GIT_AUTH_TOKEN=${gitAuthToken}`)}`);
+    }
+  }
   if (await toolkit.buildx.versionSatisfies('>=0.6.0')) {
     args.push('--metadata-file', toolkit.buildxBake.getMetadataFilePath());
   }
