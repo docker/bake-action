@@ -729,7 +729,6 @@ jobs:
         name: Build
         uses: ./
         with:
-          source: .
           files: |
             ./test/config.hcl
           allow: network.host

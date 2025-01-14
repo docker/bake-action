@@ -30,7 +30,7 @@ actionsToolkit.run(
     stateHelper.setInputs(inputs);
 
     const toolkit = new Toolkit();
-    const gitAuthToken = context.getGitAuthToken(inputs);
+    const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs['github-token'];
 
     await core.group(`GitHub Actions runtime token ACs`, async () => {
       try {
