@@ -22,7 +22,7 @@ on:
   pull_request:
 
 env:
-  BUILDX_VERSION: latest
+  BUILDX_VERSION: v0.18.0
   BUILDKIT_IMAGE: moby/buildkit:buildx-stable-1
 
 jobs:
@@ -73,6 +73,12 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver: docker
+      -
         name: Build
         continue-on-error: true
         uses: ./
@@ -89,9 +95,15 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver: docker
+      -
         name: Stop docker
         run: |
-          sudo systemctl stop docker
+          sudo systemctl stop docker docker.socket
       -
         name: Build
         id: bake
@@ -139,6 +151,12 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver: docker
       -
         name: Build
         uses: ./
@@ -257,6 +275,12 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver: docker
+      -
         name: Build
         uses: ./
         with:
@@ -294,3 +318,31 @@ jobs:
           set: |
             t1.tags=localhost:5000/name/app:t1
             t2.tags=localhost:5000/name/app:t2
+
+  error-buildx-latest:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: v0.20.0
+      -
+        name: Build
+        id: bake
+        continue-on-error: true
+        uses: ./
+        with:
+          files: |
+            ./test/config.hcl
+      -
+        name: Check
+        run: |
+          echo "${{ toJson(steps.bake) }}"
+          if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
+            echo "::error::Should have failed"
+            exit 1
+          fi
