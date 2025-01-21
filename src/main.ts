@@ -30,6 +30,10 @@ actionsToolkit.run(
     stateHelper.setInputs(inputs);
 
     const toolkit = new Toolkit();
+    if (await toolkit.buildx.versionSatisfies('>=0.20.0')) {
+      throw new Error('docker/bake-action < v6 is not compatible with buildx >= 0.20.0, please update your workflow to latest docker/bake-action or use an older buildx version.');
+    }
+
     const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs['github-token'];
 
     await core.group(`GitHub Actions runtime token ACs`, async () => {
