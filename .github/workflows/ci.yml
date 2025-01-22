@@ -32,7 +32,7 @@ on:
       - 'subaction/**'
 
 env:
-  BUILDX_VERSION: v0.18.0
+  BUILDX_VERSION: latest
   BUILDKIT_IMAGE: moby/buildkit:buildx-stable-1
 
 jobs:
@@ -552,31 +552,3 @@ jobs:
         name: Check docker
         run: |
           docker image inspect localhost:5000/name/app:latest
-
-  error-buildx-latest:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: v0.20.0
-      -
-        name: Build
-        id: bake
-        continue-on-error: true
-        uses: ./
-        with:
-          files: |
-            ./test/config.hcl
-      -
-        name: Check
-        run: |
-          echo "${{ toJson(steps.bake) }}"
-          if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
-            echo "::error::Should have failed"
-            exit 1
-          fi
