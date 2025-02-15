@@ -733,3 +733,11 @@ jobs:
             ./test/config.hcl
           allow: network.host
           targets: app-entitlements
+
+  distribute:
+    uses: ./.github/workflows/distribute.yml
+    with:
+      target: app-plus
+      push: false
+      meta-image: user/app
+      bake-files: ./test/config.hcl
