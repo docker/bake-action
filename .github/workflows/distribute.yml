@@ -1,0 +1,405 @@
+name: distribute
+
+on:
+  workflow_call:
+    inputs:
+      # inputs specific to this reusable worklow
+      runner:
+        type: string
+        description: "Runner instance"
+        required: false
+        default: 'ubuntu-latest'
+      target:
+        type: string
+        description: "Multi-platform target to build"
+        required: true
+      push:
+        type: boolean
+        description: "Push image to registry"
+        required: false
+        default: false
+      # same as docker/metadata-action inputs
+      meta-image:
+        type: string
+        description: "Image to use as base name for tags"
+        required: true
+      meta-tags:
+        type: string
+        description: 'List of tags as key-value pair attributes'
+        required: false
+      meta-flavor:
+        type: string
+        description: 'Flavors to apply'
+        required: false
+      meta-labels:
+        type: string
+        description: 'List of custom labels'
+        required: false
+      meta-annotations:
+        type: string
+        description: 'List of custom annotations'
+        required: false
+      # same as docker/login-action inputs (minus logout)
+      login-registry:
+        type: string
+        description: 'Server address of Docker registry. If not set then will default to Docker Hub'
+        required: false
+      login-username:
+        type: string
+        description: 'Username used to log against the Docker registry'
+        required: false
+      login-ecr:
+        type: string
+        description: 'Specifies whether the given registry is ECR (auto, true or false)'
+        default: 'auto'
+        required: false
+      # same as docker/bake-action inputs (minus builder, targets, load, push)
+      bake-source:
+        type: string
+        description: "Context to build from. Can be either local or a remote bake definition"
+        required: false
+      bake-allow:
+        type: string
+        description: "Allow build to access specified resources (e.g., network.host)"
+        required: false
+      bake-files:
+        type: string
+        description: "List of bake definition files"
+        required: false
+      bake-workdir:
+        type: string
+        description: "Working directory of bake execution"
+        required: false
+        default: '.'
+      bake-no-cache:
+        type: boolean
+        description: "Do not use cache when building the image"
+        required: false
+      bake-pull:
+        type: boolean
+        description: "Always attempt to pull a newer version of the image"
+        required: false
+      bake-provenance:
+        type: string
+        description: "Provenance is a shorthand for --set=*.attest=type=provenance"
+        required: false
+      bake-sbom:
+        type: string
+        description: "SBOM is a shorthand for --set=*.attest=type=sbom"
+      bake-set:
+        type: string
+        description: "List of targets values to override (eg. targetpattern.key=value)"
+        required: false
+    secrets:
+      login-password:
+        description: "Password or personal access token used to log against the Docker registry"
+        required: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      includes: ${{ steps.set.outputs.includes }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set includes
+        id: set
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let def;
+            const source = `${{ inputs.bake-source }}`;
+            const files = `${{ inputs.bake-files }}` ? `${{ inputs.bake-files }}`.split(/[\r?\n,]+/).filter(Boolean) : [];
+            const target = `${{ inputs.target }}`;
+
+            const metaImage = `${{ inputs.meta-image }}` ? `${{ inputs.meta-image }}`.split(/[\r?\n,]+/).filter(Boolean) : [];
+            if (metaImage.length > 1) {
+              throw new Error('Only one meta-image is allowed');
+            }
+
+            await core.group(`Validating definition`, async () => {
+              let args = ['buildx', 'bake'];
+              for (const file of files) {
+                args.push('--file', file);
+              }
+              if (source && source !== '.') {
+                args.push(source);
+              }
+              args.push(target, '--print');
+
+              const res = await exec.getExecOutput('docker', args, {
+                ignoreReturnCode: true,
+                silent: true,
+                cwd: `${{ inputs.bake-workdir }}`
+              });
+              if (res.stderr.length > 0 && res.exitCode != 0) {
+                throw new Error(res.stderr);
+              }
+              def = JSON.parse(res.stdout.trim());
+              core.info(JSON.stringify(def, null, 2));
+            });
+
+            await core.group(`Set includes`, async () => {
+              const platforms = def.target[target].platforms;
+              if (platforms.length > 100) {
+                throw new Error('Too many platforms');
+              } else if (platforms.length <= 1) {
+                throw new Error('At least 2 platforms are required');
+              }
+              let includes = [];
+              platforms.forEach((platform, index) => {
+                includes.push({
+                  index: index,
+                  platform: platform
+                });
+              });
+              core.info(JSON.stringify(includes, null, 2));
+              core.setOutput('includes', JSON.stringify(includes));
+            });
+
+  build:
+    runs-on: ${{ inputs.runner }}
+    needs:
+      - prepare
+    outputs:
+      # needs predefined outputs as we can't use dynamic ones atm: https://github.com/actions/runner/pull/2477
+      # 100 is the maximum number of platforms supported by the matrix strategy
+      digest_0: ${{ steps.digest.outputs.digest_0 }}
+      digest_1: ${{ steps.digest.outputs.digest_1 }}
+      digest_2: ${{ steps.digest.outputs.digest_2 }}
+      digest_3: ${{ steps.digest.outputs.digest_3 }}
+      digest_4: ${{ steps.digest.outputs.digest_4 }}
+      digest_5: ${{ steps.digest.outputs.digest_5 }}
+      digest_6: ${{ steps.digest.outputs.digest_6 }}
+      digest_7: ${{ steps.digest.outputs.digest_7 }}
+      digest_8: ${{ steps.digest.outputs.digest_8 }}
+      digest_9: ${{ steps.digest.outputs.digest_9 }}
+      digest_10: ${{ steps.digest.outputs.digest_10 }}
+      digest_11: ${{ steps.digest.outputs.digest_11 }}
+      digest_12: ${{ steps.digest.outputs.digest_12 }}
+      digest_13: ${{ steps.digest.outputs.digest_13 }}
+      digest_14: ${{ steps.digest.outputs.digest_14 }}
+      digest_15: ${{ steps.digest.outputs.digest_15 }}
+      digest_16: ${{ steps.digest.outputs.digest_16 }}
+      digest_17: ${{ steps.digest.outputs.digest_17 }}
+      digest_18: ${{ steps.digest.outputs.digest_18 }}
+      digest_19: ${{ steps.digest.outputs.digest_19 }}
+      digest_20: ${{ steps.digest.outputs.digest_20 }}
+      digest_21: ${{ steps.digest.outputs.digest_21 }}
+      digest_22: ${{ steps.digest.outputs.digest_22 }}
+      digest_23: ${{ steps.digest.outputs.digest_23 }}
+      digest_24: ${{ steps.digest.outputs.digest_24 }}
+      digest_25: ${{ steps.digest.outputs.digest_25 }}
+      digest_26: ${{ steps.digest.outputs.digest_26 }}
+      digest_27: ${{ steps.digest.outputs.digest_27 }}
+      digest_28: ${{ steps.digest.outputs.digest_28 }}
+      digest_29: ${{ steps.digest.outputs.digest_29 }}
+      digest_30: ${{ steps.digest.outputs.digest_30 }}
+      digest_31: ${{ steps.digest.outputs.digest_31 }}
+      digest_32: ${{ steps.digest.outputs.digest_32 }}
+      digest_33: ${{ steps.digest.outputs.digest_33 }}
+      digest_34: ${{ steps.digest.outputs.digest_34 }}
+      digest_35: ${{ steps.digest.outputs.digest_35 }}
+      digest_36: ${{ steps.digest.outputs.digest_36 }}
+      digest_37: ${{ steps.digest.outputs.digest_37 }}
+      digest_38: ${{ steps.digest.outputs.digest_38 }}
+      digest_39: ${{ steps.digest.outputs.digest_39 }}
+      digest_40: ${{ steps.digest.outputs.digest_40 }}
+      digest_41: ${{ steps.digest.outputs.digest_41 }}
+      digest_42: ${{ steps.digest.outputs.digest_42 }}
+      digest_43: ${{ steps.digest.outputs.digest_43 }}
+      digest_44: ${{ steps.digest.outputs.digest_44 }}
+      digest_45: ${{ steps.digest.outputs.digest_45 }}
+      digest_46: ${{ steps.digest.outputs.digest_46 }}
+      digest_47: ${{ steps.digest.outputs.digest_47 }}
+      digest_48: ${{ steps.digest.outputs.digest_48 }}
+      digest_49: ${{ steps.digest.outputs.digest_49 }}
+      digest_50: ${{ steps.digest.outputs.digest_50 }}
+      digest_51: ${{ steps.digest.outputs.digest_51 }}
+      digest_52: ${{ steps.digest.outputs.digest_52 }}
+      digest_53: ${{ steps.digest.outputs.digest_53 }}
+      digest_54: ${{ steps.digest.outputs.digest_54 }}
+      digest_55: ${{ steps.digest.outputs.digest_55 }}
+      digest_56: ${{ steps.digest.outputs.digest_56 }}
+      digest_57: ${{ steps.digest.outputs.digest_57 }}
+      digest_58: ${{ steps.digest.outputs.digest_58 }}
+      digest_59: ${{ steps.digest.outputs.digest_59 }}
+      digest_60: ${{ steps.digest.outputs.digest_60 }}
+      digest_61: ${{ steps.digest.outputs.digest_61 }}
+      digest_62: ${{ steps.digest.outputs.digest_62 }}
+      digest_63: ${{ steps.digest.outputs.digest_63 }}
+      digest_64: ${{ steps.digest.outputs.digest_64 }}
+      digest_65: ${{ steps.digest.outputs.digest_65 }}
+      digest_66: ${{ steps.digest.outputs.digest_66 }}
+      digest_67: ${{ steps.digest.outputs.digest_67 }}
+      digest_68: ${{ steps.digest.outputs.digest_68 }}
+      digest_69: ${{ steps.digest.outputs.digest_69 }}
+      digest_70: ${{ steps.digest.outputs.digest_70 }}
+      digest_71: ${{ steps.digest.outputs.digest_71 }}
+      digest_72: ${{ steps.digest.outputs.digest_72 }}
+      digest_73: ${{ steps.digest.outputs.digest_73 }}
+      digest_74: ${{ steps.digest.outputs.digest_74 }}
+      digest_75: ${{ steps.digest.outputs.digest_75 }}
+      digest_76: ${{ steps.digest.outputs.digest_76 }}
+      digest_77: ${{ steps.digest.outputs.digest_77 }}
+      digest_78: ${{ steps.digest.outputs.digest_78 }}
+      digest_79: ${{ steps.digest.outputs.digest_79 }}
+      digest_80: ${{ steps.digest.outputs.digest_80 }}
+      digest_81: ${{ steps.digest.outputs.digest_81 }}
+      digest_82: ${{ steps.digest.outputs.digest_82 }}
+      digest_83: ${{ steps.digest.outputs.digest_83 }}
+      digest_84: ${{ steps.digest.outputs.digest_84 }}
+      digest_85: ${{ steps.digest.outputs.digest_85 }}
+      digest_86: ${{ steps.digest.outputs.digest_86 }}
+      digest_87: ${{ steps.digest.outputs.digest_87 }}
+      digest_88: ${{ steps.digest.outputs.digest_88 }}
+      digest_89: ${{ steps.digest.outputs.digest_89 }}
+      digest_90: ${{ steps.digest.outputs.digest_90 }}
+      digest_91: ${{ steps.digest.outputs.digest_91 }}
+      digest_92: ${{ steps.digest.outputs.digest_92 }}
+      digest_93: ${{ steps.digest.outputs.digest_93 }}
+      digest_94: ${{ steps.digest.outputs.digest_94 }}
+      digest_95: ${{ steps.digest.outputs.digest_95 }}
+      digest_96: ${{ steps.digest.outputs.digest_96 }}
+      digest_97: ${{ steps.digest.outputs.digest_97 }}
+      digest_98: ${{ steps.digest.outputs.digest_98 }}
+      digest_99: ${{ steps.digest.outputs.digest_99 }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.includes) }}
+    steps:
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ inputs.meta-image }}
+          tags: ${{ inputs.meta-tags }}
+          flavor: ${{ inputs.meta-flavor }}
+          labels: ${{ inputs.meta-labels }}
+          annotations: ${{ inputs.meta-annotations }}
+      -
+        name: Login to registry
+        uses: docker/login-action@v3
+        if: ${{ inputs.push }}
+        with:
+          registry: ${{ inputs.login-registry }}
+          username: ${{ inputs.login-username }}
+          password: ${{ secrets.login-password }}
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Build
+        id: bake
+        uses: docker/bake-action@v6
+        with:
+          source: ${{ inputs.bake-source }}
+          files: |
+            ${{ inputs.bake-files }}
+            cwd://${{ steps.meta.outputs.bake-file }}
+          targets: ${{ inputs.target }}
+          allow: ${{ inputs.bake-allow }}
+          no-cache: ${{ inputs.bake-no-cache }}
+          pull: ${{ inputs.bake-pull }}
+          provenance: ${{ inputs.bake-provenance }}
+          sbom: ${{ inputs.bake-sbom }}
+          set: |
+            ${{ inputs.bake-set }}
+            *.tags=
+            *.platform=${{ matrix.platform }}
+            *.output=type=image,"name=${{ inputs.meta-image }}",push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
+      -
+        name: Set digest output
+        id: digest
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const metadata = JSON.parse(`${{ steps.bake.outputs.metadata }}`);
+            const digest = metadata[`${{ inputs.target }}`]['containerimage.digest'];
+            const outputKey = `digest_${{ matrix.index }}`;
+            core.info(`Setting digest output: ${outputKey}=${digest}`);
+            core.setOutput(outputKey, digest);
+
+  merge:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ inputs.meta-image }}
+          tags: ${{ inputs.meta-tags }}
+          flavor: ${{ inputs.meta-flavor }}
+          labels: ${{ inputs.meta-labels }}
+          annotations: ${{ inputs.meta-annotations }}
+      -
+        name: Login to registry
+        uses: docker/login-action@v3
+        if: ${{ inputs.push }}
+        with:
+          registry: ${{ inputs.login-registry }}
+          username: ${{ inputs.login-username }}
+          password: ${{ secrets.login-password }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        if: ${{ inputs.push }}
+      -
+        name: Create manifest list
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let digests = [];
+            await core.group(`Digests`, async () => {
+              digests = Object.values(JSON.parse(`${{ toJSON(needs.build.outputs) }}`));
+              core.info(JSON.stringify(digests, null, 2));
+            });
+
+            let tags = [];
+            await core.group(`Tags`, async () => {
+              tags = `${{ steps.meta.outputs.tags }}`.split('\n').filter(Boolean);
+              core.info(JSON.stringify(tags, null, 2));
+            });
+
+            let createArgs = ['buildx', 'imagetools', 'create'];
+            for (const tag of tags) {
+              createArgs.push(`-t`, tag);
+            }
+            for (const digest of digests) {
+              createArgs.push(`${{ inputs.meta-image }}@${digest}`);
+            }
+
+            if (${{ inputs.push }}) {
+              await exec.getExecOutput('docker', createArgs, {
+                ignoreReturnCode: true
+              }).then(res => {
+                if (res.stderr.length > 0 && res.exitCode != 0) {
+                  throw new Error(res.stderr);
+                }
+              });
+              await core.group(`Inspect image`, async () => {
+                await exec.getExecOutput('docker', ['buildx', 'imagetools', 'inspect', `${{ inputs.meta-image }}:${tags[0]}`], {
+                  ignoreReturnCode: true
+                }).then(res => {
+                  if (res.stderr.length > 0 && res.exitCode != 0) {
+                    throw new Error(res.stderr);
+                  }
+                });
+              });
+            } else {
+              await core.group(`Generated imagetools create command`, async () => {
+                core.info(`docker ${createArgs.join(' ')}`);
+              });
+              core.info(`Push is disabled, skipping manifest list creation`);
+            }
