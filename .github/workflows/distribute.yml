@@ -8,7 +8,7 @@ on:
         type: string
         description: "Runner instance"
         required: false
-        default: 'ubuntu-latest'
+        default: 'auto'
       target:
         type: string
         description: "Multi-platform target to build"
@@ -151,9 +151,14 @@ jobs:
               }
               let includes = [];
               platforms.forEach((platform, index) => {
+                let runner = `${{ inputs.runner }}`;
+                if (runner === 'auto') {
+                  runner = platform.startsWith('linux/arm') ? 'ubuntu-24.04-arm' : 'ubuntu-latest';
+                }
                 includes.push({
                   index: index,
-                  platform: platform
+                  platform: platform,
+                  runner: runner
                 });
               });
               core.info(JSON.stringify(includes, null, 2));
@@ -161,7 +166,7 @@ jobs:
             });
 
   build:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ${{ matrix.runner }}
     needs:
       - prepare
     outputs:
