@@ -18,6 +18,11 @@ on:
         description: "Push image to registry"
         required: false
         default: false
+      setup-qemu:
+        type: boolean
+        description: "Install QEMU static binaries"
+        required: false
+        default: true
       # same as docker/metadata-action inputs
       meta-image:
         type: string
@@ -52,6 +57,11 @@ on:
         type: string
         description: 'Specifies whether the given registry is ECR (auto, true or false)'
         default: 'auto'
+        required: false
+      # same as docker/setup-qemu-action inputs (minus platforms, cache-image)
+      qemu-image:
+        type: string
+        description: 'QEMU static binaries Docker image (e.g. tonistiigi/binfmt:latest)'
         required: false
       # same as docker/bake-action inputs (minus builder, targets, load, push)
       bake-source:
@@ -298,6 +308,9 @@ jobs:
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+        if: ${{ inputs.setup-qemu }}
+        with:
+          image: ${{ inputs.qemu-image }}
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
