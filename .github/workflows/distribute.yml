@@ -100,6 +100,7 @@ on:
       bake-sbom:
         type: string
         description: "SBOM is a shorthand for --set=*.attest=type=sbom"
+        required: false
       bake-set:
         type: string
         description: "List of targets values to override (eg. targetpattern.key=value)"
@@ -107,6 +108,9 @@ on:
     secrets:
       login-password:
         description: "Password or personal access token used to log against the Docker registry"
+        required: false
+      github-token:
+        description: "API token used to authenticate to a Git repository for remote definitions"
         required: false
 
 jobs:
@@ -125,7 +129,6 @@ jobs:
         with:
           script: |
             let def;
-            const source = `${{ inputs.bake-source }}`;
             const files = `${{ inputs.bake-files }}` ? `${{ inputs.bake-files }}`.split(/[\r?\n,]+/).filter(Boolean) : [];
             const target = `${{ inputs.target }}`;
 
@@ -134,26 +137,32 @@ jobs:
               throw new Error('Only one meta-image is allowed');
             }
 
-            await core.group(`Validating definition`, async () => {
-              let args = ['buildx', 'bake'];
-              for (const file of files) {
-                args.push('--file', file);
-              }
-              if (source && source !== '.') {
-                args.push(source);
-              }
-              args.push(target, '--print');
+            await core.group(`Install docker/actions-toolkit`, async () => {
+              await exec.exec('npm', ['install', '@docker/actions-toolkit']);
+            });
 
-              const res = await exec.getExecOutput('docker', args, {
-                ignoreReturnCode: true,
-                silent: true,
-                cwd: `${{ inputs.bake-workdir }}`
-              });
-              if (res.stderr.length > 0 && res.exitCode != 0) {
-                throw new Error(res.stderr);
+            await core.group(`Validating definition`, async () => {
+              const { Bake } = require('@docker/actions-toolkit/lib/buildx/bake');
+              const bake = new Bake();
+              def = await bake.getDefinition(
+                {
+                  allow: `${{ inputs.bake-allow }}` ? `${{ inputs.bake-allow }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
+                  files: `${{ inputs.bake-files }}` ? `${{ inputs.bake-files }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
+                  noCache: ${{ inputs.bake-no-cache }},
+                  overrides: `${{ inputs.bake-set }}` ? `${{ inputs.bake-set }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
+                  provenance: `${{ inputs.bake-provenance }}`,
+                  sbom: `${{ inputs.bake-sbom }}`,
+                  source: `${{ inputs.bake-source }}`,
+                  targets: [`${{ inputs.target }}`],
+                  githubToken: `${{ secrets.github-token || github.token }}`
+                },
+                {
+                  cwd: `${{ inputs.bake-workdir }}`
+                }
+              );
+              if (!def) {
+                throw new Error('Bake definition not set');
               }
-              def = JSON.parse(res.stdout.trim());
-              core.info(JSON.stringify(def, null, 2));
             });
 
             await core.group(`Set includes`, async () => {
@@ -339,6 +348,7 @@ jobs:
             *.tags=
             *.platform=${{ matrix.platform }}
             *.output=type=image,"name=${{ inputs.meta-image }}",push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
+          github-token: ${{ secrets.github-token || github.token }}
       -
         name: Set digest output
         id: digest
