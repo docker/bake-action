@@ -1,4 +1,5 @@
 # Reusable workflow to distribute multi-platform builds efficiently
+# https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
 name: reusable-distribute
 
 on:
@@ -17,6 +18,16 @@ on:
       push:
         type: boolean
         description: "Push image to registry"
+        required: false
+        default: false
+      set-meta-annotations:
+        type: boolean
+        description: "Set metadata-action annotations"
+        required: false
+        default: false
+      set-meta-labels:
+        type: boolean
+        description: "Set metadata-action labels"
         required: false
         default: false
       setup-qemu:
@@ -359,14 +370,51 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       -
+        name: Set bake files
+        id: bake-files
+        uses: actions/github-script@v7
+        env:
+          INPUT_SET-META-ANNOTATIONS: ${{ inputs.set-meta-annotations }}
+          INPUT_SET-META-LABELS: ${{ inputs.set-meta-labels }}
+          INPUT_BAKE-FILES: ${{ inputs.bake-files }}
+        with:
+          result-encoding: string
+          script: |
+            await core.group(`Installing npm dependencies`, async () => {
+              await exec.exec('npm', ['install',
+                '@docker/actions-toolkit@${{ env.ACTIONS_TOOLKIT_VERSION }}'
+              ]);
+            });
+
+            const os = require('os');
+            const { Util } = require('@docker/actions-toolkit/lib/util');
+
+            let bakeFiles = Util.getInputList('bake-files');
+            const inpSetMetaAnnotations = core.getBooleanInput('set-meta-annotations');
+            const inpSetMetaLabels = core.getBooleanInput('set-meta-labels');
+
+            await core.group(`Set bake files`, async () => {
+              if (bakeFiles.length === 0) {
+                bakeFiles = ['docker-bake.hcl'];
+              }
+              bakeFiles.push(`cwd://${{ steps.meta.outputs.bake-file-tags }}`);
+              if (inpSetMetaAnnotations) {
+                bakeFiles.push(`cwd://${{ steps.meta.outputs.bake-file-annotations }}`);
+              }
+              if (inpSetMetaLabels) {
+                bakeFiles.push(`cwd://${{ steps.meta.outputs.bake-file-labels }}`);
+              }
+              core.info(JSON.stringify(bakeFiles, null, 2));
+            });
+
+            return bakeFiles.join(os.EOL);
+      -
         name: Build
         id: bake
         uses: docker/bake-action@v6
         with:
           source: ${{ inputs.bake-source }}
-          files: |
-            ${{ inputs.bake-files }}
-            cwd://${{ steps.meta.outputs.bake-file }}
+          files: ${{ steps.bake-files.outputs.result }}
           targets: ${{ inputs.target }}
           allow: ${{ inputs.bake-allow }}
           no-cache: ${{ inputs.bake-no-cache }}
@@ -406,8 +454,6 @@ jobs:
           images: ${{ inputs.meta-image }}
           tags: ${{ inputs.meta-tags }}
           flavor: ${{ inputs.meta-flavor }}
-          labels: ${{ inputs.meta-labels }}
-          annotations: ${{ inputs.meta-annotations }}
           bake-target: ${{ inputs.meta-bake-target }}
       -
         name: Login to registry
