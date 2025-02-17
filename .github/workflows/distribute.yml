@@ -67,7 +67,7 @@ on:
         type: string
         description: 'QEMU static binaries Docker image (e.g. tonistiigi/binfmt:latest)'
         required: false
-      # same as docker/bake-action inputs (minus builder, targets, load, push)
+      # same as docker/bake-action inputs (minus workdir, builder, targets, load, push)
       bake-source:
         type: string
         description: "Context to build from. Can be either local or a remote bake definition"
@@ -80,11 +80,6 @@ on:
         type: string
         description: "List of bake definition files"
         required: false
-      bake-workdir:
-        type: string
-        description: "Working directory of bake execution"
-        required: false
-        default: '.'
       bake-no-cache:
         type: boolean
         description: "Do not use cache when building the image"
@@ -120,9 +115,6 @@ jobs:
       includes: ${{ steps.set.outputs.includes }}
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
         name: Set includes
         id: set
         uses: actions/github-script@v7
@@ -137,29 +129,37 @@ jobs:
               throw new Error('Only one meta-image is allowed');
             }
 
-            await core.group(`Install docker/actions-toolkit`, async () => {
-              await exec.exec('npm', ['install', '@docker/actions-toolkit']);
+            await core.group(`Install npm dependencies`, async () => {
+              await exec.exec('npm', ['install', '@docker/actions-toolkit', 'handlebars']);
             });
 
             await core.group(`Validating definition`, async () => {
+              const handlebars = require('handlebars');
+              const { Context } = require('@docker/actions-toolkit/lib/context');
               const { Bake } = require('@docker/actions-toolkit/lib/buildx/bake');
+
+              let source = handlebars.compile(`${{ inputs.bake-source }}`)({
+                defaultContext: Context.gitContext()
+              });
+              if (!source) {
+                source = Context.gitContext();
+              }
+              if (source === '.') {
+                source = '';
+              }
+
               const bake = new Bake();
-              def = await bake.getDefinition(
-                {
-                  allow: `${{ inputs.bake-allow }}` ? `${{ inputs.bake-allow }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
-                  files: `${{ inputs.bake-files }}` ? `${{ inputs.bake-files }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
-                  noCache: ${{ inputs.bake-no-cache }},
-                  overrides: `${{ inputs.bake-set }}` ? `${{ inputs.bake-set }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
-                  provenance: `${{ inputs.bake-provenance }}`,
-                  sbom: `${{ inputs.bake-sbom }}`,
-                  source: `${{ inputs.bake-source }}`,
-                  targets: [`${{ inputs.target }}`],
-                  githubToken: `${{ secrets.github-token || github.token }}`
-                },
-                {
-                  cwd: `${{ inputs.bake-workdir }}`
-                }
-              );
+              def = await bake.getDefinition({
+                allow: `${{ inputs.bake-allow }}` ? `${{ inputs.bake-allow }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
+                files: `${{ inputs.bake-files }}` ? `${{ inputs.bake-files }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
+                noCache: ${{ inputs.bake-no-cache }},
+                overrides: `${{ inputs.bake-set }}` ? `${{ inputs.bake-set }}`.split(/[\r?\n,]+/).filter(Boolean) : [],
+                provenance: `${{ inputs.bake-provenance }}`,
+                sbom: `${{ inputs.bake-sbom }}`,
+                source: source,
+                targets: [`${{ inputs.target }}`],
+                githubToken: `${{ secrets.github-token || github.token }}`
+              });
               if (!def) {
                 throw new Error('Bake definition not set');
               }
