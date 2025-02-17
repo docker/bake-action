@@ -1,4 +1,5 @@
-name: distribute
+# Reusable workflow to distribute multi-platform builds efficiently
+name: reusable-distribute
 
 on:
   workflow_call:

@@ -735,7 +735,7 @@ jobs:
           targets: app-entitlements
 
   distribute:
-    uses: ./.github/workflows/distribute.yml
+    uses: ./.github/workflows/reusable-distribute.yml
     with:
       target: app-plus
       push: false
