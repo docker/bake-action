@@ -115,6 +115,9 @@ on:
         description: "List of targets values to override (eg. targetpattern.key=value)"
         required: false
     secrets:
+      login-username:
+        description: 'Username used to log against the Docker registry'
+        required: false
       login-password:
         description: "Password or personal access token used to log against the Docker registry"
         required: false
@@ -358,7 +361,7 @@ jobs:
         if: ${{ inputs.push }}
         with:
           registry: ${{ inputs.login-registry }}
-          username: ${{ inputs.login-username }}
+          username: ${{ inputs.login-username || secrets.login-username }}
           password: ${{ secrets.login-password }}
       -
         name: Set up QEMU
@@ -461,7 +464,7 @@ jobs:
         if: ${{ inputs.push }}
         with:
           registry: ${{ inputs.login-registry }}
-          username: ${{ inputs.login-username }}
+          username: ${{ inputs.login-username || secrets.login-username }}
           password: ${{ secrets.login-password }}
       -
         name: Set up Docker Buildx
