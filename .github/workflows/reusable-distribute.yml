@@ -122,7 +122,7 @@ on:
       # same as docker/bake-action inputs (minus workdir, builder, targets, load, push)
       bake-source:
         type: string
-        description: "Context to build from. Can be either local or a remote bake definition"
+        description: "Git context to build from for a remote bake definition"
         required: false
       bake-allow:
         type: string
