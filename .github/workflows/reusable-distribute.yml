@@ -220,7 +220,7 @@ jobs:
             const inpBakeProvenance = Build.getProvenanceInput('bake-provenance');
             const inpBakeSbom = core.getInput('bake-sbom');
             const inpBakeSet = Util.getInputList('bake-set', {ignoreComma: true, quote: false});
-            let inpBakeSource = handlebars.compile(core.getInput('source'))({
+            let inpBakeSource = handlebars.compile(core.getInput('bake-source'))({
               defaultContext: Context.gitContext()
             });
             if (!inpBakeSource) {
