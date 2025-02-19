@@ -20,6 +20,20 @@ on:
         description: "Push image to registry"
         required: false
         default: false
+      cache:
+        type: boolean
+        description: "Enable cache to GitHub Actions cache backend"
+        required: false
+        default: false
+      cache-scope:
+        type: string
+        description: "Which scope cache object belongs to if cache enabled (default is target name)"
+        required: false
+      cache-mode:
+        type: string
+        description: "Cache layers to export if cache enabled (min or max)"
+        required: false
+        default: 'min'
       set-meta-annotations:
         type: boolean
         description: "Set metadata-action annotations"
@@ -258,10 +272,48 @@ jobs:
               core.setOutput('includes', JSON.stringify(includes));
             });
 
+  warmup:
+    runs-on: ${{ inputs.runner == 'auto' && 'ubuntu-latest' || inputs.runner }}
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        if: ${{ inputs.setup-qemu }}
+        with:
+          image: ${{ inputs.qemu-image }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version }}
+          driver-opts: ${{ inputs.buildx-driver-opts }}
+          buildkitd-flags: ${{ inputs.buildkitd-flags }}
+          buildkitd-config: ${{ inputs.buildkitd-config }}
+          buildkitd-config-inline: ${{ inputs.buildkitd-config-inline }}
+          cache-binary: ${{ inputs.buildx-cache-binary }}
+      -
+        name: Warm up cache
+        uses: docker/bake-action@v6
+        if: ${{ inputs.cache }}
+        with:
+          source: ${{ inputs.bake-source }}
+          files: ${{ inputs.bake-files }}
+          targets: ${{ inputs.target }}
+          provenance: false
+          sbom: false
+          set: |
+            ${{ inputs.bake-set }}
+            *.platform=
+            *.output=type=cacheonly
+            *.cache-from=type=gha,scope=${{ inputs.cache-scope || inputs.target }}-warmup
+            *.cache-to=type=gha,scope=${{ inputs.cache-scope || inputs.target }}-warmup,mode=${{ inputs.cache-mode }}
+          github-token: ${{ secrets.github-token || github.token }}
+
   build:
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare
+      - warmup
     outputs:
       # needs predefined outputs as we can't use dynamic ones atm: https://github.com/actions/runner/pull/2477
       # 100 is the maximum number of platforms supported by the matrix strategy
@@ -406,15 +458,19 @@ jobs:
           buildkitd-config-inline: ${{ inputs.buildkitd-config-inline }}
           cache-binary: ${{ inputs.buildx-cache-binary }}
       -
-        name: Set bake files
-        id: bake-files
+        name: Set bake files and overrides
+        id: bake-opts
         uses: actions/github-script@v7
         env:
+          PLATFORM: ${{ matrix.platform }}
+          INPUT_TARGET: ${{ inputs.target }}
+          INPUT_CACHE: ${{ inputs.cache }}
+          INPUT_CACHE-SCOPE: ${{ inputs.cache-scope }}
+          INPUT_CACHE-MODE: ${{ inputs.cache-mode }}
           INPUT_SET-META-ANNOTATIONS: ${{ inputs.set-meta-annotations }}
           INPUT_SET-META-LABELS: ${{ inputs.set-meta-labels }}
           INPUT_BAKE-FILES: ${{ inputs.bake-files }}
         with:
-          result-encoding: string
           script: |
             await core.group(`Installing npm dependencies`, async () => {
               await exec.exec('npm', ['install',
@@ -425,6 +481,11 @@ jobs:
             const os = require('os');
             const { Util } = require('@docker/actions-toolkit/lib/util');
 
+            const platformPair = process.env.PLATFORM.replace(/\//g, '-');
+            const inpTarget = core.getInput('target');
+            const inpCache = core.getBooleanInput('cache');
+            const inpCacheScope = core.getInput('cache-scope');
+            const inpCacheMode = core.getInput('cache-mode');
             let bakeFiles = Util.getInputList('bake-files');
             const inpSetMetaAnnotations = core.getBooleanInput('set-meta-annotations');
             const inpSetMetaLabels = core.getBooleanInput('set-meta-labels');
@@ -441,16 +502,26 @@ jobs:
                 bakeFiles.push(`cwd://${{ steps.meta.outputs.bake-file-labels }}`);
               }
               core.info(JSON.stringify(bakeFiles, null, 2));
+              core.setOutput('files', bakeFiles.join(os.EOL));
             });
 
-            return bakeFiles.join(os.EOL);
+            await core.group(`Set bake overrides`, async () => {
+              let bakeOverrides = [];
+              if (inpCache) {
+                bakeOverrides.push(`*.cache-from=type=gha,scope=${inpCacheScope || inpTarget}-warmup`);
+                bakeOverrides.push(`*.cache-from=type=gha,scope=${inpCacheScope || inpTarget}-${platformPair}`);
+                bakeOverrides.push(`*.cache-to=type=gha,scope=${inpCacheScope || inpTarget}-${platformPair},mode=${inpCacheMode}`);
+              }
+              core.info(JSON.stringify(bakeOverrides, null, 2));
+              core.setOutput('overrides', bakeOverrides.join(os.EOL));
+            });
       -
         name: Build
         id: bake
         uses: docker/bake-action@v6
         with:
           source: ${{ inputs.bake-source }}
-          files: ${{ steps.bake-files.outputs.result }}
+          files: ${{ steps.bake-opts.outputs.files }}
           targets: ${{ inputs.target }}
           allow: ${{ inputs.bake-allow }}
           no-cache: ${{ inputs.bake-no-cache }}
@@ -459,6 +530,7 @@ jobs:
           sbom: ${{ inputs.bake-sbom }}
           set: |
             ${{ inputs.bake-set }}
+            ${{ steps.bake-opts.outputs.overrides }}
             *.tags=
             *.platform=${{ matrix.platform }}
             *.output=type=image,"name=${{ inputs.meta-image }}",push-by-digest=true,name-canonical=true,push=${{ inputs.push }}

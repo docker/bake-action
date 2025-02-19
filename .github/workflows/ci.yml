@@ -741,3 +741,13 @@ jobs:
       push: false
       meta-image: user/app
       bake-files: ./test/config.hcl
+
+  distribute-cache:
+    uses: ./.github/workflows/reusable-distribute.yml
+    with:
+      target: image-all
+      push: false
+      cache: true
+      cache-scope: go-app
+      meta-image: user/goapp
+      bake-source: "{{defaultContext}}:test/go"
