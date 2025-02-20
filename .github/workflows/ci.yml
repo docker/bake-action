@@ -32,8 +32,8 @@ on:
       - 'subaction/**'
 
 env:
-  BUILDX_VERSION: latest
-  BUILDKIT_IMAGE: moby/buildkit:buildx-stable-1
+  BUILDX_VERSION: edge
+  BUILDKIT_IMAGE: moby/buildkit:latest
 
 jobs:
   bake:
@@ -659,7 +659,7 @@ jobs:
       fail-fast: false
       matrix:
         buildx-version:
-          - latest
+          - edge
           - v0.14.1
     steps:
       -
@@ -711,7 +711,8 @@ jobs:
       fail-fast: false
       matrix:
         buildx-version:
-          - v0.19.0-rc2
+          - edge
+          - v0.19.0
           - v0.18.0
           - v0.17.1
     steps:
