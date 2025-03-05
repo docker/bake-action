@@ -1,6 +1,6 @@
 # Reusable workflow to distribute multi-platform builds efficiently
 # https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
-name: reusable-distribute
+name: reusable-distribute-mp
 
 on:
   workflow_call:
@@ -210,6 +210,9 @@ jobs:
 
             if (Util.getInputList('meta-image').length > 1) {
               throw new Error('Only one meta-image is allowed');
+            }
+             if (Util.getInputList('target').length > 1) {
+              throw new Error('Only one target is allowed');
             }
 
             const inpRunner = core.getInput('runner');

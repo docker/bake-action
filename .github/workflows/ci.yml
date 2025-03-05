@@ -735,7 +735,7 @@ jobs:
           targets: app-entitlements
 
   distribute:
-    uses: ./.github/workflows/reusable-distribute.yml
+    uses: ./.github/workflows/reusable-distribute-mp.yml
     with:
       target: app-plus
       push: false
@@ -743,7 +743,7 @@ jobs:
       bake-files: ./test/config.hcl
 
   distribute-cache:
-    uses: ./.github/workflows/reusable-distribute.yml
+    uses: ./.github/workflows/reusable-distribute-mp.yml
     with:
       target: image-all
       push: false
