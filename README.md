@@ -143,6 +143,14 @@ jobs:
             *.tags=user/app:latest
 ```
 
+## Examples
+
+* [Distribute multi-platform build across runners](https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-multi-platform-build-across-runners)
+* [Annotations](https://docs.docker.com/build/ci/github-actions/annotations/)
+* [Secrets](https://docs.docker.com/build/ci/github-actions/secrets/)
+* [Build checks](https://docs.docker.com/build/ci/github-actions/checks/#run-checks-with-dockerbake-action)
+* [Reproducible builds](https://docs.docker.com/build/ci/github-actions/reproducible-builds/)
+
 ## Summaries
 
 This action generates a [job summary](https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/)

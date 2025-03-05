@@ -56,68 +56,68 @@ on:
         required: true
       meta-tags:
         type: string
-        description: 'List of tags as key-value pair attributes'
+        description: "List of tags as key-value pair attributes"
         required: false
       meta-flavor:
         type: string
-        description: 'Flavors to apply'
+        description: "Flavors to apply"
         required: false
       meta-labels:
         type: string
-        description: 'List of custom labels'
+        description: "List of custom labels"
         required: false
       meta-annotations:
         type: string
-        description: 'List of custom annotations'
+        description: "List of custom annotations"
         required: false
       meta-bake-target:
         type: string
-        description: 'Bake target name (default docker-metadata-action)'
+        description: "Bake target name (default docker-metadata-action)"
         required: false
       # same as docker/login-action inputs (minus logout)
       login-registry:
         type: string
-        description: 'Server address of Docker registry. If not set then will default to Docker Hub'
+        description: "Server address of Docker registry. If not set then will default to Docker Hub"
         required: false
       login-username:
         type: string
-        description: 'Username used to log against the Docker registry'
+        description: "Username used to log against the Docker registry"
         required: false
       login-ecr:
         type: string
-        description: 'Specifies whether the given registry is ECR (auto, true or false)'
+        description: "Specifies whether the given registry is ECR (auto, true or false)"
         default: 'auto'
         required: false
       # same as docker/setup-buildx-action inputs (minus driver, install, use, endpoint, append, cleanup)
       buildx-version:
         type: string
-        description: 'Buildx version. (eg. v0.3.0)'
+        description: "Buildx version. (eg. v0.3.0)"
         required: false
       buildx-cache-binary:
         type: boolean
-        description: 'Cache buildx binary to GitHub Actions cache backend'
+        description: "Cache buildx binary to GitHub Actions cache backend"
         default: true
         required: false
       buildx-driver-opts:
         type: string
-        description: 'List of additional docker-container options. (eg. image=moby/buildkit:master)'
+        description: "List of additional docker-container options. (eg. image=moby/buildkit:master)"
         required: false
       buildkitd-flags:
         type: string
-        description: 'BuildKit daemon flags'
+        description: "BuildKit daemon flags"
         required: false
       buildkitd-config:
         type: string
-        description: 'BuildKit daemon config file'
+        description: "BuildKit daemon config file"
         required: false
       buildkitd-config-inline:
         type: string
-        description: 'Inline BuildKit daemon config'
+        description: "Inline BuildKit daemon config"
         required: false
       # same as docker/setup-qemu-action inputs (minus platforms, cache-image)
       qemu-image:
         type: string
-        description: 'QEMU static binaries Docker image (e.g. tonistiigi/binfmt:latest)'
+        description: "QEMU static binaries Docker image (e.g. tonistiigi/binfmt:latest)"
         required: false
       # same as docker/bake-action inputs (minus workdir, builder, targets, load, push)
       bake-source:
@@ -156,7 +156,7 @@ on:
         required: false
     secrets:
       login-username:
-        description: 'Username used to log against the Docker registry'
+        description: "Username used to log against the Docker registry"
         required: false
       login-password:
         description: "Password or personal access token used to log against the Docker registry"
