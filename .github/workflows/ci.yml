@@ -734,3 +734,21 @@ jobs:
             ./test/config.hcl
           allow: network.host
           targets: app-entitlements
+
+  distribute:
+    uses: ./.github/workflows/reusable-distribute-mp.yml
+    with:
+      target: app-plus
+      push: false
+      meta-image: user/app
+      bake-files: ./test/config.hcl
+
+  distribute-cache:
+    uses: ./.github/workflows/reusable-distribute-mp.yml
+    with:
+      target: image-all
+      push: false
+      cache: true
+      cache-scope: go-app
+      meta-image: user/goapp
+      bake-source: "{{defaultContext}}:test/go"

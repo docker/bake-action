@@ -1,3 +1,5 @@
+target "docker-metadata-action" {}
+
 group "default" {
   targets = ["db", "app"]
 }
@@ -12,6 +14,7 @@ target "db" {
 }
 
 target "app" {
+  inherits = ["docker-metadata-action"]
   context = "./test"
   dockerfile = "Dockerfile"
   args = {
