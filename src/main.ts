@@ -220,7 +220,8 @@ actionsToolkit.run(
 
           const buildxHistory = new BuildxHistory();
           const exportRes = await buildxHistory.export({
-            refs: stateHelper.buildRefs
+            refs: stateHelper.buildRefs,
+            useContainer: buildExportLegacy()
           });
           core.info(`Build records written to ${exportRes.dockerbuildFilename} (${Util.formatFileSize(exportRes.dockerbuildSize)})`);
 
@@ -316,4 +317,11 @@ function buildRecordRetentionDays(): number | undefined {
     }
     return res;
   }
+}
+
+function buildExportLegacy(): boolean {
+  if (process.env.DOCKER_BUILD_EXPORT_LEGACY) {
+    return Util.parseBool(process.env.DOCKER_BUILD_EXPORT_LEGACY);
+  }
+  return false;
 }
