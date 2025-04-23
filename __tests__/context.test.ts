@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, jest, test} from '@jest/globals';
+import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -122,6 +122,7 @@ jest.spyOn(Bake.prototype, 'getDefinition').mockImplementation(async (): Promise
 });
 
 describe('getArgs', () => {
+  const originalEnv = process.env;
   beforeEach(() => {
     process.env = Object.keys(process.env).reduce((object, key) => {
       if (!key.startsWith('INPUT_')) {
@@ -129,6 +130,9 @@ describe('getArgs', () => {
       }
       return object;
     }, {});
+  });
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   // prettier-ignore
@@ -145,7 +149,8 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-      ]
+      ],
+      undefined
     ],
     [
       1,
@@ -160,7 +165,8 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson
-      ]
+      ],
+      undefined
     ],
     [
       2,
@@ -177,7 +183,8 @@ describe('getArgs', () => {
         'bake',
         '--metadata-file', metadataJson,
         'webapp', 'validate'
-      ]
+      ],
+      undefined
     ],
     [
       3,
@@ -195,7 +202,8 @@ describe('getArgs', () => {
         '--set', '*.cache-from=type=gha',
         '--set', '*.cache-to=type=gha',
         '--metadata-file', metadataJson
-      ]
+      ],
+      undefined
     ],
     [
       4,
@@ -211,7 +219,8 @@ describe('getArgs', () => {
         'bake',
         '--metadata-file', metadataJson,
         "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-      ]
+      ],
+      undefined
     ],
     [
       5,
@@ -228,7 +237,8 @@ describe('getArgs', () => {
         'bake',
         '--metadata-file', metadataJson,
         "--provenance", `builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
-      ]
+      ],
+      undefined
     ],
     [
       6,
@@ -245,7 +255,8 @@ describe('getArgs', () => {
         'bake',
         '--metadata-file', metadataJson,
         "--provenance", `mode=max,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
-      ]
+      ],
+      undefined
     ],
     [
       7,
@@ -262,7 +273,8 @@ describe('getArgs', () => {
         'bake',
         '--metadata-file', metadataJson,
         "--provenance", 'false'
-      ]
+      ],
+      undefined
     ],
     [
       8,
@@ -279,7 +291,8 @@ describe('getArgs', () => {
         'bake',
         '--metadata-file', metadataJson,
         "--provenance", 'builder-id=foo'
-      ]
+      ],
+      undefined
     ],
     [
       9,
@@ -300,7 +313,8 @@ describe('getArgs', () => {
         '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
         'image-all'
-      ]
+      ],
+      undefined
     ],
     [
       10,
@@ -320,7 +334,8 @@ describe('getArgs', () => {
         '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
         'image-all'
-      ]
+      ],
+      undefined
     ],
     [
       11,
@@ -338,7 +353,8 @@ describe('getArgs', () => {
         '--file', './foo.hcl',
         '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-      ]
+      ],
+      undefined
     ],
     [
       12,
@@ -356,7 +372,8 @@ describe('getArgs', () => {
         '--allow', 'network.host',
         '--metadata-file', metadataJson,
         "--provenance", `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
-      ]
+      ],
+      undefined
     ],
     [
       13,
@@ -375,11 +392,35 @@ describe('getArgs', () => {
         '--file', './foo.hcl',
         '--metadata-file', metadataJson,
         '--provenance', `mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-      ]
+      ],
+      undefined
+    ],
+    [
+      14,
+      '0.15.0',
+      new Map<string, string>([
+        ['source', '.'],
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false']
+      ]),
+      [
+        'bake',
+        '--metadata-file', metadataJson
+      ],
+      new Map<string, string>([
+        ['BUILDX_NO_DEFAULT_ATTESTATIONS', '1']
+      ])
     ],
   ])(
     '[%d] given %p with %p as inputs, returns %p',
-    async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>) => {
+    async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>, envs: Map<string, string> | undefined) => {
+      if (envs) {
+        envs.forEach((value: string, name: string) => {
+          process.env[name] = value;
+        });
+      }
       inputs.forEach((value: string, name: string) => {
         setInput(name, value);
       });

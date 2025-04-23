@@ -734,3 +734,19 @@ jobs:
             ./test/config.hcl
           allow: network.host
           targets: app-entitlements
+
+  no-default-attestations:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Build
+        uses: ./
+        with:
+          source: .
+          files: |
+            ./test/config.hcl
+        env:
+          BUILDX_NO_DEFAULT_ATTESTATIONS: 1

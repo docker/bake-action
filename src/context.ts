@@ -103,7 +103,7 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
   if (await toolkit.buildx.versionSatisfies('>=0.10.0')) {
     if (inputs.provenance) {
       args.push('--provenance', inputs.provenance);
-    } else if ((await toolkit.buildkit.versionSatisfies(inputs.builder, '>=0.11.0')) && !Bake.hasDockerExporter(definition, inputs.load)) {
+    } else if (!noDefaultAttestations() && (await toolkit.buildkit.versionSatisfies(inputs.builder, '>=0.11.0')) && !Bake.hasDockerExporter(definition, inputs.load)) {
       // if provenance not specified and BuildKit version compatible for
       // attestation, set default provenance. Also needs to make sure user
       // doesn't want to explicitly load the image to docker.
@@ -154,4 +154,11 @@ function getSourceInput(name: string): string {
     source = '';
   }
   return source;
+}
+
+function noDefaultAttestations(): boolean {
+  if (process.env.BUILDX_NO_DEFAULT_ATTESTATIONS) {
+    return Util.parseBool(process.env.BUILDX_NO_DEFAULT_ATTESTATIONS);
+  }
+  return false;
 }
