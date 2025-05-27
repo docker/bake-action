@@ -1068,9 +1068,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docker/actions-toolkit@npm:^0.62.0":
-  version: 0.62.0
-  resolution: "@docker/actions-toolkit@npm:0.62.0"
+"@docker/actions-toolkit@https://github.com/crazy-max/docker-actions-toolkit#fix-dbc-summary":
+  version: 0.0.0+unknown
+  resolution: "@docker/actions-toolkit@https://github.com/crazy-max/docker-actions-toolkit.git#commit=2ea6fb21a553dfae7d7593d6da30c6a6ce6b9fad"
   dependencies:
     "@actions/artifact": ^2.3.2
     "@actions/cache": ^4.0.3
@@ -1093,7 +1093,7 @@ __metadata:
     semver: ^7.7.2
     tar-stream: ^3.1.7
     tmp: ^0.2.3
-  checksum: 7be23fbf04214ce7ac714ce376e87be2a2a91abe2d43d7e1e4e7ce5bf5ae3ff42fb8c647272d9495662c5aead7973907bc9d692f5db1c2326bcfabfb9cfc6a2c
+  checksum: 7201c44dcd871a837e4a0db0cc247cc00afdad07e57e9d7f1dc499e9868bcc5b5dd196c4e947e1e2568b67c26a2f2a30fba73d0b90410781d26274148987e524
   languageName: node
   linkType: hard
 
@@ -3193,7 +3193,7 @@ __metadata:
   resolution: "docker-buildx-bake@workspace:."
   dependencies:
     "@actions/core": ^1.11.1
-    "@docker/actions-toolkit": ^0.62.0
+    "@docker/actions-toolkit": "https://github.com/crazy-max/docker-actions-toolkit#fix-dbc-summary"
     "@types/node": ^20.12.12
     "@typescript-eslint/eslint-plugin": ^7.9.0
     "@typescript-eslint/parser": ^7.9.0
