@@ -26,8 +26,8 @@ actionsToolkit.run(
     const startedTime = new Date();
 
     const inputs: context.Inputs = await context.getInputs();
+    stateHelper.setSummaryInputs(inputs);
     core.debug(`inputs: ${JSON.stringify(inputs)}`);
-    stateHelper.setInputs(inputs);
 
     const toolkit = new Toolkit();
     const gitAuthToken = process.env.BUILDX_BAKE_GIT_AUTH_TOKEN ?? inputs['github-token'];
@@ -237,7 +237,7 @@ actionsToolkit.run(
           await GitHub.writeBuildSummary({
             exportRes: exportRes,
             uploadRes: uploadRes,
-            inputs: stateHelper.inputs,
+            inputs: stateHelper.summaryInputs,
             bakeDefinition: stateHelper.bakeDefinition
           });
         } catch (e) {
