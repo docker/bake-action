@@ -6,6 +6,8 @@ import {Inputs} from './context';
 
 export const tmpDir = process.env['STATE_tmpDir'] || '';
 
+export const builderDriver = process.env['STATE_builderDriver'] || '';
+export const builderEndpoint = process.env['STATE_builderEndpoint'] || '';
 export const summaryInputs = process.env['STATE_summaryInputs'] ? JSON.parse(process.env['STATE_summaryInputs']) : undefined;
 export const bakeDefinition = process.env['STATE_bakeDefinition'] ? <BakeDefinition>JSON.parse(process.env['STATE_bakeDefinition']) : undefined;
 
@@ -14,6 +16,14 @@ export const isSummarySupported = !!process.env['STATE_isSummarySupported'];
 
 export function setTmpDir(tmpDir: string) {
   core.saveState('tmpDir', tmpDir);
+}
+
+export function setBuilderDriver(builderDriver: string) {
+  core.saveState('builderDriver', builderDriver);
+}
+
+export function setBuilderEndpoint(builderEndpoint: string) {
+  core.saveState('builderEndpoint', builderEndpoint);
 }
 
 export function setBakeDefinition(bakeDefinition: BakeDefinition) {
