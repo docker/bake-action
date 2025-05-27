@@ -46,28 +46,6 @@ export async function getInputs(): Promise<Inputs> {
   };
 }
 
-export function sanitizeInputs(inputs: Inputs) {
-  const res = {};
-  for (const key of Object.keys(inputs)) {
-    if (key === 'github-token') {
-      continue;
-    }
-    const value: string | string[] | boolean = inputs[key];
-    if (typeof value === 'boolean' && value === false) {
-      continue;
-    } else if (Array.isArray(value) && value.length === 0) {
-      continue;
-    } else if (!value) {
-      continue;
-    }
-    if (key === 'workdir' && value === '.') {
-      continue;
-    }
-    res[key] = value;
-  }
-  return res;
-}
-
 export async function getArgs(inputs: Inputs, definition: BakeDefinition, toolkit: Toolkit): Promise<Array<string>> {
   // prettier-ignore
   return [
