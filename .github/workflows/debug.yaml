@@ -12,10 +12,10 @@ env:
 jobs:
   test-multi-warp:
     name: Debug Run ${{ matrix.run_number }}
-    runs-on: warpdev-ubuntu-latest-x64-2x
+    runs-on: warpdev-ubuntu-latest-x64-8x
     strategy:
       matrix:
-        run_number: [1]
+        run_number: [1,2,3]
       fail-fast: false
     steps:
       - name: Checkout repository
@@ -25,6 +25,6 @@ jobs:
         uses: ./
         with:
           files: ./__tests__/bake.hcl
-          profile-name: dev-eph
+          profile-name: test-dev
 
 

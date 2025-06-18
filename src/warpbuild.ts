@@ -16,6 +16,7 @@ interface BuilderConfig {
 
 interface BuilderInstance {
   id: string;
+  request_id: string;
   arch: string;
   metadata: {
     host: string;
@@ -478,13 +479,16 @@ export class WarpBuildRemoteBuilders {
   public async removeBuilderInstances(): Promise<void> {
     for (const builderInstance of this.builderInstances) {
       try {
-        const removeBuilderEndpoint = `${this.apiDomain}/api/v1/builders/${builderInstance.id}/teardown`;
+        core.info(`Removing builder instance ${builderInstance.id} request ${builderInstance.request_id}`);
+        const removeBuilderEndpoint = `${this.apiDomain}/api/v1/builder-session-requests/complete`;
         const authHeader = this.isWarpBuildRunner ? `Bearer ${process.env.WARPBUILD_RUNNER_VERIFICATION_TOKEN}` : `Bearer ${this.apiKey}`;
 
         const response = await fetch(removeBuilderEndpoint, {
-          method: 'DELETE',
-          headers: {Authorization: authHeader}
-        });
+          method: 'POST',
+          headers: {Authorization: authHeader},
+          body: JSON.stringify({request_id: builderInstance.request_id})
+        },
+      );
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({message: 'Unknown error'}));
@@ -493,7 +497,7 @@ export class WarpBuildRemoteBuilders {
 
         core.info(`Builder instance ${builderInstance.id} removed successfully`);
       } catch (error) {
-        core.warning(`Failed to remove builder instance: ${error.message}`);
+        core.warning(`Failed to remove builder request ${builderInstance.request_id}: ${error.message}`);
       }
     }
   }
