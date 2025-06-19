@@ -35,6 +35,7 @@ interface BuilderDetailsResponse extends BuilderInstance {}
 
 interface CleanupState {
   builderName: string;
+  idempotencyKey: string;
   builderInstances: BuilderInstance[];
   certDirs: string[];
 }
@@ -47,6 +48,7 @@ export class WarpBuildRemoteBuilders {
   private readonly scriptStartTime: number;
   private readonly apiDomain: string;
   private builderName: string;
+  private idempotencyKey: string;
   private builderInstances: BuilderInstance[] = [];
   private certDirs: string[] = [];
   private assignmentPromise: Promise<void> | null = null;
@@ -58,7 +60,10 @@ export class WarpBuildRemoteBuilders {
     this.scriptStartTime = Date.now();
     this.apiDomain = process.env.WARPBUILD_API_DOMAIN || 'https://api.warpbuild.com';
     this.isWarpBuildRunner = this.determineRunnerType();
-    this.builderName = `builder-${uuidv4()}`;
+    // Example output: lq1cr8p2n5x7d3fy
+    // Generate a more random idempotency key using UUID
+    this.idempotencyKey = uuidv4().replace(/-/g, '').substring(0, 16);
+    this.builderName = `builder-${this.idempotencyKey}`;
 
     core.debug(`API domain: ${this.apiDomain}`);
     core.debug(`Is WarpBuild runner: ${this.isWarpBuildRunner}`);
@@ -87,6 +92,7 @@ export class WarpBuildRemoteBuilders {
   public saveState(): void {
     const state: CleanupState = {
       builderName: this.builderName,
+      idempotencyKey: this.idempotencyKey,
       builderInstances: this.builderInstances,
       certDirs: this.certDirs
     };
@@ -100,12 +106,28 @@ export class WarpBuildRemoteBuilders {
     if (stateStr) {
       const state = JSON.parse(stateStr) as CleanupState;
       this.builderName = state.builderName;
+      this.idempotencyKey = state.idempotencyKey;
       this.builderInstances = state.builderInstances;
       this.certDirs = state.certDirs;
       core.debug(`Loaded cleanup state: ${JSON.stringify(state)}`);
     } else {
       core.debug('No cleanup state found');
     }
+  }
+
+  /**
+     * Get request context from github action job environment variables
+     * 
+     * @returns {Object}
+     */
+  public getRequestContext() {
+    return {
+        runner_name: process.env.RUNNER_NAME,
+        github_job_id: process.env.GITHUB_JOB,
+        run_id: process.env.GITHUB_RUN_ID,
+        run_attempt: process.env.GITHUB_RUN_ATTEMPT,
+        repo: process.env.GITHUB_REPOSITORY,
+    };
   }
 
   /**
@@ -162,7 +184,7 @@ export class WarpBuildRemoteBuilders {
               'Content-Type': 'application/json',
               Authorization: authHeader
             },
-            body: JSON.stringify({profile_name: this.profileName})
+            body: JSON.stringify({profile_name: this.profileName, request_metadata: this.getRequestContext(), external_unique_id: this.idempotencyKey})
           });
 
           if (!response.ok) {
@@ -486,7 +508,7 @@ export class WarpBuildRemoteBuilders {
         const response = await fetch(removeBuilderEndpoint, {
           method: 'POST',
           headers: {Authorization: authHeader},
-          body: JSON.stringify({request_id: builderInstance.request_id})
+          body: JSON.stringify({request_id: builderInstance.request_id, external_unique_id: this.idempotencyKey})
         },
       );
 
