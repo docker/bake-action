@@ -61,9 +61,8 @@ export class WarpBuildRemoteBuilders {
     this.apiDomain = process.env.WARPBUILD_API_DOMAIN || 'https://api.warpbuild.com';
     this.isWarpBuildRunner = this.determineRunnerType();
     // Example output: lq1cr8p2n5x7d3fy
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substring(2, 10);
-    this.idempotencyKey = `${timestamp}${random}`.substring(0, 16);
+    // Generate a more random idempotency key using UUID
+    this.idempotencyKey = uuidv4().replace(/-/g, '').substring(0, 16);
     this.builderName = `builder-${this.idempotencyKey}`;
 
     core.debug(`API domain: ${this.apiDomain}`);
