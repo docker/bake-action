@@ -23,15 +23,34 @@ runs:
   using: composite
   steps:
     -
+      name: Install npm dependencies
+      uses: actions/github-script@v7
+      env:
+        INPUT_ACTIONS-TOOLKIT-VERSION: '0.62.1'
+      with:
+        script: |
+          const version = core.getInput('actions-toolkit-version') || 'latest';
+          const dep = `@docker/actions-toolkit@${version}`;
+          await core.group(`Installing ${dep}`, async () => {
+            await exec.exec('npm', ['install', dep]);
+          });
+    -
       name: Generate
       id: generate
       uses: actions/github-script@v7
+      env:
+        INPUT_WORKDIR: ${{ inputs.workdir }}
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_TARGET: ${{ inputs.target }}
       with:
         script: |
-          let def;
-          const files = `${{ inputs.files }}` ? `${{ inputs.files }}`.split(/[\r?\n,]+/).filter(Boolean) : [];
-          const target = `${{ inputs.target }}`;
+          const { Util } = require('@docker/actions-toolkit/lib/util');
 
+          const workdir = core.getInput('workdir');
+          const files = Util.getInputList('files');
+          const target = core.getInput('target');
+
+          let def = {};
           await core.group(`Validating definition`, async () => {
             let args = ['buildx', 'bake'];
             for (const file of files) {
@@ -45,7 +64,7 @@ runs:
             const res = await exec.getExecOutput('docker', args, {
               ignoreReturnCode: true,
               silent: true,
-              cwd: `${{ inputs.workdir }}`
+              cwd: workdir
             });
             if (res.stderr.length > 0 && res.exitCode != 0) {
               throw new Error(res.stderr);
