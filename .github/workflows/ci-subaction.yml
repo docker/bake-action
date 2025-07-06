@@ -25,8 +25,22 @@ on:
       - 'test/**'
 
 jobs:
-  list-targets-group:
+  list-targets:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          -
+            testdir: group
+          -
+            testdir: group-matrix
+            target: validate
+          -
+            testdir: multi-files
+            files: |
+              docker-bake.json
+              docker-bake.hcl
     steps:
       -
         name: Checkout
@@ -36,20 +50,32 @@ jobs:
         id: gen
         uses: ./subaction/list-targets
         with:
-          workdir: ./test/group
-      -
-        name: Check targets
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const targets = `${{ steps.gen.outputs.targets }}`;
-            if (!targets) {
-              core.setFailed('No targets generated');
-            }
-            core.info(`targets=${targets}`);
+          workdir: ./test/${{ matrix.testdir }}
+          files: ${{ matrix.files }}
+          target: ${{ matrix.target }}
 
-  list-targets-group-matrix:
+  matrix:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          -
+            testdir: group
+          -
+            testdir: group-matrix
+            target: validate
+          -
+            testdir: group-with-platform
+            target: validate
+          -
+            testdir: group-with-platform
+            target: validate
+            fields: platforms
+          -
+            testdir: group-with-platform
+            target: validate
+            fields: platforms,dockerfile
     steps:
       -
         name: Checkout
@@ -57,43 +83,8 @@ jobs:
       -
         name: Matrix gen
         id: gen
-        uses: ./subaction/list-targets
+        uses: ./subaction/matrix
         with:
-          workdir: ./test/group-matrix
-          target: validate
-      -
-        name: Check targets
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const targets = `${{ steps.gen.outputs.targets }}`;
-            if (!targets) {
-              core.setFailed('No targets generated');
-            }
-            core.info(`targets=${targets}`);
-
-  list-targets-multi-files:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v5
-      -
-        name: Matrix gen
-        id: gen
-        uses: ./subaction/list-targets
-        with:
-          workdir: ./test/multi-files
-          files: |
-            docker-bake.json
-            docker-bake.hcl
-      -
-        name: Check targets
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const targets = `${{ steps.gen.outputs.targets }}`;
-            if (!targets) {
-              core.setFailed('No targets generated');
-            }
-            core.info(`targets=${targets}`);
+          workdir: ./test/${{ matrix.testdir }}
+          target: ${{ matrix.target }}
+          fields: ${{ matrix.fields }}
