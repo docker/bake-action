@@ -1,9 +1,14 @@
+> [!WARNING]
+> `docker/bake-action/subaction/list-targets` is deprecated and will be removed
+> in a future release. Please use [`docker/bake-action/subaction/matrix`](../matrix)
+> instead.
+
 ## About
 
 This subaction generates a list of Bake targets that can be used in a [GitHub matrix](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix),
 so you can distribute your builds across multiple runners.
 
-![Screenshot](../../.github/bake-action.png)
+![Screenshot](../../.github/subaction-list-targets.png)
 
 ___
 
@@ -56,9 +61,6 @@ jobs:
         target: ${{ fromJson(needs.prepare.outputs.targets) }}
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
         name: Validate
         uses: docker/bake-action@v6
         with:
@@ -79,6 +81,6 @@ jobs:
 
 The following outputs are available
 
-| Name       | Type     | Description                |
-|------------|----------|----------------------------|
-| `targets`  | List/CSV | List of extracted targest  |
+| Name       | Type     | Description               |
+|------------|----------|---------------------------|
+| `targets`  | List/CSV | List of extracted targets |
