@@ -23,18 +23,6 @@ runs:
   using: composite
   steps:
     -
-      name: Install npm dependencies
-      uses: actions/github-script@v7
-      env:
-        INPUT_ACTIONS-TOOLKIT-VERSION: '0.62.1'
-      with:
-        script: |
-          const version = core.getInput('actions-toolkit-version') || 'latest';
-          const dep = `@docker/actions-toolkit@${version}`;
-          await core.group(`Installing ${dep}`, async () => {
-            await exec.exec('npm', ['install', dep]);
-          });
-    -
       name: Generate
       id: generate
       uses: actions/github-script@v7
@@ -44,10 +32,14 @@ runs:
         INPUT_TARGET: ${{ inputs.target }}
       with:
         script: |
-          const { Util } = require('@docker/actions-toolkit/lib/util');
+          core.warning(`docker/bake-action/subaction/list-targets is deprecated and will be removed in a future release. Please use docker/bake-action/subaction/matrix instead.`);
+
+          function getInputList(name) {
+            return core.getInput(name) ? core.getInput(name).split(/[\r?\n,]+/).filter(x => x !== '') : [];
+          }
 
           const workdir = core.getInput('workdir');
-          const files = Util.getInputList('files');
+          const files = getInputList('files');
           const target = core.getInput('target');
 
           let def = {};
