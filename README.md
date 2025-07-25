@@ -200,7 +200,7 @@ The following inputs can be used as `step.with` keys
 | Name           | Type        | Description                                                                                                                                                        |
 |----------------|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `builder`      | String      | Builder instance (see [setup-buildx](https://github.com/docker/setup-buildx-action) action)                                                                        |
-| `source`       | String      | Context to build from. Can be either local (`.`) or a [remote bake definition](https://docs.docker.com/build/customize/bake/file-definition/#remote-definition)    |
+| `source`       | String      | Context to build from. Can be either local (`.`) or a [remote bake definition](https://docs.docker.com/build/bake/remote-definition/)                              |
 | `allow`        | List/CSV    | Allow build to access specified resources (e.g., `network.host`)                                                                                                   |
 | `files`        | List/CSV    | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/)                                                                     |
 | `workdir`      | String      | Working directory of execution                                                                                                                                     |
