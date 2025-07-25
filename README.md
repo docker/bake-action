@@ -22,7 +22,7 @@ ___
   * [outputs](#outputs)
   * [environment variables](#environment-variables)
 * [Subactions](#subactions)
-  * [`list-targets`](subaction/list-targets)
+  * [`matrix`](subaction/matrix)
 * [Contributing](#contributing)
 
 ## Usage
@@ -234,7 +234,7 @@ The following outputs are available
 
 ## Subactions
 
-* [`list-targets`](subaction/list-targets)
+* [`matrix`](subaction/matrix)
 
 ## Contributing
 
