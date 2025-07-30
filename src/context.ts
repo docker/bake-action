@@ -11,11 +11,12 @@ import {Util} from '@docker/actions-toolkit/lib/util';
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
 
 export interface Inputs {
-  allow: string[];
   builder: string;
-  files: string[];
   workdir: string;
-  targets: string[];
+  source: string;
+  allow: string[];
+  call: string;
+  files: string[];
   'no-cache': boolean;
   pull: boolean;
   load: boolean;
@@ -23,17 +24,18 @@ export interface Inputs {
   push: boolean;
   sbom: string;
   set: string[];
-  source: string;
+  targets: string[];
   'github-token': string;
 }
 
 export async function getInputs(): Promise<Inputs> {
   return {
-    allow: Util.getInputList('allow'),
     builder: core.getInput('builder'),
-    files: Util.getInputList('files'),
     workdir: core.getInput('workdir') || '.',
-    targets: Util.getInputList('targets'),
+    source: getSourceInput('source'),
+    allow: Util.getInputList('allow'),
+    call: core.getInput('call'),
+    files: Util.getInputList('files'),
     'no-cache': core.getBooleanInput('no-cache'),
     pull: core.getBooleanInput('pull'),
     load: core.getBooleanInput('load'),
@@ -41,7 +43,7 @@ export async function getInputs(): Promise<Inputs> {
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
-    source: getSourceInput('source'),
+    targets: Util.getInputList('targets'),
     'github-token': core.getInput('github-token')
   };
 }
@@ -68,6 +70,12 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
     await Util.asyncForEach(inputs.allow, async allow => {
       args.push('--allow', allow);
     });
+  }
+  if (inputs.call) {
+    if (!(await toolkit.buildx.versionSatisfies('>=0.16.0'))) {
+      throw new Error(`Buildx >= 0.16.0 is required to use the call flag.`);
+    }
+    args.push('--call', inputs.call);
   }
   await Util.asyncForEach(inputs.files, async file => {
     args.push('--file', file);
