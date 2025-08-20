@@ -146,8 +146,26 @@ actionsToolkit.run(
       env: buildEnv,
       ignoreReturnCode: true
     }).then(res => {
-      if (res.stderr.length > 0 && res.exitCode != 0) {
-        err = Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)?.[0]?.trim() ?? 'unknown error'}`);
+      if (res.exitCode != 0) {
+        if (inputs.call && inputs.call === 'check' && res.stdout.length > 0) {
+          // checks warnings are printed to stdout: https://github.com/docker/buildx/pull/2647
+          // with bake we can have multiple targets being checked so we need to
+          // count the total number of warnings
+          const totalWarnings = [...res.stdout.matchAll(/^Check complete, (\d+) warnings? (?:has|have) been found!/gm)].reduce((sum, m) => sum + parseInt(m[1], 10), 0);
+          if (totalWarnings > 0) {
+            // https://github.com/docker/buildx/blob/1e50e8ddabe108f009b9925e13a321d7c8f99f26/commands/build.go#L797-L803
+            if (totalWarnings === 1) {
+              err = Error(`Check complete, ${totalWarnings} warning has been found!`);
+            } else {
+              err = Error(`Check complete, ${totalWarnings} warnings have been found!`);
+            }
+          } else {
+            // if there are no warnings found, return the first line of stdout
+            err = Error(res.stdout.split('\n')[0]?.trim());
+          }
+        } else if (res.stderr.length > 0) {
+          err = Error(`buildx bake failed with: ${res.stderr.match(/(.*)\s*$/)?.[0]?.trim() ?? 'unknown error'}`);
+        }
       }
     });
 
@@ -191,6 +209,8 @@ actionsToolkit.run(
     await core.group(`Check build summary support`, async () => {
       if (!buildSummaryEnabled()) {
         core.info('Build summary disabled');
+      } else if (inputs.call && inputs.call !== 'build') {
+        core.info(`Build summary skipped for ${inputs.call} subrequest`);
       } else if (GitHub.isGHES) {
         core.info('Build summary is not yet supported on GHES');
       } else if (!(await toolkit.buildx.versionSatisfies('>=0.13.0'))) {

@@ -116,7 +116,6 @@ jobs:
       -
         name: Check
         run: |
-          echo "${{ toJson(steps.bake) }}"
           if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
             echo "::error::Should have failed"
             exit 1
@@ -779,3 +778,92 @@ jobs:
             ./test/config.hcl
         env:
           BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+
+  call-check:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v5
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        id: bake
+        continue-on-error: true
+        uses: ./
+        with:
+          workdir: ./test
+          source: .
+          files: |
+            ./lint.hcl
+          call: check
+          targets: lint
+      -
+        name: Check
+        run: |
+          if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
+            echo "::error::Should have failed"
+            exit 1
+          fi
+
+  call-check-multi:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v5
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        id: bake
+        continue-on-error: true
+        uses: ./
+        with:
+          workdir: ./test
+          source: .
+          files: |
+            ./lint.hcl
+          call: check
+      -
+        name: Check
+        run: |
+          if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
+            echo "::error::Should have failed"
+            exit 1
+          fi
+
+  call-check-nowarning:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v5
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: ${{ inputs.buildx-version || env.BUILDX_VERSION }}
+          driver-opts: |
+            image=${{ inputs.buildkit-image || env.BUILDKIT_IMAGE }}
+      -
+        name: Build
+        id: bake
+        continue-on-error: true
+        uses: ./
+        with:
+          source: .
+          files: |
+            ./test/config.hcl
+          call: check
