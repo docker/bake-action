@@ -1,0 +1,101 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'Matrix'
+description: 'Generate a matrix from a Bake definition to help distributing builds in your workflow'
+
+inputs:
+  workdir:
+    description: Working directory
+    default: '.'
+    required: false
+  files:
+    description: List of Bake files
+    required: false
+  target:
+    description: Bake target
+    required: false
+  fields:
+    description: List of extra fields to include in the matrix
+    required: false
+
+outputs:
+  matrix:
+    description: Matrix configuration
+    value: ${{ steps.generate.outputs.includes }}
+
+runs:
+  using: composite
+  steps:
+    -
+      name: Generate
+      id: generate
+      uses: actions/github-script@v7
+      env:
+        INPUT_WORKDIR: ${{ inputs.workdir }}
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_FIELDS: ${{ inputs.fields }}
+      with:
+        script: |
+          function getInputList(name) {
+            return core.getInput(name) ? core.getInput(name).split(/[\r?\n,]+/).filter(x => x !== '') : [];
+          }
+
+          const workdir = core.getInput('workdir');
+          const files = getInputList('files');
+          const target = core.getInput('target');
+          const fields = getInputList('fields');
+
+          let def = {};
+          await core.group(`Parsing definition`, async () => {
+            let args = ['buildx', 'bake'];
+            for (const file of files) {
+              args.push('--file', file);
+            }
+            if (target) {
+              args.push(target);
+            }
+            args.push('--print');
+            const res = await exec.getExecOutput('docker', args, {
+              ignoreReturnCode: true,
+              silent: true,
+              cwd: workdir
+            });
+            if (res.stderr.length > 0 && res.exitCode != 0) {
+              throw new Error(res.stderr);
+            }
+            def = JSON.parse(res.stdout.trim());
+            core.info(JSON.stringify(def, null, 2));
+          });
+
+          await core.group(`Generating matrix`, async () => {
+            const result = [];
+            for (const targetName of Object.keys(def.target)) {
+              const target = def.target[targetName];
+              const entry = { target: targetName };
+              if (fields.length === 0) {
+                result.push({ ...entry });
+                continue;
+              }
+              let fieldFound = false;
+              Object.keys(target).forEach(field => {
+                if (fields.includes(field)) {
+                  fieldFound = true;
+                  const value = target[field];
+                  if (Array.isArray(value)) {
+                    value.forEach((v) => {
+                      entry[field] = v;
+                      result.push({ ...entry });
+                    });
+                  } else {
+                    entry[field] = value;
+                    result.push({ ...entry });
+                  }
+                }
+              });
+              if (!fieldFound) {
+                result.push({ ...entry });
+              }
+            }
+            core.info(JSON.stringify(result, null, 2));
+            core.setOutput('includes', JSON.stringify(result));
+          });
