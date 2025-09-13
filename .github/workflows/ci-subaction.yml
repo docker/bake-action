@@ -61,7 +61,7 @@ jobs:
           target: ${{ matrix.target }}
       -
         name: Check output
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           INPUT_TARGETS: ${{ steps.gen.outputs.targets }}
           INPUT_EXPECTED: ${{ matrix.expected }}
@@ -121,7 +121,7 @@ jobs:
           fields: ${{ matrix.fields }}
       -
         name: Check output
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           INPUT_MATRIX: ${{ steps.gen.outputs.matrix }}
           INPUT_EXPECTED: ${{ matrix.expected }}
