@@ -500,26 +500,39 @@ export class WarpBuildRemoteBuilders {
 
   public async removeBuilderInstances(): Promise<void> {
     for (const builderInstance of this.builderInstances) {
-      try {
-        core.info(`Removing builder instance ${builderInstance.id} request ${builderInstance.request_id}`);
-        const removeBuilderEndpoint = `${this.apiDomain}/api/v1/builder-session-requests/complete`;
-        const authHeader = this.isWarpBuildRunner ? `Bearer ${process.env.WARPBUILD_RUNNER_VERIFICATION_TOKEN}` : `Bearer ${this.apiKey}`;
+      let retryCount = 0;
+      const maxRetries = 2;
+      
+      while (retryCount <= maxRetries) {
+        try {
+          core.info(`Removing builder instance ${builderInstance.id} request ${builderInstance.request_id}${retryCount > 0 ? ` (retry ${retryCount})` : ''}`);
+          const removeBuilderEndpoint = `${this.apiDomain}/api/v1/builder-session-requests/complete`;
+          const authHeader = this.isWarpBuildRunner ? `Bearer ${process.env.WARPBUILD_RUNNER_VERIFICATION_TOKEN}` : `Bearer ${this.apiKey}`;
 
-        const response = await fetch(removeBuilderEndpoint, {
-          method: 'POST',
-          headers: {Authorization: authHeader},
-          body: JSON.stringify({request_id: builderInstance.request_id, external_unique_id: this.idempotencyKey})
-        },
-      );
+          const response = await fetch(removeBuilderEndpoint, {
+            method: 'POST',
+            headers: {Authorization: authHeader},
+            body: JSON.stringify({request_id: builderInstance.request_id, external_unique_id: this.idempotencyKey })
+          },
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({message: 'Unknown error'}));
-          throw new Error(`Failed to remove builder instance: ${errorData.description || errorData.message || 'Unknown error'}`);
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({message: 'Unknown error'}));
+            throw new Error(`Failed to remove builder instance: ${errorData.description || errorData.message || 'Unknown error'}`);
+          }
+
+          core.info(`Builder instance ${builderInstance.id} removed successfully`);
+          break; // Success, exit retry loop
+        } catch (error) {
+          retryCount++;
+          if (retryCount > maxRetries) {
+            core.warning(`Failed to remove builder request ${builderInstance.request_id} after ${maxRetries + 1} attempts: ${error.message}`);
+          } else {
+            core.warning(`Failed to remove builder request ${builderInstance.request_id} (attempt ${retryCount}), retrying...`);
+            // Wait a bit before retrying
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
         }
-
-        core.info(`Builder instance ${builderInstance.id} removed successfully`);
-      } catch (error) {
-        core.warning(`Failed to remove builder request ${builderInstance.request_id}: ${error.message}`);
       }
     }
   }
