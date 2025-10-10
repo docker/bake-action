@@ -10,21 +10,21 @@ inputs:
   builder:
     description: "Builder instance"
     required: false
+  workdir:
+    description: "Working directory of bake execution"
+    required: false
+    default: '.'
   source:
     description: "Context to build from. Can be either local or a remote bake definition"
     required: false
   allow:
     description: "Allow build to access specified resources (e.g., network.host)"
     required: false
+  call:
+    description: "Set method for evaluating build (e.g., check)"
+    required: false
   files:
     description: "List of bake definition files"
-    required: false
-  workdir:
-    description: "Working directory of bake execution"
-    required: false
-    default: '.'
-  targets:
-    description: "List of bake targets"
     required: false
   no-cache:
     description: "Do not use cache when building the image"
@@ -50,6 +50,9 @@ inputs:
     required: false
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
+    required: false
+  targets:
+    description: "List of bake targets"
     required: false
   github-token:
     description: "API token used to authenticate to a Git repository for remote definitions"

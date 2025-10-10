@@ -1,21 +1,22 @@
 import * as core from '@actions/core';
 import * as handlebars from 'handlebars';
 
-import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
-import {Build} from '@docker/actions-toolkit/lib/buildx/build';
-import {Context} from '@docker/actions-toolkit/lib/context';
-import {GitHub} from '@docker/actions-toolkit/lib/github';
-import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
-import {Util} from '@docker/actions-toolkit/lib/util';
+import { Bake } from '@docker/actions-toolkit/lib/buildx/bake';
+import { Build } from '@docker/actions-toolkit/lib/buildx/build';
+import { Context } from '@docker/actions-toolkit/lib/context';
+import { GitHub } from '@docker/actions-toolkit/lib/github';
+import { Toolkit } from '@docker/actions-toolkit/lib/toolkit';
+import { Util } from '@docker/actions-toolkit/lib/util';
 
-import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
+import { BakeDefinition } from '@docker/actions-toolkit/lib/types/buildx/bake';
 
 export interface Inputs {
-  allow: string[];
   builder: string;
-  files: string[];
   workdir: string;
-  targets: string[];
+  source: string;
+  allow: string[];
+  call: string;
+  files: string[];
   'no-cache': boolean;
   pull: boolean;
   load: boolean;
@@ -23,7 +24,7 @@ export interface Inputs {
   push: boolean;
   sbom: string;
   set: string[];
-  source: string;
+  targets: string[];
   'github-token': string;
   apiKey: string;
   profileName: string;
@@ -32,46 +33,25 @@ export interface Inputs {
 
 export async function getInputs(): Promise<Inputs> {
   return {
-    allow: Util.getInputList('allow'),
     builder: core.getInput('builder'),
-    files: Util.getInputList('files'),
     workdir: core.getInput('workdir') || '.',
-    targets: Util.getInputList('targets'),
+    source: getSourceInput('source'),
+    allow: Util.getInputList('allow'),
+    call: core.getInput('call'),
+    files: Util.getInputList('files'),
     'no-cache': core.getBooleanInput('no-cache'),
     pull: core.getBooleanInput('pull'),
     load: core.getBooleanInput('load'),
     provenance: Build.getProvenanceInput('provenance'),
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
-    set: Util.getInputList('set', {ignoreComma: true, quote: false}),
-    source: getSourceInput('source'),
+    set: Util.getInputList('set', { ignoreComma: true, quote: false }),
+    targets: Util.getInputList('targets'),
     'github-token': core.getInput('github-token'),
     apiKey: core.getInput('api-key'),
     profileName: core.getInput('profile-name'),
     timeout: core.getInput('timeout')
   };
-}
-
-export function sanitizeInputs(inputs: Inputs) {
-  const res = {};
-  for (const key of Object.keys(inputs)) {
-    if (key === 'github-token') {
-      continue;
-    }
-    const value: string | string[] | boolean = inputs[key];
-    if (typeof value === 'boolean' && value === false) {
-      continue;
-    } else if (Array.isArray(value) && value.length === 0) {
-      continue;
-    } else if (!value) {
-      continue;
-    }
-    if (key === 'workdir' && value === '.') {
-      continue;
-    }
-    res[key] = value;
-  }
-  return res;
 }
 
 export async function getArgs(inputs: Inputs, definition: BakeDefinition, toolkit: Toolkit): Promise<Array<string>> {
@@ -96,6 +76,12 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
     await Util.asyncForEach(inputs.allow, async allow => {
       args.push('--allow', allow);
     });
+  }
+  if (inputs.call) {
+    if (!(await toolkit.buildx.versionSatisfies('>=0.16.0'))) {
+      throw new Error(`Buildx >= 0.16.0 is required to use the call flag.`);
+    }
+    args.push('--call', inputs.call);
   }
   await Util.asyncForEach(inputs.files, async file => {
     args.push('--file', file);
