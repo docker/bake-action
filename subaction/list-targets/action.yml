@@ -26,12 +26,23 @@ runs:
       name: Generate
       id: generate
       uses: actions/github-script@v7
+      env:
+        INPUT_WORKDIR: ${{ inputs.workdir }}
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_TARGET: ${{ inputs.target }}
       with:
         script: |
-          let def;
-          const files = `${{ inputs.files }}` ? `${{ inputs.files }}`.split(/[\r?\n,]+/).filter(Boolean) : [];
-          const target = `${{ inputs.target }}`;
+          core.warning(`docker/bake-action/subaction/list-targets is deprecated and will be removed in a future release. Please use docker/bake-action/subaction/matrix instead.`);
 
+          function getInputList(name) {
+            return core.getInput(name) ? core.getInput(name).split(/[\r?\n,]+/).filter(x => x !== '') : [];
+          }
+
+          const workdir = core.getInput('workdir');
+          const files = getInputList('files');
+          const target = core.getInput('target');
+
+          let def = {};
           await core.group(`Validating definition`, async () => {
             let args = ['buildx', 'bake'];
             for (const file of files) {
@@ -45,7 +56,7 @@ runs:
             const res = await exec.getExecOutput('docker', args, {
               ignoreReturnCode: true,
               silent: true,
-              cwd: `${{ inputs.workdir }}`
+              cwd: workdir
             });
             if (res.stderr.length > 0 && res.exitCode != 0) {
               throw new Error(res.stderr);

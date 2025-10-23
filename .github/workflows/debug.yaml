@@ -25,6 +25,6 @@ jobs:
         uses: ./
         with:
           files: ./__tests__/bake.hcl
-          profile-name: test-dev
+          profile-name: benchmark-builder-dispatch
 
 
