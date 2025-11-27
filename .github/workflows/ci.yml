@@ -52,7 +52,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -82,7 +82,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Build
         continue-on-error: true
@@ -99,7 +99,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Stop docker
         run: |
@@ -126,7 +126,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Uninstall docker cli
         run: |
@@ -155,7 +155,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Build
         uses: ./
@@ -177,7 +177,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -219,7 +219,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -274,7 +274,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Build
         uses: ./
@@ -296,7 +296,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -321,7 +321,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set malformed docker config
         run: |
@@ -350,7 +350,7 @@ jobs:
           curl --retry 5 --retry-all-errors --retry-delay 0 --connect-timeout 5 --proxy http://127.0.0.1:3128 -v --insecure --head https://www.google.com
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set proxy config
         run: |
@@ -389,7 +389,7 @@ jobs:
           curl --retry 5 --retry-all-errors --retry-delay 0 --connect-timeout 5 --proxy http://127.0.0.1:3128 -v --insecure --head https://www.google.com
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -414,7 +414,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -431,7 +431,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -460,7 +460,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -504,7 +504,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -537,7 +537,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -560,7 +560,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -584,7 +584,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -605,7 +605,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -634,7 +634,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -663,7 +663,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -692,7 +692,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -714,7 +714,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -746,7 +746,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -768,7 +768,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Build
         uses: ./
@@ -784,7 +784,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -817,7 +817,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -849,7 +849,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -873,7 +873,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
