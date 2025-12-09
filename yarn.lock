@@ -72,6 +72,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@actions/core@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@actions/core@npm:2.0.0"
+  dependencies:
+    "@actions/exec": "npm:^1.1.1"
+    "@actions/http-client": "npm:^3.0.0"
+  checksum: 10/051190c962d4abee7bc1878c1d94aa6660bf04f41ec99913f2f16b6e3c02b25fffb62451a8ce0742d8a594d3aff316f17f6539ab27dadcf772f1c4c562aab4dd
+  languageName: node
+  linkType: hard
+
 "@actions/exec@npm:^1.0.0, @actions/exec@npm:^1.0.1, @actions/exec@npm:^1.1.1":
   version: 1.1.1
   resolution: "@actions/exec@npm:1.1.1"
@@ -3341,7 +3351,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "docker-buildx-bake@workspace:."
   dependencies:
-    "@actions/core": "npm:^1.11.1"
+    "@actions/core": "npm:^2.0.0"
     "@docker/actions-toolkit": "npm:^0.68.0"
     "@types/node": "npm:^20.19.9"
     "@typescript-eslint/eslint-plugin": "npm:^7.18.0"
