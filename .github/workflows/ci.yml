@@ -121,6 +121,27 @@ jobs:
             exit 1
           fi
 
+  error-source:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v6
+      -
+        name: Build
+        id: bake
+        continue-on-error: true
+        uses: ./
+        with:
+          source: ./does-not-exist
+      -
+        name: Check
+        run: |
+          if [ "${{ steps.bake.outcome }}" != "failure" ] || [ "${{ steps.bake.conclusion }}" != "success" ]; then
+            echo "::error::Should have failed"
+            exit 1
+          fi
+
   standalone:
     runs-on: ubuntu-latest
     steps:
@@ -190,8 +211,7 @@ jobs:
         name: Build
         uses: ./
         with:
-          workdir: ./test/go
-          source: .
+          source: ./test/go
           targets: binary
           provenance: ${{ matrix.attrs }}
           set: |
@@ -232,8 +252,7 @@ jobs:
         name: Build
         uses: ./
         with:
-          workdir: ./test/go
-          source: .
+          source: ./test/go
           targets: ${{ matrix.target }}
           sbom: true
           set: |
@@ -279,8 +298,7 @@ jobs:
         name: Build
         uses: ./
         with:
-          workdir: ./test/go
-          source: .
+          source: ./test/go
           set: |
             *.platform=linux/amd64
             *.output=type=image,"name=localhost:5000/name/app:v1.0.0,localhost:5000/name/app:latest",push=true
@@ -309,8 +327,7 @@ jobs:
         name: Build and push
         uses: ./
         with:
-          workdir: ./test/group
-          source: .
+          source: ./test/group
           push: true
           set: |
             t1.tags=localhost:5000/name/app:t1
@@ -472,8 +489,7 @@ jobs:
         name: Build and push
         uses: ./
         with:
-          workdir: ./test/go
-          source: .
+          source: ./test/go
           set: |
             *.output=type=image,name=localhost:5000/name/app:latest,push=true
             *.output=type=docker,name=app:local
@@ -516,8 +532,7 @@ jobs:
         name: Build and push
         uses: ./
         with:
-          workdir: ./test/go
-          source: .
+          source: ./test/go
           targets: image
           load: true
           push: true
@@ -651,8 +666,7 @@ jobs:
         name: Build
         uses: ./
         with:
-          workdir: ./test
-          source: .
+          source: ./test
           files: |
             ./lint.hcl
 
@@ -673,8 +687,7 @@ jobs:
         name: Build
         uses: ./
         with:
-          workdir: ./test
-          source: .
+          source: ./test
           files: |
             ./lint.hcl
         env:
@@ -745,8 +758,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          workdir: ./test
-          source: .
+          source: ./test
           files: |
             ./lint.hcl
           call: check
@@ -778,8 +790,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          workdir: ./test
-          source: .
+          source: ./test
           files: |
             ./lint.hcl
           call: check
@@ -832,5 +843,4 @@ jobs:
         name: Build and push
         uses: ./
         with:
-          workdir: ./test/attest
-          source: .
+          source: ./test/attest

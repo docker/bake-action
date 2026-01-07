@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as core from '@actions/core';
 import * as handlebars from 'handlebars';
 
@@ -10,10 +11,13 @@ import {Util} from '@docker/actions-toolkit/lib/util.js';
 
 import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake.js';
 
+export interface BakeContext {
+  remoteRef?: string;
+  workdir?: string;
+}
+
 export interface Inputs {
   builder: string;
-  workdir: string;
-  source: string;
   allow: string[];
   call: string;
   files: string[];
@@ -24,6 +28,7 @@ export interface Inputs {
   push: boolean;
   sbom: string;
   set: string[];
+  source: BakeContext;
   targets: string[];
   'github-token': string;
 }
@@ -31,8 +36,6 @@ export interface Inputs {
 export async function getInputs(): Promise<Inputs> {
   return {
     builder: core.getInput('builder'),
-    workdir: core.getInput('workdir') || '.',
-    source: getSourceInput('source'),
     allow: Util.getInputList('allow'),
     call: core.getInput('call'),
     files: Util.getInputList('files'),
@@ -43,6 +46,7 @@ export async function getInputs(): Promise<Inputs> {
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
+    source: getBakeContext(core.getInput('source')),
     targets: Util.getInputList('targets'),
     'github-token': core.getInput('github-token')
   };
@@ -59,8 +63,8 @@ export async function getArgs(inputs: Inputs, definition: BakeDefinition, toolki
 
 async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: Toolkit): Promise<Array<string>> {
   const args: Array<string> = ['bake'];
-  if (inputs.source) {
-    args.push(inputs.source);
+  if (inputs.source.remoteRef) {
+    args.push(inputs.source.remoteRef);
   }
   if (await toolkit.buildx.versionSatisfies('>=0.17.0')) {
     if (await toolkit.buildx.versionSatisfies('>=0.18.0')) {
@@ -135,17 +139,26 @@ async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
   return args;
 }
 
-function getSourceInput(name: string): string {
-  let source = handlebars.compile(core.getInput(name))({
+function getBakeContext(sourceInput: string): BakeContext {
+  let bakeContext = handlebars.compile(sourceInput)({
     defaultContext: Context.gitContext()
   });
-  if (!source) {
-    source = Context.gitContext();
+  if (!bakeContext) {
+    bakeContext = Context.gitContext();
   }
-  if (source === '.') {
-    source = '';
+  if (Util.isValidRef(bakeContext)) {
+    return {
+      remoteRef: bakeContext
+    };
   }
-  return source;
+  try {
+    fs.statSync(sourceInput).isDirectory();
+  } catch {
+    throw new Error(`Invalid source: ${sourceInput} does not exist or is not a directory.`);
+  }
+  return {
+    workdir: bakeContext
+  };
 }
 
 function noDefaultAttestations(): boolean {

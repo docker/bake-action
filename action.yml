@@ -10,13 +10,6 @@ inputs:
   builder:
     description: "Builder instance"
     required: false
-  workdir:
-    description: "Working directory of bake execution"
-    required: false
-    default: '.'
-  source:
-    description: "Context to build from. Can be either local or a remote bake definition"
-    required: false
   allow:
     description: "Allow build to access specified resources (e.g., network.host)"
     required: false
@@ -50,6 +43,9 @@ inputs:
     required: false
   set:
     description: "List of targets values to override (eg. targetpattern.key=value)"
+    required: false
+  source:
+    description: "Context to build from. Can be either local to specify the working directory or a remote bake definition"
     required: false
   targets:
     description: "List of bake targets"
