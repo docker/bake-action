@@ -14,6 +14,7 @@ process.env = Object.assign({}, process.env, {
 });
 
 const require = createRequire(import.meta.url);
+type RequireCacheEntry = NonNullable<(typeof require.cache)[string]>;
 
 const githubMock = {
   context: {
@@ -250,7 +251,7 @@ for (const mod of githubModuleIds) {
       exports: githubMock,
       children: [],
       paths: []
-    } as unknown as NodeModule;
+    } as RequireCacheEntry;
   } catch {
     // Ignore unresolved optional paths; vi.mock handles module-level mocking.
   }

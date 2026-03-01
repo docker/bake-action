@@ -3,27 +3,20 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
-import {Builder} from '@docker/actions-toolkit/lib/buildx/builder';
-import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx';
-import {Context} from '@docker/actions-toolkit/lib/context';
-import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
-import {GitHub} from '@docker/actions-toolkit/lib/github';
-import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
+import {Bake} from '@docker/actions-toolkit/lib/buildx/bake.js';
+import {Builder} from '@docker/actions-toolkit/lib/buildx/builder.js';
+import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx.js';
+import {Context} from '@docker/actions-toolkit/lib/context.js';
+import {Docker} from '@docker/actions-toolkit/lib/docker/docker.js';
+import {Toolkit} from '@docker/actions-toolkit/lib/toolkit.js';
 
-import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
-import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder';
-import {GitHubRepo} from '@docker/actions-toolkit/lib/types/github';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake.js';
+import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder.js';
 
-import * as context from '../src/context';
+import * as context from '../src/context.js';
 
 const tmpDir = fs.mkdtempSync(path.join(process.env.TEMP || os.tmpdir(), 'context-'));
 const tmpName = path.join(tmpDir, '.tmpname-vi');
-
-import repoFixture from './fixtures/github-repo.json';
-vi.spyOn(GitHub.prototype, 'repoData').mockImplementation((): Promise<GitHubRepo> => {
-  return <Promise<GitHubRepo>>(repoFixture as unknown);
-});
 
 vi.spyOn(Context, 'tmpDir').mockImplementation((): string => {
   if (!fs.existsSync(tmpDir)) {
