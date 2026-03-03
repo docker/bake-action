@@ -1,0 +1,55 @@
+{
+  "group": {
+    "default": {
+      "targets": [
+        "validate"
+      ]
+    },
+    "validate": {
+      "targets": [
+        "lint",
+        "validate-vendor",
+        "validate-docs"
+      ]
+    }
+  },
+  "target": {
+    "lint": {
+      "context": ".",
+      "dockerfile": "./hack/dockerfiles/lint.Dockerfile",
+      "args": {
+        "BUILDKIT_CONTEXT_KEEP_GIT_DIR": "1",
+        "GO_VERSION": "1.20"
+      },
+      "output": [
+        "type=cacheonly"
+      ]
+    },
+    "validate-docs": {
+      "context": ".",
+      "dockerfile": "./hack/dockerfiles/docs.Dockerfile",
+      "args": {
+        "BUILDKIT_CONTEXT_KEEP_GIT_DIR": "1",
+        "BUILDX_EXPERIMENTAL": "1",
+        "FORMATS": "md",
+        "GO_VERSION": "1.20"
+      },
+      "target": "validate",
+      "output": [
+        "type=cacheonly"
+      ]
+    },
+    "validate-vendor": {
+      "context": ".",
+      "dockerfile": "./hack/dockerfiles/vendor.Dockerfile",
+      "args": {
+        "BUILDKIT_CONTEXT_KEEP_GIT_DIR": "1",
+        "GO_VERSION": "1.20"
+      },
+      "target": "validate",
+      "output": [
+        "type=cacheonly"
+      ]
+    }
+  }
+}

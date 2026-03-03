@@ -6,7 +6,6 @@ import * as path from 'path';
 import {Bake} from '@docker/actions-toolkit/lib/buildx/bake.js';
 import {Builder} from '@docker/actions-toolkit/lib/buildx/builder.js';
 import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx.js';
-import {Context} from '@docker/actions-toolkit/lib/context.js';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker.js';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit.js';
 
@@ -16,18 +15,7 @@ import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder.js';
 import * as context from '../src/context.js';
 
 const tmpDir = fs.mkdtempSync(path.join(process.env.TEMP || os.tmpdir(), 'context-'));
-const tmpName = path.join(tmpDir, '.tmpname-vi');
-
-vi.spyOn(Context, 'tmpDir').mockImplementation((): string => {
-  if (!fs.existsSync(tmpDir)) {
-    fs.mkdirSync(tmpDir, {recursive: true});
-  }
-  return tmpDir;
-});
-
-vi.spyOn(Context, 'tmpName').mockImplementation((): string => {
-  return tmpName;
-});
+const fixturesDir = path.join(__dirname, 'fixtures');
 
 vi.spyOn(Docker, 'isAvailable').mockImplementation(async (): Promise<boolean> => {
   return true;
@@ -38,81 +26,17 @@ vi.spyOn(Bake.prototype, 'getMetadataFilePath').mockImplementation((): string =>
   return metadataJson;
 });
 
+type BuilderInfoFixture = Omit<BuilderInfo, 'lastActivity'> & {lastActivity: string};
+const builderInfoFixture = <BuilderInfoFixture>JSON.parse(fs.readFileSync(path.join(fixturesDir, 'builder-info.json'), {encoding: 'utf-8'}).trim());
 vi.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<BuilderInfo> => {
   return {
-    name: 'builder2',
-    driver: 'docker-container',
-    lastActivity: new Date('2023-01-16 09:45:23 +0000 UTC'),
-    nodes: [
-      {
-        buildkit: 'v0.11.0',
-        'buildkitd-flags': '--debug --allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host',
-        'driver-opts': ['BUILDKIT_STEP_LOG_MAX_SIZE=10485760', 'BUILDKIT_STEP_LOG_MAX_SPEED=10485760', 'JAEGER_TRACE=localhost:6831', 'image=moby/buildkit:latest', 'network=host'],
-        endpoint: 'unix:///var/run/docker.sock',
-        name: 'builder20',
-        platforms: 'linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/mips64le,linux/mips64,linux/arm/v7,linux/arm/v6',
-        status: 'running'
-      }
-    ]
+    ...builderInfoFixture,
+    lastActivity: new Date(builderInfoFixture.lastActivity)
   };
 });
 
 vi.spyOn(Bake.prototype, 'getDefinition').mockImplementation(async (): Promise<BakeDefinition> => {
-  return JSON.parse(`{
-    "group": {
-      "default": {
-        "targets": [
-          "validate"
-        ]
-      },
-      "validate": {
-        "targets": [
-          "lint",
-          "validate-vendor",
-          "validate-docs"
-        ]
-      }
-    },
-    "target": {
-      "lint": {
-        "context": ".",
-        "dockerfile": "./hack/dockerfiles/lint.Dockerfile",
-        "args": {
-          "BUILDKIT_CONTEXT_KEEP_GIT_DIR": "1",
-          "GO_VERSION": "1.20"
-        },
-        "output": [
-          "type=cacheonly"
-        ]
-      },
-      "validate-docs": {
-        "context": ".",
-        "dockerfile": "./hack/dockerfiles/docs.Dockerfile",
-        "args": {
-          "BUILDKIT_CONTEXT_KEEP_GIT_DIR": "1",
-          "BUILDX_EXPERIMENTAL": "1",
-          "FORMATS": "md",
-          "GO_VERSION": "1.20"
-        },
-        "target": "validate",
-        "output": [
-          "type=cacheonly"
-        ]
-      },
-      "validate-vendor": {
-        "context": ".",
-        "dockerfile": "./hack/dockerfiles/vendor.Dockerfile",
-        "args": {
-          "BUILDKIT_CONTEXT_KEEP_GIT_DIR": "1",
-          "GO_VERSION": "1.20"
-        },
-        "target": "validate",
-        "output": [
-          "type=cacheonly"
-        ]
-      }
-    }
-  }`) as BakeDefinition;
+  return <BakeDefinition>JSON.parse(fs.readFileSync(path.join(fixturesDir, 'bake-def.json'), {encoding: 'utf-8'}).trim());
 });
 
 describe('getArgs', () => {
@@ -212,9 +136,9 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson,
-        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
       ],
       undefined
     ],
@@ -232,7 +156,7 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson,
-        "--provenance", `builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+        "--provenance", `builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
       ],
       undefined
     ],
@@ -250,7 +174,7 @@ describe('getArgs', () => {
       [
         'bake',
         '--metadata-file', metadataJson,
-        "--provenance", `mode=max,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+        "--provenance", `mode=max,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
       ],
       undefined
     ],
@@ -307,9 +231,9 @@ describe('getArgs', () => {
         '--set', '*.platform=linux/amd64,linux/ppc64le,linux/s390x',
         '--set', `*.output=type=image,"name=moby/buildkit:v0.11.0,moby/buildkit:latest",push=true`,
         '--metadata-file', metadataJson,
-        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
         'image-all'
       ],
       undefined
@@ -330,9 +254,9 @@ describe('getArgs', () => {
         'bake',
         '--set', `*.labels.foo=bar=#baz`,
         '--metadata-file', metadataJson,
-        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
         'image-all'
       ],
       undefined
@@ -349,12 +273,12 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        'https://github.com/docker/build-push-action.git#refs/heads/master',
+        'https://github.com/docker/bake-action.git#refs/heads/master',
         '--file', './foo.hcl',
         '--metadata-file', metadataJson,
-        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
       ],
       undefined
     ],
@@ -373,9 +297,9 @@ describe('getArgs', () => {
         'bake',
         '--allow', 'network.host',
         '--metadata-file', metadataJson,
-        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
       ],
       undefined
     ],
@@ -392,12 +316,12 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        'https://github.com/docker/build-push-action.git#refs/heads/master:subdir',
+        'https://github.com/docker/bake-action.git#refs/heads/master:subdir',
         '--file', './foo.hcl',
         '--metadata-file', metadataJson,
-        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`,
-        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/build-push-action/actions/runs/123456789/attempts/1`
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
       ],
       undefined
     ],
