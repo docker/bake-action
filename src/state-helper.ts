@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
 
-import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake.js';
 
-import {Inputs} from './context';
+import {Inputs} from './context.js';
 
 export const tmpDir = process.env['STATE_tmpDir'] || '';
 

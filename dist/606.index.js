@@ -1,7 +1,6 @@
-"use strict";
-exports.id = 606;
-exports.ids = [606];
-exports.modules = {
+export const id = 606;
+export const ids = [606];
+export const modules = {
 
 /***/ 606:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
@@ -298,5 +297,5 @@ const pMapSkip = Symbol('skip');
 /***/ })
 
 };
-;
+
 //# sourceMappingURL=606.index.js.map

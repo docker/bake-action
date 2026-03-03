@@ -1,50 +1,44 @@
-import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals';
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
-import {Bake} from '@docker/actions-toolkit/lib/buildx/bake';
-import {Builder} from '@docker/actions-toolkit/lib/buildx/builder';
-import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx';
-import {Context} from '@docker/actions-toolkit/lib/context';
-import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
-import {GitHub} from '@docker/actions-toolkit/lib/github';
-import {Toolkit} from '@docker/actions-toolkit/lib/toolkit';
+import {Bake} from '@docker/actions-toolkit/lib/buildx/bake.js';
+import {Builder} from '@docker/actions-toolkit/lib/buildx/builder.js';
+import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx.js';
+import {Context} from '@docker/actions-toolkit/lib/context.js';
+import {Docker} from '@docker/actions-toolkit/lib/docker/docker.js';
+import {Toolkit} from '@docker/actions-toolkit/lib/toolkit.js';
 
-import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake';
-import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder';
-import {GitHubRepo} from '@docker/actions-toolkit/lib/types/github';
+import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake.js';
+import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder.js';
 
-import * as context from '../src/context';
+import * as context from '../src/context.js';
 
-const tmpDir = path.join('/tmp', '.docker-bake-action-jest');
-const tmpName = path.join(tmpDir, '.tmpname-jest');
+const tmpDir = fs.mkdtempSync(path.join(process.env.TEMP || os.tmpdir(), 'context-'));
+const tmpName = path.join(tmpDir, '.tmpname-vi');
 
-import repoFixture from './fixtures/github-repo.json';
-jest.spyOn(GitHub.prototype, 'repoData').mockImplementation((): Promise<GitHubRepo> => {
-  return <Promise<GitHubRepo>>(repoFixture as unknown);
-});
-
-jest.spyOn(Context, 'tmpDir').mockImplementation((): string => {
+vi.spyOn(Context, 'tmpDir').mockImplementation((): string => {
   if (!fs.existsSync(tmpDir)) {
     fs.mkdirSync(tmpDir, {recursive: true});
   }
   return tmpDir;
 });
 
-jest.spyOn(Context, 'tmpName').mockImplementation((): string => {
+vi.spyOn(Context, 'tmpName').mockImplementation((): string => {
   return tmpName;
 });
 
-jest.spyOn(Docker, 'isAvailable').mockImplementation(async (): Promise<boolean> => {
+vi.spyOn(Docker, 'isAvailable').mockImplementation(async (): Promise<boolean> => {
   return true;
 });
 
 const metadataJson = path.join(tmpDir, 'metadata.json');
-jest.spyOn(Bake.prototype, 'getMetadataFilePath').mockImplementation((): string => {
+vi.spyOn(Bake.prototype, 'getMetadataFilePath').mockImplementation((): string => {
   return metadataJson;
 });
 
-jest.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<BuilderInfo> => {
+vi.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<BuilderInfo> => {
   return {
     name: 'builder2',
     driver: 'docker-container',
@@ -63,7 +57,7 @@ jest.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<Bu
   };
 });
 
-jest.spyOn(Bake.prototype, 'getDefinition').mockImplementation(async (): Promise<BakeDefinition> => {
+vi.spyOn(Bake.prototype, 'getDefinition').mockImplementation(async (): Promise<BakeDefinition> => {
   return JSON.parse(`{
     "group": {
       "default": {
@@ -426,7 +420,7 @@ describe('getArgs', () => {
       ])
     ],
   ])(
-    '[%d] given %p with %p as inputs, returns %p',
+    '[%d] given %o with %o as inputs, returns %o',
     async (num: number, buildxVersion: string, inputs: Map<string, string>, expected: Array<string>, envs: Map<string, string> | undefined) => {
       if (envs) {
         envs.forEach((value: string, name: string) => {
@@ -437,7 +431,7 @@ describe('getArgs', () => {
         setInput(name, value);
       });
       const toolkit = new Toolkit();
-      jest.spyOn(Buildx.prototype, 'version').mockImplementation(async (): Promise<string> => {
+      vi.spyOn(Buildx.prototype, 'version').mockImplementation(async (): Promise<string> => {
         return buildxVersion;
       });
       const inp = await context.getInputs();
