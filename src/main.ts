@@ -215,8 +215,8 @@ actionsToolkit.run(
         core.info(`Build summary skipped for ${inputs.call} subrequest`);
       } else if (GitHub.isGHES) {
         core.info('Build summary is not yet supported on GHES');
-      } else if (!(await toolkit.buildx.versionSatisfies('>=0.13.0'))) {
-        core.info('Build summary requires Buildx >= 0.13.0');
+      } else if (!(await toolkit.buildx.versionSatisfies('>=0.23.0'))) {
+        core.info('Build summary requires Buildx >= 0.23.0');
       } else if (refs.length == 0) {
         core.info('Build summary requires at least one build reference');
       } else {
@@ -242,8 +242,7 @@ actionsToolkit.run(
 
           const buildxHistory = new BuildxHistory();
           const exportRes = await buildxHistory.export({
-            refs: stateHelper.buildRefs,
-            useContainer: buildExportLegacy()
+            refs: stateHelper.buildRefs
           });
           core.info(`Build records written to ${exportRes.dockerbuildFilename} (${Util.formatFileSize(exportRes.dockerbuildSize)})`);
 
@@ -340,11 +339,4 @@ function buildRecordRetentionDays(): number | undefined {
     }
     return res;
   }
-}
-
-function buildExportLegacy(): boolean {
-  if (process.env.DOCKER_BUILD_EXPORT_LEGACY) {
-    return Util.parseBool(process.env.DOCKER_BUILD_EXPORT_LEGACY);
-  }
-  return false;
 }
