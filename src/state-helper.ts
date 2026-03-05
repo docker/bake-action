@@ -40,8 +40,11 @@ export function setSummarySupported() {
 
 export function setSummaryInputs(inputs: Inputs) {
   const res = {};
+  if (inputs.source.remoteRef || inputs.source.workdir) {
+    res['source'] = inputs.source.remoteRef || inputs.source.workdir;
+  }
   for (const key of Object.keys(inputs)) {
-    if (key === 'github-token') {
+    if (key === 'source' || key === 'github-token') {
       continue;
     }
     const value: string | string[] | boolean = inputs[key];

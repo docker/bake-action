@@ -107,12 +107,12 @@ actionsToolkit.run(
           provenance: inputs.provenance,
           push: inputs.push,
           sbom: inputs.sbom,
-          source: inputs.source,
+          source: inputs.source.remoteRef,
           targets: inputs.targets,
           githubToken: gitAuthToken
         },
         {
-          cwd: inputs.workdir
+          cwd: inputs.source.workdir
         }
       );
     });
@@ -132,7 +132,7 @@ actionsToolkit.run(
 
     await core.group(`Bake definition`, async () => {
       await Exec.getExecOutput(buildCmd.command, [...buildCmd.args, '--print'], {
-        cwd: inputs.workdir,
+        cwd: inputs.source.workdir,
         env: buildEnv,
         ignoreReturnCode: true
       }).then(res => {
@@ -144,7 +144,7 @@ actionsToolkit.run(
 
     let err: Error | undefined;
     await Exec.getExecOutput(buildCmd.command, buildCmd.args, {
-      cwd: inputs.workdir,
+      cwd: inputs.source.workdir,
       env: buildEnv,
       ignoreReturnCode: true
     }).then(res => {
