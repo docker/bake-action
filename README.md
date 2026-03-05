@@ -52,16 +52,16 @@ jobs:
     steps:
       -
         name: Login to DockerHub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       -
         name: Build and push
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           push: true
           set: |
@@ -82,7 +82,7 @@ to the default Git context:
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: "{{defaultContext}}:mysubdir"
           push: true
@@ -102,7 +102,7 @@ another private repository for remote definitions, you can set the
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           push: true
           set: |
@@ -125,19 +125,19 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       -
         name: Login to DockerHub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       -
         name: Build and push
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: .
           push: true
@@ -151,7 +151,7 @@ subdirectory:
 ```yaml
       -
         name: Build and push
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: ./subdir
           files: ./docker-bake.hcl

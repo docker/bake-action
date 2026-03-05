@@ -41,11 +41,11 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       -
         name: Generate matrix
         id: generate
-        uses: docker/bake-action/subaction/matrix@v6
+        uses: docker/bake-action/subaction/matrix@v7
         with:
           target: validate
 
@@ -60,7 +60,7 @@ jobs:
     steps:
       -
         name: Validate
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           targets: ${{ matrix.target }}
 ```
@@ -95,11 +95,11 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       -
         name: Generate matrix
         id: generate
-        uses: docker/bake-action/subaction/matrix@v6
+        uses: docker/bake-action/subaction/matrix@v7
         with:
           target: lint
           fields: platforms
@@ -115,7 +115,7 @@ jobs:
     steps:
       -
         name: Lint
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           targets: ${{ matrix.target }}
           set: |
