@@ -15,7 +15,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      targets: ${{ steps.generate.outputs.targets }}
+      matrix: ${{ steps.generate.outputs.matrix }}
     steps:
       -
         name: Checkout
@@ -23,7 +23,7 @@ jobs:
       -
         name: List targets
         id: generate
-        uses: ./subaction/list-targets
+        uses: ./subaction/matrix
         with:
           target: validate
 
@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJson(needs.prepare.outputs.targets) }}
+        include: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       -
         name: Validate
