@@ -28,7 +28,7 @@ runs:
     -
       name: Generate
       id: generate
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         INPUT_WORKDIR: ${{ inputs.workdir }}
         INPUT_FILES: ${{ inputs.files }}
