@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 
 import {Bake} from '@docker/actions-toolkit/lib/buildx/bake.js';
+import {Build} from '@docker/actions-toolkit/lib/buildx/build.js';
 import {Builder} from '@docker/actions-toolkit/lib/buildx/builder.js';
 import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx.js';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker.js';
@@ -37,6 +38,55 @@ vi.spyOn(Builder.prototype, 'inspect').mockImplementation(async (): Promise<Buil
 
 vi.spyOn(Bake.prototype, 'getDefinition').mockImplementation(async (): Promise<BakeDefinition> => {
   return <BakeDefinition>JSON.parse(fs.readFileSync(path.join(fixturesDir, 'bake-def.json'), {encoding: 'utf-8'}).trim());
+});
+
+describe('getInputs', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = Object.keys(process.env).reduce((object, key) => {
+      if (!key.startsWith('INPUT_')) {
+        object[key] = process.env[key];
+      }
+      return object;
+    }, {});
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  function setRequiredBooleanInputs(): void {
+    setInput('no-cache', 'false');
+    setInput('pull', 'false');
+    setInput('load', 'false');
+    setInput('push', 'false');
+  }
+
+  test('uses Build git context when source input is empty', async () => {
+    const gitContext = 'https://github.com/docker/bake-action.git?ref=refs/heads/master&checksum=0123456789abcdef';
+    const gitContextSpy = vi.spyOn(Build.prototype, 'gitContext').mockResolvedValue(gitContext);
+    setRequiredBooleanInputs();
+    const inputs = await context.getInputs();
+    expect(inputs.source).toEqual({
+      remoteRef: gitContext
+    });
+    expect(gitContextSpy).toHaveBeenCalledTimes(1);
+    gitContextSpy.mockRestore();
+  });
+
+  test('renders defaultContext source templates from Build git context', async () => {
+    const gitContext = 'https://github.com/docker/bake-action.git#refs/heads/master';
+    const gitContextSpy = vi.spyOn(Build.prototype, 'gitContext').mockResolvedValue(gitContext);
+    setRequiredBooleanInputs();
+    setInput('source', '{{defaultContext}}:subdir');
+    const inputs = await context.getInputs();
+    expect(inputs.source).toEqual({
+      remoteRef: `${gitContext}:subdir`
+    });
+    expect(gitContextSpy).toHaveBeenCalledTimes(1);
+    gitContextSpy.mockRestore();
+  });
 });
 
 describe('getArgs', () => {
@@ -341,6 +391,54 @@ describe('getArgs', () => {
       ],
       new Map<string, string>([
         ['BUILDX_NO_DEFAULT_ATTESTATIONS', '1']
+      ])
+    ],
+    [
+      15,
+      '0.29.0',
+      new Map<string, string>([
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+        ['files', './foo.hcl'],
+      ]),
+      [
+        'bake',
+        'https://github.com/docker/bake-action.git?ref=refs/heads/master',
+        '--allow', 'fs=*',
+        '--file', './foo.hcl',
+        '--metadata-file', metadataJson,
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
+      ],
+      new Map<string, string>([
+        ['BUILDX_SEND_GIT_QUERY_AS_INPUT', 'true']
+      ])
+    ],
+    [
+      16,
+      '0.28.0',
+      new Map<string, string>([
+        ['load', 'false'],
+        ['no-cache', 'false'],
+        ['push', 'false'],
+        ['pull', 'false'],
+        ['files', './foo.hcl'],
+      ]),
+      [
+        'bake',
+        'https://github.com/docker/bake-action.git#refs/heads/master',
+        '--allow', 'fs=*',
+        '--file', './foo.hcl',
+        '--metadata-file', metadataJson,
+        '--set', `lint.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-docs.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`,
+        '--set', `validate-vendor.attest=type=provenance,mode=min,inline-only=true,builder-id=https://github.com/docker/bake-action/actions/runs/123456789/attempts/1`
+      ],
+      new Map<string, string>([
+        ['BUILDX_SEND_GIT_QUERY_AS_INPUT', 'true']
       ])
     ],
   ])(
