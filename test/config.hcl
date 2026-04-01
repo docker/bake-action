@@ -6,21 +6,26 @@ group "release" {
   targets = ["db", "app-plus"]
 }
 
+# Special target: https://github.com/docker/metadata-action#bake-definition
+target "docker-metadata-action" {
+  tags = [
+    "localhost:5000/name/app:latest",
+    "localhost:5000/name/app:1.0.0"
+  ]
+}
+
 target "db" {
   context = "./test"
   tags = ["docker.io/tonistiigi/db"]
 }
 
 target "app" {
+  inherits = ["docker-metadata-action"]
   context = "./test"
   dockerfile = "Dockerfile"
   args = {
     name = "foo"
   }
-  tags = [
-    "localhost:5000/name/app:latest",
-    "localhost:5000/name/app:1.0.0"
-  ]
 }
 
 target "cross" {

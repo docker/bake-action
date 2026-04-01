@@ -4,7 +4,6 @@ import * as handlebars from 'handlebars';
 
 import {Bake} from '@docker/actions-toolkit/lib/buildx/bake.js';
 import {Build} from '@docker/actions-toolkit/lib/buildx/build.js';
-import {Context} from '@docker/actions-toolkit/lib/context.js';
 import {GitHub} from '@docker/actions-toolkit/lib/github/github.js';
 import {Toolkit} from '@docker/actions-toolkit/lib/toolkit.js';
 import {Util} from '@docker/actions-toolkit/lib/util.js';
@@ -46,7 +45,7 @@ export async function getInputs(): Promise<Inputs> {
     push: core.getBooleanInput('push'),
     sbom: core.getInput('sbom'),
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
-    source: getBakeContext(core.getInput('source')),
+    source: await getBakeContext(core.getInput('source')),
     targets: Util.getInputList('targets'),
     'github-token': core.getInput('github-token')
   };
@@ -139,12 +138,13 @@ async function getCommonArgs(inputs: Inputs): Promise<Array<string>> {
   return args;
 }
 
-function getBakeContext(sourceInput: string): BakeContext {
+async function getBakeContext(sourceInput: string): Promise<BakeContext> {
+  const defaultContext = await new Build().gitContext();
   let bakeContext = handlebars.compile(sourceInput)({
-    defaultContext: Context.gitContext()
+    defaultContext: defaultContext
   });
   if (!bakeContext) {
-    bakeContext = Context.gitContext();
+    bakeContext = defaultContext;
   }
   if (Util.isValidRef(bakeContext)) {
     return {
