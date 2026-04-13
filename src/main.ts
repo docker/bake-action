@@ -109,6 +109,7 @@ actionsToolkit.run(
           sbom: inputs.sbom,
           source: inputs.source.remoteRef,
           targets: inputs.targets,
+          vars: inputs.vars,
           githubToken: gitAuthToken
         },
         {
