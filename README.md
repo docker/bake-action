@@ -239,6 +239,7 @@ The following inputs can be used as `step.with` keys
 | `set`          | List        | List of [targets values to override](https://docs.docker.com/engine/reference/commandline/buildx_bake/#set) (e.g., `targetpattern.key=value`)                                                                                                                          |
 | `source`       | String      | Build source to use. Supports local path and [remote bake definition](https://docs.docker.com/build/bake/remote-definition/). With a local path, Bake runs from that directory, so all relative paths are resolved from it. See [Source semantics](#source-semantics). |
 | `targets`      | List/CSV    | List of bake targets (`default` target used if empty)                                                                                                                                                                                                                  |
+| `vars`         | List        | [Variables](https://docs.docker.com/build/bake/variables/) to set in the Bake definition as list of key-value pair                                                                                                                                                     |
 | `github-token` | String      | API token used to authenticate to a Git repository for [remote definitions](https://docs.docker.com/build/bake/remote-definition/) (default `${{ github.token }}`)                                                                                                     |
 
 ### outputs

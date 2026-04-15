@@ -29,6 +29,7 @@ export interface Inputs {
   set: string[];
   source: BakeContext;
   targets: string[];
+  vars: string[];
   'github-token': string;
 }
 
@@ -47,6 +48,7 @@ export async function getInputs(): Promise<Inputs> {
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
     source: await getBakeContext(core.getInput('source')),
     targets: Util.getInputList('targets'),
+    vars: Util.getInputList('vars', {ignoreComma: true, quote: false}),
     'github-token': core.getInput('github-token')
   };
 }
@@ -70,22 +72,30 @@ async function getBakeArgs(inputs: Inputs, definition: BakeDefinition, toolkit: 
       // allow filesystem entitlements by default
       inputs.allow.push('fs=*');
     }
-    await Util.asyncForEach(inputs.allow, async allow => {
+    await Util.asyncForEach(inputs.allow, async (allow: string) => {
       args.push('--allow', allow);
     });
   }
   if (inputs.call) {
     if (!(await toolkit.buildx.versionSatisfies('>=0.16.0'))) {
-      throw new Error(`Buildx >= 0.16.0 is required to use the call flag.`);
+      throw new Error(`Buildx >= 0.16.0 is required to use the call input.`);
     }
     args.push('--call', inputs.call);
   }
-  await Util.asyncForEach(inputs.files, async file => {
+  await Util.asyncForEach(inputs.files, async (file: string) => {
     args.push('--file', file);
   });
-  await Util.asyncForEach(inputs.set, async set => {
-    args.push('--set', set);
+  await Util.asyncForEach(inputs.set, async (s: string) => {
+    args.push('--set', s);
   });
+  if (inputs.vars.length > 0) {
+    if (!(await toolkit.buildx.versionSatisfies('>=0.31.0'))) {
+      throw new Error(`Buildx >= 0.31.0 is required to use the vars input.`);
+    }
+    await Util.asyncForEach(inputs.vars, async (v: string) => {
+      args.push('--var', v);
+    });
+  }
   if (await toolkit.buildx.versionSatisfies('>=0.6.0')) {
     args.push('--metadata-file', toolkit.buildxBake.getMetadataFilePath());
   }
