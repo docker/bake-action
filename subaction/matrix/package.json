@@ -1,0 +1,26 @@
+{
+  "name": "docker-buildx-bake-matrix",
+  "description": "GitHub Action to generate a multi-dimension GitHub matrix from bake definition files",
+  "type": "module",
+  "main": "src/main.ts",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify && yarn run license",
+    "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docker/bake-action.git",
+    "directory": "subaction/matrix"
+  },
+  "author": "Docker Inc.",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@actions/core": "catalog:",
+    "@actions/exec": "^3.0.0",
+    "@docker/actions-toolkit": "catalog:"
+  },
+  "devDependencies": {
+    "esbuild": "catalog:",
+    "generate-license-file": "catalog:"
+  }
+}
