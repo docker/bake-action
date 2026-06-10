@@ -20,6 +20,12 @@ inputs:
 outputs:
   matrix:
     description: Matrix configuration
+  max-layers:
+    description: Max amount of layers in the layered Matrix configuration
+  layers:
+    description: Current amount of layers in the layered Matrix configuration
+  layered-matrix:
+    description: Layered Matrix configuration
 
 runs:
   using: 'node24'
