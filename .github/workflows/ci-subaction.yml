@@ -36,30 +36,50 @@ jobs:
         include:
           -
             testdir: group
-            expected: >
+            expected-matrix: >
               [{"target":"t1"},{"target":"t2"}]
+            expected-max-layers: 1
+            expected-layers: 1
+            expected-layered-matrix: >
+              [[{"target":"t1"},{"target":"t2"}]]
           -
             testdir: group-matrix
             target: validate
-            expected: >
+            expected-matrix: >
               [{"target":"lint-default"},{"target":"lint-labs"},{"target":"lint-nydus"},{"target":"lint-proto"},{"target":"lint-yaml"},{"target":"validate-doctoc"},{"target":"validate-vendor"}]
+            expected-max-layers: 1
+            expected-layers: 1
+            expected-layered-matrix: >
+              [[{"target":"lint-default"},{"target":"lint-labs"},{"target":"lint-nydus"},{"target":"lint-proto"},{"target":"lint-yaml"},{"target":"validate-doctoc"},{"target":"validate-vendor"}]]
           -
             testdir: group-with-platform
             target: validate
-            expected: >
+            expected-matrix: >
               [{"target":"lint"},{"target":"lint-gopls"},{"target":"validate-docs"},{"target":"validate-vendor"}]
+            expected-max-layers: 1
+            expected-layers: 1
+            expected-layered-matrix: >
+              [[{"target":"lint"},{"target":"lint-gopls"},{"target":"validate-docs"},{"target":"validate-vendor"}]]
           -
             testdir: group-with-platform
             target: validate
             fields: platforms
-            expected: >
+            expected-matrix: >
               [{"target":"lint","platforms":"darwin/amd64"},{"target":"lint","platforms":"darwin/arm64"},{"target":"lint","platforms":"linux/amd64"},{"target":"lint","platforms":"linux/arm64"},{"target":"lint","platforms":"linux/s390x"},{"target":"lint","platforms":"linux/ppc64le"},{"target":"lint","platforms":"linux/riscv64"},{"target":"lint","platforms":"windows/amd64"},{"target":"lint","platforms":"windows/arm64"},{"target":"lint-gopls","platforms":"darwin/amd64"},{"target":"lint-gopls","platforms":"darwin/arm64"},{"target":"lint-gopls","platforms":"linux/amd64"},{"target":"lint-gopls","platforms":"linux/arm64"},{"target":"lint-gopls","platforms":"linux/s390x"},{"target":"lint-gopls","platforms":"linux/ppc64le"},{"target":"lint-gopls","platforms":"linux/riscv64"},{"target":"lint-gopls","platforms":"windows/amd64"},{"target":"lint-gopls","platforms":"windows/arm64"},{"target":"validate-docs"},{"target":"validate-vendor"}]
+            expected-max-layers: 1
+            expected-layers: 1
+            expected-layered-matrix: >
+              [[{"target":"lint","platforms":"darwin/amd64"},{"target":"lint","platforms":"darwin/arm64"},{"target":"lint","platforms":"linux/amd64"},{"target":"lint","platforms":"linux/arm64"},{"target":"lint","platforms":"linux/s390x"},{"target":"lint","platforms":"linux/ppc64le"},{"target":"lint","platforms":"linux/riscv64"},{"target":"lint","platforms":"windows/amd64"},{"target":"lint","platforms":"windows/arm64"},{"target":"lint-gopls","platforms":"darwin/amd64"},{"target":"lint-gopls","platforms":"darwin/arm64"},{"target":"lint-gopls","platforms":"linux/amd64"},{"target":"lint-gopls","platforms":"linux/arm64"},{"target":"lint-gopls","platforms":"linux/s390x"},{"target":"lint-gopls","platforms":"linux/ppc64le"},{"target":"lint-gopls","platforms":"linux/riscv64"},{"target":"lint-gopls","platforms":"windows/amd64"},{"target":"lint-gopls","platforms":"windows/arm64"},{"target":"validate-docs"},{"target":"validate-vendor"}]]
           -
             testdir: group-with-platform
             target: validate
             fields: platforms,dockerfile
-            expected: >
+            expected-matrix: >
                [{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/amd64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/arm64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/amd64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/arm64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/s390x"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/ppc64le"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/riscv64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/amd64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/arm64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/amd64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/arm64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/amd64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/arm64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/s390x"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/ppc64le"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/riscv64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/amd64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/arm64"},{"target":"validate-docs","dockerfile":"./hack/dockerfiles/docs.Dockerfile"},{"target":"validate-vendor","dockerfile":"./hack/dockerfiles/vendor.Dockerfile"}]
+            expected-max-layers: 1
+            expected-layers: 1
+            expected-layered-matrix: >
+              [[{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/amd64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/arm64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/amd64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/arm64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/s390x"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/ppc64le"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/riscv64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/amd64"},{"target":"lint","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/arm64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/amd64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"darwin/arm64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/amd64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/arm64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/s390x"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/ppc64le"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"linux/riscv64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/amd64"},{"target":"lint-gopls","dockerfile":"./hack/dockerfiles/lint.Dockerfile","platforms":"windows/arm64"},{"target":"validate-docs","dockerfile":"./hack/dockerfiles/docs.Dockerfile"},{"target":"validate-vendor","dockerfile":"./hack/dockerfiles/vendor.Dockerfile"}]]
     steps:
       -
         name: Checkout
@@ -77,13 +97,39 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           INPUT_MATRIX: ${{ steps.gen.outputs.matrix }}
-          INPUT_EXPECTED: ${{ matrix.expected }}
+          INPUT_EXPECTED_MATRIX: ${{ matrix.expected-matrix }}
+          INPUT_MAX_LAYERS: ${{ steps.gen.outputs.max-layers }}
+          INPUT_EXPECTED_MAX_LAYERS: ${{ matrix.expected-max-layers }}
+          INPUT_LAYERS: ${{ steps.gen.outputs.layers }}
+          INPUT_EXPECTED_LAYERS: ${{ matrix.expected-layers }}
+          INPUT_LAYERED_MATRIX: ${{ steps.gen.outputs.layered-matrix }}
+          INPUT_EXPECTED_LAYERED_MATRIX: ${{ matrix.expected-layered-matrix }}
         with:
           script: |
-            const matrix = JSON.stringify(JSON.parse(core.getInput('matrix')));
-            const expected = JSON.stringify(JSON.parse(core.getInput('expected')));
-            if (matrix !== expected) {
-              throw new Error(`Matrix do not match expected values: ${matrix} != ${expected}`);
-            } else {
-              core.info(`✅`);
+            const checks = {
+              "matrix": [
+                JSON.stringify(JSON.parse(core.getInput('matrix'))),
+                JSON.stringify(JSON.parse(core.getInput('expected_matrix')))
+              ],
+              "max-layers": [
+                JSON.stringify(JSON.parse(core.getInput('max_layers'))),
+                JSON.stringify(JSON.parse(core.getInput('expected_max_layers')))
+              ],
+              "layers": [
+                JSON.stringify(JSON.parse(core.getInput('layers'))),
+                JSON.stringify(JSON.parse(core.getInput('expected_layers')))
+              ],
+              "layered-matrix": [
+                JSON.stringify(JSON.parse(core.getInput('layered_matrix'))),
+                JSON.stringify(JSON.parse(core.getInput('expected_layered_matrix')))
+              ]
+            };
+            for (const checkName in checks) {
+                const value = checks[checkName][0];
+                const expected = checks[checkName][1];
+                if (value !== expected) {
+                  throw new Error(`${checkName} does not match expected value: ${value} != ${expected}`);
+                } else {
+                  core.info(`${checkName} ✅`);
+                }
             }
