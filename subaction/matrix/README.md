@@ -135,6 +135,9 @@ jobs:
 
 ### outputs
 
-| Name     | Type | Description          |
-|----------|------|----------------------|
-| `matrix` | JSON | Matrix configuration |
+| Name             | Type    | Description                                    |
+|------------------|---------|------------------------------------------------|
+| `matrix`         | JSON    | Matrix configuration                           |
+| `max-layers`     | Integer | Amount of layers required to build all targets |
+| `layered-matrix` | JSON    | Layered matrix configuration                   |
+| `layers`         | Integer | Amount of layers present in `layered-matrix`   |
