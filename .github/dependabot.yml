@@ -4,6 +4,7 @@ updates:
     directories:
       - "/"
       - "/subaction/matrix"
+      - "/subaction/get-changes"
     schedule:
       interval: "daily"
     cooldown:
@@ -19,6 +20,7 @@ updates:
     directories:
       - "/"
       - "/subaction/matrix"
+      - "/subaction/get-changes"
     schedule:
       interval: "daily"
     cooldown:

@@ -2829,6 +2829,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"docker-buildx-bake-get-changes@workspace:subaction/get-changes":
+  version: 0.0.0-use.local
+  resolution: "docker-buildx-bake-get-changes@workspace:subaction/get-changes"
+  dependencies:
+    "@actions/core": "catalog:"
+    "@actions/exec": "npm:^3.0.0"
+    "@docker/actions-toolkit": "catalog:"
+    esbuild: "catalog:"
+    generate-license-file: "catalog:"
+  languageName: unknown
+  linkType: soft
+
 "docker-buildx-bake-matrix@workspace:subaction/matrix":
   version: 0.0.0-use.local
   resolution: "docker-buildx-bake-matrix@workspace:subaction/matrix"

@@ -1,0 +1,23 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'Get Changes'
+description: 'Detect which targets changed from a Bake definition based on workflow events'
+
+inputs:
+  source:
+    description: "Context to use. Can be either local to specify the working directory or a remote bake definition"
+    required: false
+  files:
+    description: List of Bake files
+    required: false
+  github-token:
+    description: "API token used to authenticate to a Git repository for remote definitions"
+    default: ${{ github.token }}
+    required: false
+
+outputs:
+  targets:
+    description: Bake targets which changed
+
+runs:
+  using: 'node24'
+  main: 'dist/index.cjs'

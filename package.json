@@ -11,7 +11,8 @@
     "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf"
   },
   "workspaces": [
-    "subaction/matrix"
+    "subaction/matrix",
+    "subaction/get-changes"
   ],
   "repository": {
     "type": "git",
