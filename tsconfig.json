@@ -13,6 +13,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "subaction/matrix/src/**/*.ts"
+    "subaction/matrix/src/**/*.ts",
+    "subaction/get-changes/src/**/*.ts"
   ]
 }
