@@ -15,12 +15,13 @@
   "author": "Docker Inc.",
   "license": "Apache-2.0",
   "dependencies": {
-    "@actions/core": "catalog:",
+    "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@docker/actions-toolkit": "catalog:"
+    "@docker/actions-toolkit": "^0.100.0",
+    "@octokit/webhooks-definitions": "^3.0.0"
   },
   "devDependencies": {
-    "esbuild": "catalog:",
-    "generate-license-file": "catalog:"
+    "esbuild": "^0.28.0",
+    "generate-license-file": "^4.1.1"
   }
 }
