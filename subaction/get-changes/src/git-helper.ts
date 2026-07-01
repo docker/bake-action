@@ -7,6 +7,8 @@ import * as exec from '@actions/exec';
 
 import {Util} from '@docker/actions-toolkit/lib/util.js';
 
+const createdDirectories: Array<string> = [];
+
 export async function fetchCommit(workdir: string, commit: string) {
   const args = ['fetch', 'origin', commit];
   const result = await exec.getExecOutput('git', args, {
@@ -36,10 +38,10 @@ export async function getFileFromCommit(workdir: string, file: string, commit: s
   // file does not exist in commit
   if (result.exitCode == 128) {
     core.warning(`File '${file}' does not exist in commit: ${commit}`);
-    await fsPromises.rm(outPath);
-    await fsPromises.rmdir(tmpDir);
+    await fsPromises.rm(tmpDir, {recursive: true});
     return null;
   }
+  createdDirectories.push(tmpDir);
   if (result.stderr.length > 0 && result.exitCode != 0) {
     throw new Error(result.stderr);
   }
@@ -59,4 +61,10 @@ export async function getChangedFiles(workdir: string, compareCommit: string): P
   return Util.getList(result.stdout, {
     trimWhitespace: true
   });
+}
+
+export async function removeCreatedFiles() {
+  for (const dir of createdDirectories) {
+    await fsPromises.rm(dir, {recursive: true});
+  }
 }
