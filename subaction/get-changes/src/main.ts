@@ -15,37 +15,56 @@ actionsToolkit.run(
     const workdir = core.getInput('workdir');
     const files = Util.getInputList('files');
 
-    const currentDefinition = await getBakeDefinition(workdir, files);
+    let currentDefinition: BakeDefinition;
+    await core.group(`Parsing current definition`, async () => {
+      currentDefinition = await getBakeDefinition(workdir, files);
+      core.info(JSON.stringify(currentDefinition, null, 2));
+    });
 
     if (isFirstPush) {
-      core.info('First push');
-      const targets = Object.keys(currentDefinition.target);
-      core.info(JSON.stringify(targets, null, 2));
-      core.setOutput('targets', JSON.stringify(targets, null, 2));
+      await core.group(`Getting changed targets`, async () => {
+        core.info('First push');
+        const targets = Object.keys(currentDefinition.target);
+        core.info(JSON.stringify(targets, null, 2));
+        core.setOutput('targets', JSON.stringify(targets));
+      });
       return;
     }
 
-    const previousFiles = await getBaseBakeDefinitionFiles(workdir, files);
-    const previousDefinition = await getBakeDefinition(workdir, previousFiles);
-    const changedFiles = await getChangedFiles(workdir, baseCommit);
-    const targetPaths = getTargetPathPatterns(currentDefinition);
+    let previousFiles: Array<string>;
+    let previousDefinition: BakeDefinition;
+    await core.group(`Parsing previous definition`, async () => {
+      previousFiles = await getBaseBakeDefinitionFiles(workdir, files);
+      previousDefinition = await getBakeDefinition(workdir, previousFiles);
+      core.info(JSON.stringify(previousDefinition, null, 2));
+    });
 
-    let changedTargets = new Set<string>();
-    // Check files for changes
-    for (const changedFile of changedFiles) {
-      for (const targetName in targetPaths) {
-        if (targetPaths[targetName].some(pattern => path.matchesGlob(changedFile, pattern))) {
-          changedTargets.add(targetName);
-          break;
+    let changedFiles: Array<string>;
+    await core.group(`Parsing changed files`, async () => {
+      changedFiles = await getChangedFiles(workdir, baseCommit);
+      core.info(JSON.stringify(changedFiles, null, 2));
+    });
+
+    await core.group(`Getting changed targets`, async () => {
+      const targetPaths = getTargetPathPatterns(currentDefinition);
+
+      let changedTargets = new Set<string>();
+      // Check files for changes
+      for (const changedFile of changedFiles) {
+        for (const targetName in targetPaths) {
+          if (targetPaths[targetName].some(pattern => path.matchesGlob(changedFile, pattern))) {
+            changedTargets.add(targetName);
+            break;
+          }
         }
       }
-    }
-    // Add changed bake target definitions
-    changedTargets = changedTargets.union(getChangedTargetDefinitions(previousDefinition, currentDefinition));
+      // Add changed bake target definitions
+      changedTargets = changedTargets.union(getChangedTargetDefinitions(previousDefinition, currentDefinition));
 
-    const output = JSON.stringify([...changedTargets], null, 2);
-    core.info(output);
-    core.setOutput('targets', output);
+      const targets = [...changedTargets];
+      core.info(JSON.stringify(targets, null, 2));
+      core.setOutput('targets', JSON.stringify(targets));
+    });
   },
   // post
   removeCreatedFiles
