@@ -7,7 +7,7 @@ import {BakeDefinition} from '@docker/actions-toolkit/lib/types/buildx/bake.js';
 import {Util} from '@docker/actions-toolkit/lib/util.js';
 
 import {baseCommit, getBaseBakeDefinitionFiles, isFirstPush} from './github-helper.js';
-import {getChangedFiles} from './git-helper.js';
+import {getChangedFiles, removeCreatedFiles} from './git-helper.js';
 
 actionsToolkit.run(
   // main
@@ -46,7 +46,9 @@ actionsToolkit.run(
     const output = JSON.stringify([...changedTargets], null, 2);
     core.info(output);
     core.setOutput('targets', output);
-  }
+  },
+  // post
+  removeCreatedFiles
 );
 
 async function getBakeDefinition(workdir: string, files: Array<string>): Promise<BakeDefinition> {
