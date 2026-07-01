@@ -17,7 +17,8 @@
   "dependencies": {
     "@actions/core": "catalog:",
     "@actions/exec": "^3.0.0",
-    "@docker/actions-toolkit": "catalog:"
+    "@docker/actions-toolkit": "catalog:",
+    "@octokit/webhooks-definitions": "^3.0.0"
   },
   "devDependencies": {
     "esbuild": "catalog:",
