@@ -46,20 +46,10 @@ actionsToolkit.run(
     });
 
     await core.group(`Getting changed targets`, async () => {
-      const targetPaths = getTargetPathPatterns(currentDefinition);
-
-      let changedTargets = new Set<string>();
       // Check files for changes
-      for (const changedFile of changedFiles) {
-        for (const targetName in targetPaths) {
-          if (targetPaths[targetName].some(pattern => path.matchesGlob(changedFile, pattern))) {
-            changedTargets.add(targetName);
-            break;
-          }
-        }
-      }
+      let changedTargets = getChangedTargetsFromPaths(currentDefinition, changedFiles);
       // Add changed bake target definitions
-      changedTargets = changedTargets.union(getChangedTargetDefinitions(previousDefinition, currentDefinition));
+      changedTargets = changedTargets.union(getChangedTargetsFromDefinitions(previousDefinition, currentDefinition));
 
       const targets = [...changedTargets];
       core.info(JSON.stringify(targets, null, 2));
@@ -69,6 +59,37 @@ actionsToolkit.run(
   // post
   removeCreatedFiles
 );
+
+export function getChangedTargetsFromPaths(definition: BakeDefinition, changedFiles: Array<string>): Set<string> {
+  const result = new Set<string>();
+  const targetPaths = getTargetPathPatterns(definition);
+  for (const changedFile of changedFiles) {
+    for (const targetName in targetPaths) {
+      if (targetPaths[targetName].some(pattern => path.matchesGlob(changedFile, pattern))) {
+        result.add(targetName);
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+export function getChangedTargetsFromDefinitions(first: BakeDefinition, second: BakeDefinition): Set<string> {
+  const result = new Set<string>();
+  for (const targetName in second.target) {
+    // Check whether the target is new
+    if (!Object.hasOwn(first.target, targetName)) {
+      result.add(targetName);
+      continue;
+    }
+    const firstTarget = first.target[targetName];
+    const secondTarget = second.target[targetName];
+    if (!isDeepEqual(firstTarget, secondTarget)) {
+      result.add(targetName);
+    }
+  }
+  return result;
+}
 
 async function getBakeDefinition(workdir: string, files: Array<string>): Promise<BakeDefinition> {
   const args = ['buildx', 'bake'];
@@ -85,32 +106,6 @@ async function getBakeDefinition(workdir: string, files: Array<string>): Promise
     throw new Error(res.stderr);
   }
   return JSON.parse(res.stdout.trim());
-}
-
-function getTargetPathPatterns(definition: BakeDefinition): Record<string, Array<string>> {
-  const result: Record<string, Array<string>> = {};
-  for (const targetName in definition.target) {
-    const target = definition.target[targetName];
-    result[targetName] = [path.join(target.context, '**'), path.join(target.context, target.dockerfile)];
-  }
-  return result;
-}
-
-function getChangedTargetDefinitions(first: BakeDefinition, second: BakeDefinition): Set<string> {
-  const result = new Set<string>();
-  for (const targetName in second.target) {
-    // Check whether the target is new
-    if (!Object.hasOwn(first.target, targetName)) {
-      result.add(targetName);
-      continue;
-    }
-    const firstTarget = first.target[targetName];
-    const secondTarget = second.target[targetName];
-    if (!isDeepEqual(firstTarget, secondTarget)) {
-      result.add(targetName);
-    }
-  }
-  return result;
 }
 
 function isDeepEqual(first: object, second: object): boolean {
@@ -144,4 +139,13 @@ function isDeepEqual(first: object, second: object): boolean {
     }
   }
   return true;
+}
+
+function getTargetPathPatterns(definition: BakeDefinition): Record<string, Array<string>> {
+  const result: Record<string, Array<string>> = {};
+  for (const targetName in definition.target) {
+    const target = definition.target[targetName];
+    result[targetName] = [path.join(target.context, '**'), path.join(target.context, target.dockerfile)];
+  }
+  return result;
 }
