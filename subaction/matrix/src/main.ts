@@ -16,6 +16,7 @@ actionsToolkit.run(
     const files = Util.getInputList('files');
     const target = core.getInput('target');
     const fields = Util.getInputList('fields');
+    const changedTargets: Array<string> = JSON.parse(core.getInput('changed-targets'));
 
     const def = await core.group(`Parsing definition`, async () => {
       const def: BakeDefinition = await getBakeDefinition(workdir, files, target);
@@ -24,7 +25,7 @@ actionsToolkit.run(
     });
 
     await core.group(`Generating matrix`, async () => {
-      const matrix = generateDefaultMatrix(def, fields);
+      const matrix = generateDefaultMatrix(def, fields, changedTargets);
       core.info(JSON.stringify(matrix, null, 2));
       core.setOutput('matrix', JSON.stringify(matrix));
     });
@@ -33,7 +34,7 @@ actionsToolkit.run(
       const graph = new DependencyGraph(def);
       core.info(`Max amount of layers: ${graph.maxDepth}`);
       core.setOutput('max-layers', graph.maxDepth);
-      const layeredMatrix = generateLayeredMatrix(graph, fields);
+      const layeredMatrix = generateLayeredMatrix(graph, fields, changedTargets);
       core.info(JSON.stringify(layeredMatrix, null, 2));
       core.setOutput('layered-matrix', JSON.stringify(layeredMatrix));
       core.setOutput('layers', layeredMatrix.length);
@@ -89,16 +90,27 @@ function getTargetsWithFields(targetName: string, target: Target, fields: Array<
   return result;
 }
 
-function generateDefaultMatrix(definition: BakeDefinition, fields: Array<string>): Array<MatrixConfigEntry> {
+function generateDefaultMatrix(definition: BakeDefinition, fields: Array<string>, changedTargets: Array<string>): Array<MatrixConfigEntry> {
   const result: Array<MatrixConfigEntry> = [];
-  for (const [targetName, target] of Object.entries(definition.target)) {
+  let targets: Array<[string, Target]>;
+  if (changedTargets.length > 0) {
+    targets = changedTargets.map(name => [name, definition.target[name]]);
+  } else {
+    targets = Object.entries(definition.target);
+  }
+  for (const [targetName, target] of targets) {
     result.push(...getTargetsWithFields(targetName, target, fields));
   }
   return result;
 }
 
-function generateLayeredMatrix(graph: DependencyGraph, fields: Array<string>): Array<Array<MatrixConfigEntry>> {
-  const layeredMatrix = graph.getLayeredMatrix();
+function generateLayeredMatrix(graph: DependencyGraph, fields: Array<string>, changedTargets: Array<string>): Array<Array<MatrixConfigEntry>> {
+  let layeredMatrix: Array<Array<string>>;
+  if (changedTargets.length > 0) {
+    layeredMatrix = graph.getLayeredMatrixForChanges(changedTargets);
+  } else {
+    layeredMatrix = graph.getLayeredMatrix();
+  }
   const result: Array<Array<MatrixConfigEntry>> = [];
   for (const layerMatrix of layeredMatrix) {
     const layerResult: Array<MatrixConfigEntry> = [];

@@ -48,6 +48,28 @@ export class DependencyGraph {
     return Math.max(...targets, 1);
   }
 
+  private targetDependsOn(firstTarget: string, secondTarget: string): boolean {
+    for (const predecessor of this.predecessors[firstTarget]) {
+      if (predecessor == secondTarget || this.targetDependsOn(predecessor, secondTarget)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private getTargetsDependingOn(targetName: string): Set<string> {
+    const result = new Set<string>();
+    for (const currentTargetName in this.predecessors) {
+      if (currentTargetName == targetName) {
+        continue;
+      }
+      if (this.targetDependsOn(currentTargetName, targetName)) {
+        result.add(currentTargetName);
+      }
+    }
+    return result;
+  }
+
   private getTargetsWithoutDependencies(): Set<string> {
     const result = new Set<string>();
     for (const targetName in this.predecessors) {
@@ -88,6 +110,24 @@ export class DependencyGraph {
     while (targets.size > 0) {
       result.push([...targets]);
       targets = this.getReadyTargets(result.flat());
+    }
+    return result;
+  }
+
+  getLayeredMatrixForChanges(changedTargets: Array<string>): Array<Array<string>> {
+    const result: Array<Array<string>> = [];
+    // Remove changed targets and their dependendents from all targets
+    let finishedTargets = new Set<string>(Object.keys(this.predecessors));
+    for (const changedTarget of changedTargets) {
+      finishedTargets.delete(changedTarget);
+      finishedTargets = finishedTargets.difference(this.getTargetsDependingOn(changedTarget));
+    }
+    const finishedTargetsArr = [...finishedTargets];
+    let targets: Set<string> = this.getReadyTargets(finishedTargetsArr);
+    while (targets.size > 0) {
+      result.push([...targets]);
+      finishedTargetsArr.push(...targets);
+      targets = this.getReadyTargets(finishedTargetsArr);
     }
     return result;
   }
