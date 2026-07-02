@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
@@ -22,19 +21,16 @@ export async function fetchCommit(workdir: string, commit: string) {
 }
 
 export async function getFileFromCommit(workdir: string, file: string, commit: string): Promise<string | null> {
-  const tmpDir = await fsPromises.mkdtemp(`${os.tmpdir()}${path.sep}bake-changes-`);
+  const tmpDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), `bake-changes-`));
   const filename = path.basename(file);
-  const outPath = `${tmpDir}${path.sep}${filename}`;
-  const fileStream = fs.createWriteStream(outPath);
+  const outPath = path.join(tmpDir, filename);
 
   const args = ['show', `${commit}:${file}`];
   const result = await exec.getExecOutput('git', args, {
     cwd: workdir,
     ignoreReturnCode: true,
-    silent: true,
-    outStream: fileStream
+    silent: true
   });
-  core.info(`TODO: ${fileStream.closed}`);
   // file does not exist in commit
   if (result.exitCode == 128) {
     core.warning(`File '${file}' does not exist in commit: ${commit}`);
@@ -45,6 +41,7 @@ export async function getFileFromCommit(workdir: string, file: string, commit: s
   if (result.stderr.length > 0 && result.exitCode != 0) {
     throw new Error(result.stderr);
   }
+  await fsPromises.writeFile(outPath, result.stdout);
   return outPath;
 }
 
