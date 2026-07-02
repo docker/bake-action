@@ -16,7 +16,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "catalog:",
-    "@actions/exec": "^3.0.0",
+    "@actions/exec": "catalog:",
     "@docker/actions-toolkit": "catalog:",
     "@octokit/webhooks-definitions": "^3.0.0"
   },
