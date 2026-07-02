@@ -16,6 +16,9 @@ inputs:
   fields:
     description: List of extra fields to include in the matrix
     required: false
+  changed-targets:
+    description: List of Bake targets that have changed. This will cause the output to only include Bake targets which need to be rebuild.
+    required: false
 
 outputs:
   matrix:

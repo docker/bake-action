@@ -360,12 +360,13 @@ jobs:
 
 ### inputs
 
-| Name      | Type     | Description                                                                                    |
-|-----------|----------|------------------------------------------------------------------------------------------------|
-| `workdir` | String   | Working directory to use (defaults to `.`)                                                     |
-| `files`   | List/CSV | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/) |
-| `target`  | String   | The target to use within the bake file                                                         |
-| `fields`  | String   | List of extra fields to include in the matrix                                                  |
+| Name              | Type     | Description                                                                                                               |
+|-------------------|----------|---------------------------------------------------------------------------------------------------------------------------|
+| `workdir`         | String   | Working directory to use (defaults to `.`)                                                                                |
+| `files`           | List/CSV | List of [bake definition files](https://docs.docker.com/build/customize/bake/file-definition/)                            |
+| `target`          | String   | The target to use within the bake file                                                                                    |
+| `fields`          | String   | List of extra fields to include in the matrix                                                                             |
+| `changed-targets` | JSON     | List of Bake targets that have changed. This will cause the output to only include Bake targets which need to be rebuild. |
 
 ### outputs
 
