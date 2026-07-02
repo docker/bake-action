@@ -23,7 +23,6 @@ actionsToolkit.run(
 
     if (isFirstPush) {
       await core.group(`Getting changed targets`, async () => {
-        core.info('First push');
         const targets = Object.keys(currentDefinition.target);
         core.info(JSON.stringify(targets, null, 2));
         core.setOutput('targets', JSON.stringify(targets));
