@@ -1,0 +1,291 @@
+{
+  "group": {
+    "default": {
+      "targets": [
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6"
+      ]
+    },
+    "t2": {
+      "targets": [
+        "t2_darwin-amd64",
+        "t2_darwin-arm64",
+        "t2_linux-amd64",
+        "t2_linux-arm64",
+        "t2_linux-s390x",
+        "t2_linux-ppc64le",
+        "t2_linux-riscv64",
+        "t2_windows-amd64",
+        "t2_windows-arm64"
+      ]
+    }
+  },
+  "target": {
+    "base": {
+      "context": "base",
+      "dockerfile": "Dockerfile",
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_darwin-amd64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "darwin/amd64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_darwin-arm64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "darwin/arm64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_linux-amd64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_linux-arm64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/arm64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_linux-ppc64le": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/ppc64le"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_linux-riscv64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/riscv64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_linux-s390x": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/s390x"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_windows-amd64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "windows/amd64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t1_windows-arm64": {
+      "context": "targets/t1",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "windows/arm64"
+      ],
+      "output": [
+        {
+          "type": "cacheonly"
+        }
+      ]
+    },
+    "t2_darwin-amd64": {
+      "context": "targets/t2/darwin-amd64",
+      "contexts": {
+        "t1": "target:t1_darwin-amd64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "darwin/amd64"
+      ]
+    },
+    "t2_darwin-arm64": {
+      "context": "targets/t2/darwin-arm64",
+      "contexts": {
+        "t1": "target:t1_darwin-arm64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "darwin/arm64"
+      ]
+    },
+    "t2_linux-amd64": {
+      "context": "targets/t2/linux-amd64",
+      "contexts": {
+        "t1": "target:t1_linux-amd64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "linux/amd64"
+      ]
+    },
+    "t2_linux-arm64": {
+      "context": "targets/t2/linux-arm64",
+      "contexts": {
+        "t1": "target:t1_linux-arm64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "linux/arm64"
+      ]
+    },
+    "t2_linux-ppc64le": {
+      "context": "targets/t2/linux-ppc64le",
+      "contexts": {
+        "t1": "target:t1_linux-ppc64le"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "linux/ppc64le"
+      ]
+    },
+    "t2_linux-riscv64": {
+      "context": "targets/t2/linux-riscv64",
+      "contexts": {
+        "t1": "target:t1_linux-riscv64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "linux/riscv64"
+      ]
+    },
+    "t2_linux-s390x": {
+      "context": "targets/t2/linux-s390x",
+      "contexts": {
+        "t1": "target:t1_linux-s390x"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "linux/s390x"
+      ]
+    },
+    "t2_windows-amd64": {
+      "context": "targets/t2/windows-amd64",
+      "contexts": {
+        "t1": "target:t1_windows-amd64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "windows/amd64"
+      ]
+    },
+    "t2_windows-arm64": {
+      "context": "targets/t2/windows-arm64",
+      "contexts": {
+        "t1": "target:t1_windows-arm64"
+      },
+      "dockerfile": "../Dockerfile",
+      "platforms": [
+        "windows/arm64"
+      ]
+    },
+    "t3": {
+      "context": "targets/t3",
+      "contexts": {
+        "base": "target:base",
+        "t2": "target:t2_linux-arm64"
+      },
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/arm64"
+      ]
+    },
+    "t4": {
+      "context": "targets/t4",
+      "contexts": {
+        "base": "target:base"
+      },
+      "dockerfile": "Dockerfile"
+    },
+    "t5": {
+      "context": "special",
+      "dockerfile": "Dockerfile"
+    },
+    "t6": {
+      "context": "special",
+      "contexts": {
+        "base": "docker-image://alpine:3.23.0"
+      },
+      "dockerfile": "Dockerfile"
+    }
+  }
+}

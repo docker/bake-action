@@ -67,7 +67,6 @@ export function getChangedTargetsFromPaths(definition: BakeDefinition, changedFi
     for (const targetName in targetPaths) {
       if (targetPaths[targetName].some(pattern => path.matchesGlob(changedFile, pattern))) {
         result.add(targetName);
-        break;
       }
     }
   }
