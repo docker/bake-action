@@ -9,6 +9,7 @@ so you can distribute your builds across multiple runners.
 ___
 
 * [Usage](#usage)
+* [Layered matrix](#layered-matrix)
 * [Customizing](#customizing)
   * [inputs](#inputs)
   * [outputs](#outputs)
