@@ -487,3 +487,4 @@ function getInputName(name: string): string {
 function setInput(name: string, value: string): void {
   process.env[getInputName(name)] = value;
 }
+// Error reparado v2
