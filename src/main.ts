@@ -19,6 +19,7 @@ import {BuilderInfo} from '@docker/actions-toolkit/lib/types/buildx/builder.js';
 import {ConfigFile} from '@docker/actions-toolkit/lib/types/docker/docker.js';
 import {UploadResponse as UploadArtifactResponse} from '@docker/actions-toolkit/lib/types/github/artifact.js';
 
+import * as config from './config.js';
 import * as context from './context.js';
 import * as stateHelper from './state-helper.js';
 
@@ -194,7 +195,7 @@ actionsToolkit.run(
       }
     });
 
-    if (buildChecksAnnotationsEnabled()) {
+    if (config.buildChecksAnnotationsEnabled()) {
       const warnings = toolkit.buildxBake.resolveWarnings(metadata);
       if (refs.length > 0 && warnings && warnings.length > 0) {
         const annotations = await Buildx.convertWarningsToGitHubAnnotations(warnings, refs);
@@ -210,7 +211,7 @@ actionsToolkit.run(
     }
 
     await core.group(`Check build summary support`, async () => {
-      if (!buildSummaryEnabled()) {
+      if (!config.buildSummaryEnabled()) {
         core.info('Build summary disabled');
       } else if (inputs.call && inputs.call !== 'build') {
         core.info(`Build summary skipped for ${inputs.call} subrequest`);
@@ -235,10 +236,10 @@ actionsToolkit.run(
     if (stateHelper.isSummarySupported) {
       await core.group(`Generating build summary`, async () => {
         try {
-          const recordUploadEnabled = buildRecordUploadEnabled();
+          const recordUploadEnabled = config.buildRecordUploadEnabled();
           let recordRetentionDays: number | undefined;
           if (recordUploadEnabled) {
-            recordRetentionDays = buildRecordRetentionDays();
+            recordRetentionDays = config.buildRecordRetentionDays();
           }
 
           const buildxHistory = new BuildxHistory();
@@ -299,36 +300,4 @@ async function buildRefs(toolkit: Toolkit, since: Date, builder?: string): Promi
     }
   }
   return refs;
-}
-
-function buildChecksAnnotationsEnabled(): boolean {
-  if (process.env.DOCKER_BUILD_CHECKS_ANNOTATIONS) {
-    return Util.parseBool(process.env.DOCKER_BUILD_CHECKS_ANNOTATIONS);
-  }
-  return true;
-}
-
-function buildSummaryEnabled(): boolean {
-  if (process.env.DOCKER_BUILD_SUMMARY) {
-    return Util.parseBool(process.env.DOCKER_BUILD_SUMMARY);
-  }
-  return true;
-}
-
-function buildRecordUploadEnabled(): boolean {
-  if (process.env.DOCKER_BUILD_RECORD_UPLOAD) {
-    return Util.parseBool(process.env.DOCKER_BUILD_RECORD_UPLOAD);
-  }
-  return true;
-}
-
-function buildRecordRetentionDays(): number | undefined {
-  const val = process.env.DOCKER_BUILD_RECORD_RETENTION_DAYS;
-  if (val) {
-    const res = parseInt(val);
-    if (isNaN(res)) {
-      throw Error(`Invalid build record retention days: ${val}`);
-    }
-    return res;
-  }
 }
