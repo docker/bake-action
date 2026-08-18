@@ -3,7 +3,7 @@ import {Util} from '@docker/actions-toolkit/lib/util.js';
 
 export const DEFAULTS = {
   checksAnnotations: true,
-  summary: true,
+  summary: false,
   recordUpload: true
 } as const;
 
