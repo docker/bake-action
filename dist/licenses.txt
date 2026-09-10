@@ -2629,11 +2629,12 @@ END OF TERMS AND CONDITIONS
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - @sigstore/verify@4.1.0
+ - docker-buildx-bake-matrix@unknown
 
-This package contains the following license:
+These packages each contain the following license:
 
 Apache-2.0
 
