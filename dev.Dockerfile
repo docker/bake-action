@@ -40,10 +40,13 @@ RUN --mount=target=/context \
   --mount=type=cache,target=/src/node_modules <<EOT
   set -e
   rsync -a /context/. .
-  rm -rf dist
-  yarn run build
+  rm -rf dist subaction/matrix/dist subaction/get-changes/dist
+  yarn workspaces foreach --all run build
   mkdir /out
   cp -r dist /out
+  mkdir -p /out/subaction/matrix /out/subaction/get-changes
+  cp -r subaction/matrix/dist /out/subaction/matrix
+  cp -r subaction/get-changes/dist /out/subaction/get-changes
 EOT
 
 FROM scratch AS build-update
@@ -55,9 +58,9 @@ RUN --mount=target=/context \
   set -e
   rsync -a /context/. .
   git add -A
-  rm -rf dist
+  rm -rf dist subaction/matrix/dist subaction/get-changes/dist
   cp -rf /out/* .
-  if [ -n "$(git status --porcelain -- dist)" ]; then
+  if [ -n "$(git status --porcelain -- dist subaction/matrix/dist subaction/get-changes/dist)" ]; then
     echo >&2 'ERROR: Build result differs. Please build first with "docker buildx bake build"'
     git status --porcelain -- dist
     exit 1

@@ -1,0 +1,27 @@
+{
+  "name": "docker-buildx-bake-get-changes",
+  "description": "GitHub Action to detect changed targets from bake definition files based on workflow events",
+  "type": "module",
+  "main": "src/main.ts",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify && yarn run license",
+    "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docker/bake-action.git",
+    "directory": "subaction/get-changes"
+  },
+  "author": "Docker Inc.",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@actions/core": "catalog:",
+    "@actions/exec": "catalog:",
+    "@docker/actions-toolkit": "catalog:",
+    "@octokit/webhooks-definitions": "^3.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "catalog:",
+    "generate-license-file": "catalog:"
+  }
+}

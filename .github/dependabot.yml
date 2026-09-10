@@ -4,6 +4,7 @@ updates:
     directories:
       - "/"
       - "/subaction/matrix"
+      - "/subaction/get-changes"
     schedule:
       interval: "daily"
     cooldown:
@@ -19,7 +20,10 @@ updates:
       - "dependencies"
       - "bot"
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "/subaction/matrix"
+      - "/subaction/get-changes"
     schedule:
       interval: "daily"
     cooldown:
