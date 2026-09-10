@@ -19,7 +19,9 @@ updates:
       - "dependencies"
       - "bot"
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "/subaction/matrix"
     schedule:
       interval: "daily"
     cooldown:

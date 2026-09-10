@@ -20,82 +20,13 @@ inputs:
 outputs:
   matrix:
     description: Matrix configuration
-    value: ${{ steps.generate.outputs.includes }}
+  max-layers:
+    description: Max amount of layers in the layered matrix configuration
+  layers:
+    description: Current amount of layers in the layered matrix configuration
+  layered-matrix:
+    description: Layered matrix configuration
 
 runs:
-  using: composite
-  steps:
-    -
-      name: Generate
-      id: generate
-      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-      env:
-        INPUT_WORKDIR: ${{ inputs.workdir }}
-        INPUT_FILES: ${{ inputs.files }}
-        INPUT_TARGET: ${{ inputs.target }}
-        INPUT_FIELDS: ${{ inputs.fields }}
-      with:
-        script: |
-          function getInputList(name) {
-            return core.getInput(name) ? core.getInput(name).split(/[\r?\n,]+/).filter(x => x !== '') : [];
-          }
-
-          const workdir = core.getInput('workdir');
-          const files = getInputList('files');
-          const target = core.getInput('target');
-          const fields = getInputList('fields');
-
-          let def = {};
-          await core.group(`Parsing definition`, async () => {
-            let args = ['buildx', 'bake'];
-            for (const file of files) {
-              args.push('--file', file);
-            }
-            if (target) {
-              args.push(target);
-            }
-            args.push('--print');
-            const res = await exec.getExecOutput('docker', args, {
-              ignoreReturnCode: true,
-              silent: true,
-              cwd: workdir
-            });
-            if (res.stderr.length > 0 && res.exitCode != 0) {
-              throw new Error(res.stderr);
-            }
-            def = JSON.parse(res.stdout.trim());
-            core.info(JSON.stringify(def, null, 2));
-          });
-
-          await core.group(`Generating matrix`, async () => {
-            const result = [];
-            for (const targetName of Object.keys(def.target)) {
-              const target = def.target[targetName];
-              const entry = { target: targetName };
-              if (fields.length === 0) {
-                result.push({ ...entry });
-                continue;
-              }
-              let fieldFound = false;
-              Object.keys(target).forEach(field => {
-                if (fields.includes(field)) {
-                  fieldFound = true;
-                  const value = target[field];
-                  if (Array.isArray(value)) {
-                    value.forEach((v) => {
-                      entry[field] = v;
-                      result.push({ ...entry });
-                    });
-                  } else {
-                    entry[field] = value;
-                    result.push({ ...entry });
-                  }
-                }
-              });
-              if (!fieldFound) {
-                result.push({ ...entry });
-              }
-            }
-            core.info(JSON.stringify(result, null, 2));
-            core.setOutput('includes', JSON.stringify(result));
-          });
+  using: 'node24'
+  main: 'dist/index.cjs'
