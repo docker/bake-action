@@ -2830,6 +2830,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"docker-buildx-bake-matrix@workspace:subaction/matrix":
+  version: 0.0.0-use.local
+  resolution: "docker-buildx-bake-matrix@workspace:subaction/matrix"
+  dependencies:
+    "@actions/core": "npm:^3.0.1"
+    "@actions/exec": "npm:^3.0.0"
+    "@docker/actions-toolkit": "npm:^0.100.0"
+    esbuild: "npm:^0.28.0"
+    generate-license-file: "npm:^4.1.1"
+  languageName: unknown
+  linkType: soft
+
 "docker-buildx-bake@workspace:.":
   version: 0.0.0-use.local
   resolution: "docker-buildx-bake@workspace:."

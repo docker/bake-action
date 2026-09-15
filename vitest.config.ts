@@ -9,8 +9,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['clover'],
-      include: ['src/**/*.ts'],
-      exclude: ['src/**/main.ts']
+      include: ['src/**/*.ts', 'subaction/matrix/src/**/*.ts'],
+      exclude: ['src/**/main.ts', 'subaction/matrix/src/**/main.ts']
     }
   }
 });
