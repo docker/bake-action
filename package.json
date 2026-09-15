@@ -27,8 +27,8 @@
   "license": "Apache-2.0",
   "packageManager": "yarn@4.15.0",
   "dependencies": {
-    "@actions/core": "catalog:",
-    "@docker/actions-toolkit": "catalog:",
+    "@actions/core": "^3.0.1",
+    "@docker/actions-toolkit": "^0.100.0",
     "handlebars": "^4.7.9"
   },
   "devDependencies": {
@@ -38,11 +38,11 @@
     "@typescript-eslint/parser": "^8.56.1",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/eslint-plugin": "^1.6.9",
-    "esbuild": "catalog:",
+    "esbuild": "^0.28.0",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "generate-license-file": "catalog:",
+    "generate-license-file": "^4.1.1",
     "globals": "^17.3.0",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
