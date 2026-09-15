@@ -2,18 +2,20 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as actionsToolkit from '@docker/actions-toolkit';
 
+import {Buildx} from '@docker/actions-toolkit/lib/buildx/buildx.js';
+import {Util} from '@docker/actions-toolkit/lib/util.js';
+
 import {BakeDefinition, Target} from '@docker/actions-toolkit/lib/types/buildx/bake.js';
 
 actionsToolkit.run(
   // main
   async () => {
     const workdir = core.getInput('workdir');
-    const files = getInputList('files');
+    const files = Util.getInputList('files');
     const target = core.getInput('target');
-    const fields = getInputList('fields');
+    const fields = Util.getInputList('fields');
 
-    let def: BakeDefinition;
-    await core.group(`Parsing definition`, async () => {
+    const def = await core.group(`Parsing definition`, async () => {
       const args = ['buildx', 'bake'];
       for (const file of files) {
         args.push('--file', file);
@@ -27,20 +29,20 @@ actionsToolkit.run(
         silent: true,
         cwd: workdir
       });
-      if (res.stderr.length > 0 && res.exitCode != 0) {
-        throw new Error(res.stderr);
+      if (res.exitCode !== 0) {
+        throw new Error(`buildx bake failed with: ${Buildx.getErrorMessage(res.stderr)}`);
       }
-      def = JSON.parse(res.stdout.trim());
+      const def: BakeDefinition = JSON.parse(res.stdout.trim());
       core.info(JSON.stringify(def, null, 2));
+      return def;
     });
 
     await core.group(`Generating matrix`, async () => {
       const result: Array<MatrixConfigEntry> = [];
-      for (const targetName of Object.keys(def.target)) {
-        const target = def.target[targetName];
+      for (const [targetName, target] of Object.entries(def.target)) {
         const entry: MatrixConfigEntry = {target: targetName};
         if (fields.length === 0) {
-          result.push({...entry});
+          result.push(entry);
           continue;
         }
         let fieldFound = false;
@@ -60,7 +62,7 @@ actionsToolkit.run(
           }
         });
         if (!fieldFound) {
-          result.push({...entry});
+          result.push(entry);
         }
       }
       core.info(JSON.stringify(result, null, 2));
@@ -69,23 +71,10 @@ actionsToolkit.run(
   }
 );
 
-function getInputList(name: string) {
-  return core.getInput(name)
-    ? core
-        .getInput(name)
-        .split(/[\r?\n,]+/)
-        .filter(x => x !== '')
-    : [];
-}
-
-type Optional<Type> = {
-  [Property in keyof Type]?: Type[Property];
-};
-
 type ArrayToSingleEntry<Type> = {
   [Property in keyof Type]: Type[Property] extends Array<infer Entry> ? Entry : Type[Property];
 };
 
-type MatrixConfigEntry = Optional<ArrayToSingleEntry<Target>> & {
+type MatrixConfigEntry = Partial<ArrayToSingleEntry<Target>> & {
   target: string;
 };
