@@ -1,0 +1,21 @@
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'Get Changes'
+description: 'Detect which targets changed from a Bake definition based on workflow events'
+
+inputs:
+  workdir:
+    description: Working directory
+    default: '.'
+    required: false
+  files:
+    description: List of Bake files
+    required: false
+
+outputs:
+  targets:
+    description: Changed Bake targets
+
+runs:
+  using: 'node24'
+  main: 'dist/index.cjs'
+  post: 'dist/index.cjs'

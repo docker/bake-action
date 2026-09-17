@@ -16,10 +16,20 @@ inputs:
   fields:
     description: List of extra fields to include in the matrix
     required: false
+  changed-targets:
+    description: List of Bake targets that have changed. This will cause the output to only include Bake targets which need to be rebuild.
+    default: '[]'
+    required: false
 
 outputs:
   matrix:
     description: Matrix configuration
+  max-layers:
+    description: Max amount of layers in the layered matrix configuration
+  layers:
+    description: Current amount of layers in the layered matrix configuration
+  layered-matrix:
+    description: Layered matrix configuration
 
 runs:
   using: 'node24'
