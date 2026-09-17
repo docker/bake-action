@@ -10,6 +10,9 @@
     "test": "vitest run",
     "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf"
   },
+  "workspaces": [
+    "subaction/matrix"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/docker/bake-action.git"
