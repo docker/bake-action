@@ -17,7 +17,7 @@
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@docker/actions-toolkit": "^0.100.0"
+    "@docker/actions-toolkit": "^0.101.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.0",
