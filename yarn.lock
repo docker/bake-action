@@ -1400,6 +1400,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/webhooks-definitions@npm:^3.0.0":
+  version: 3.68.1
+  resolution: "@octokit/webhooks-definitions@npm:3.68.1"
+  checksum: 10/49fb7420e336475b3f8c096080fc1617ca7b901076eebdfcf997e3e206bbe50067032e8e2d960dbd1e14de4b77ee82107aaf9ff9480f7ae9ab011e059fc5e8e1
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -2829,6 +2836,19 @@ __metadata:
   checksum: 10/3a88b7a587fc076b84e60affad8b85245c01f60f38fc1d259e7ac1d89eb9ce6abb19e27215de46b98568dd5bc48471730b327637e6f20b0f1bc85cf00440c80a
   languageName: node
   linkType: hard
+
+"docker-buildx-bake-get-changes@workspace:subaction/get-changes":
+  version: 0.0.0-use.local
+  resolution: "docker-buildx-bake-get-changes@workspace:subaction/get-changes"
+  dependencies:
+    "@actions/core": "npm:^3.0.1"
+    "@actions/exec": "npm:^3.0.0"
+    "@docker/actions-toolkit": "npm:^0.100.0"
+    "@octokit/webhooks-definitions": "npm:^3.0.0"
+    esbuild: "npm:^0.28.0"
+    generate-license-file: "npm:^4.1.1"
+  languageName: unknown
+  linkType: soft
 
 "docker-buildx-bake-matrix@workspace:subaction/matrix":
   version: 0.0.0-use.local

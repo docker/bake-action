@@ -23,6 +23,7 @@ ___
   * [environment variables](#environment-variables)
 * [Subactions](#subactions)
   * [`matrix`](subaction/matrix)
+  * [`get-changes`](subaction/get-changes)
 * [Notes](#notes)
   * [Source semantics](#source-semantics)
 * [Contributing](#contributing)
@@ -262,6 +263,7 @@ The following outputs are available
 ## Subactions
 
 * [`matrix`](subaction/matrix)
+* [`get-changes`](subaction/get-changes)
 
 ## Notes
 
