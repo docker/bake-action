@@ -87,6 +87,50 @@ describe('getInputs', () => {
     expect(gitContextSpy).toHaveBeenCalledTimes(1);
     gitContextSpy.mockRestore();
   });
+
+  describe('vars', () => {
+    beforeEach(() => {
+      setRequiredBooleanInputs();
+      setInput('source', '.');
+    });
+
+    test('preserves line-based input parsing', async () => {
+      setInput('vars', 'TAGS=one,two\nJSON={"value":"a,b=c"}\nQUOTED="literal"\nEMPTY=');
+      expect((await context.getInputs()).vars).toEqual(['TAGS=one,two', 'JSON={"value":"a,b=c"}', 'QUOTED="literal"', 'EMPTY=']);
+    });
+
+    test('preserves JSON entries including multiline values and whitespace', async () => {
+      const vars = [
+        'DOCKER_METADATA_OUTPUT_TAGS=example/app:latest\nexample/app:main\n',
+        'DOCKER_METADATA_OUTPUT_LABELS=version=1.2.3\r\ntitle=example\r\n',
+        'DOCKER_METADATA_OUTPUT_JSON={"tags":["example/app:latest","example/app:main"]}',
+        'PADDED=  "one,two"=three  ',
+        'EMPTY='
+      ];
+      setInput('vars', `  \n${JSON.stringify(vars, null, 2)}\n  `);
+      expect((await context.getInputs()).vars).toEqual(vars);
+    });
+
+    test('preserves duplicate JSON variable entries in order', async () => {
+      setInput('vars', JSON.stringify(['VERSION=default', 'OTHER=value', 'VERSION=override', 'VERSION=final']));
+      expect((await context.getInputs()).vars).toEqual(['VERSION=default', 'OTHER=value', 'VERSION=override', 'VERSION=final']);
+    });
+
+    test('accepts an empty JSON array', async () => {
+      setInput('vars', '[]');
+      expect((await context.getInputs()).vars).toEqual([]);
+    });
+
+    test('falls back to list parsing when JSON parsing fails', async () => {
+      setInput('vars', '["KEY=value"');
+      expect((await context.getInputs()).vars).toEqual(['["KEY=value"']);
+    });
+
+    test.each(['null', 'true', '1', '"KEY=value"', '{"KEY":"value"}', '["KEY=value",1]', '[null]', '[["KEY=value"]]'])('rejects invalid JSON variable lists: %s', async value => {
+      setInput('vars', value);
+      await expect(context.getInputs()).rejects.toThrow('Invalid vars input: expected a JSON array of strings.');
+    });
+  });
 });
 
 describe('getArgs', () => {
@@ -101,6 +145,36 @@ describe('getArgs', () => {
   });
   afterEach(() => {
     process.env = originalEnv;
+  });
+
+  test('passes JSON variables as individual CLI arguments without changing their values', async () => {
+    const vars = ['DOCKER_METADATA_OUTPUT_TAGS=example/app:latest\nexample/app:main', 'PADDED=  "one,two"=three  ', 'EMPTY='];
+    setInput('source', '.');
+    setInput('no-cache', 'false');
+    setInput('pull', 'false');
+    setInput('load', 'false');
+    setInput('push', 'false');
+    setInput('provenance', 'false');
+    setInput('vars', JSON.stringify(vars));
+    vi.spyOn(Buildx.prototype, 'version').mockResolvedValue('0.31.0');
+    const toolkit = new Toolkit();
+    const inputs = await context.getInputs();
+    const definition = await toolkit.buildxBake.getDefinition({vars: inputs.vars});
+    expect(await context.getArgs(inputs, definition, toolkit)).toEqual(['bake', '--allow', 'fs=*', ...vars.flatMap(value => ['--var', value]), '--metadata-file', metadataJson, '--provenance', 'false']);
+  });
+
+  test('requires Buildx 0.31.0 for JSON variables', async () => {
+    setInput('source', '.');
+    setInput('no-cache', 'false');
+    setInput('pull', 'false');
+    setInput('load', 'false');
+    setInput('push', 'false');
+    setInput('vars', '["KEY=value"]');
+    vi.spyOn(Buildx.prototype, 'version').mockResolvedValue('0.30.0');
+    const toolkit = new Toolkit();
+    const inputs = await context.getInputs();
+    const definition = await toolkit.buildxBake.getDefinition({vars: inputs.vars});
+    await expect(context.getArgs(inputs, definition, toolkit)).rejects.toThrow('Buildx >= 0.31.0 is required to use the vars input.');
   });
 
   // prettier-ignore

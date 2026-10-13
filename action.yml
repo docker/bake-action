@@ -51,7 +51,7 @@ inputs:
     description: "List of bake targets"
     required: false
   vars:
-    description: "Variables to set in the Bake definition as list of key-value pair"
+    description: "Variables to set in the Bake definition as a list of key-value pairs or a JSON array of strings"
     required: false
   github-token:
     description: "API token used to authenticate to a Git repository for remote definitions"
