@@ -48,7 +48,7 @@ export async function getInputs(): Promise<Inputs> {
     set: Util.getInputList('set', {ignoreComma: true, quote: false}),
     source: await getBakeContext(core.getInput('source')),
     targets: Util.getInputList('targets'),
-    vars: Util.getInputList('vars', {ignoreComma: true, quote: false}),
+    vars: getBakeVars(core.getInput('vars')),
     'github-token': core.getInput('github-token')
   };
 }
@@ -169,6 +169,19 @@ async function getBakeContext(sourceInput: string): Promise<BakeContext> {
   return {
     workdir: bakeContext
   };
+}
+
+function getBakeVars(varsInput: string): string[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(varsInput);
+  } catch {
+    return Util.getList(varsInput, {ignoreComma: true, quote: false});
+  }
+  if (!Array.isArray(parsed) || !parsed.every(value => typeof value === 'string')) {
+    throw new Error('Invalid vars input: expected a JSON array of strings.');
+  }
+  return parsed;
 }
 
 function noDefaultAttestations(): boolean {
