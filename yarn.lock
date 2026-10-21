@@ -422,9 +422,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docker/actions-toolkit@npm:^0.106.0":
-  version: 0.106.0
-  resolution: "@docker/actions-toolkit@npm:0.106.0"
+"@docker/actions-toolkit@npm:^0.107.0":
+  version: 0.107.0
+  resolution: "@docker/actions-toolkit@npm:0.107.0"
   dependencies:
     "@actions/artifact": "npm:^6.3.1"
     "@actions/cache": "npm:^6.3.0"
@@ -442,12 +442,12 @@ __metadata:
     gunzip-maybe: "npm:^1.4.2"
     handlebars: "npm:^4.7.10"
     he: "npm:^2.0.0"
-    js-yaml: "npm:^5.4.3"
+    js-yaml: "npm:^5.5.0"
     jwt-decode: "npm:^4.0.0"
     semver: "npm:^7.8.5"
     tar-stream: "npm:^3.2.2"
     tmp: "npm:^0.2.7"
-  checksum: 10/8897fc4950279cf09976c7ce0e0457ec28f99c5cf88aed7d9b72ba0e3b3016471eb3437ae374b95dab9e0a6d3e7143c5cfab45dd13f870847d4cdb0e9565ea37
+  checksum: 10/bb43d11ece07be4b07613ea3e4a308233a7daa789cb3f54cf3d399f08ae7f1ad9756bb72457ea5e28408b838787fed0221921be4ed9ae135e55608f66b250b4f
   languageName: node
   linkType: hard
 
@@ -2257,6 +2257,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"argparse@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "argparse@npm:3.0.3"
+  checksum: 10/6834e247fe8a8d21a0061dc2b7134ae79625d9ab795eca043d8ba9434be3bc1e7d049c9a4aa01bd3d6bfc145b29addfb290d17b8b3f7b11710cc52ab13629f31
+  languageName: node
+  linkType: hard
+
 "assertion-error@npm:^2.0.1":
   version: 2.0.1
   resolution: "assertion-error@npm:2.0.1"
@@ -2863,7 +2870,7 @@ __metadata:
   dependencies:
     "@actions/core": "npm:^3.0.1"
     "@actions/exec": "npm:^3.0.0"
-    "@docker/actions-toolkit": "npm:^0.106.0"
+    "@docker/actions-toolkit": "npm:^0.107.0"
     esbuild: "npm:^0.28.0"
     generate-license-file: "npm:^4.1.1"
   languageName: unknown
@@ -2874,7 +2881,7 @@ __metadata:
   resolution: "docker-buildx-bake@workspace:."
   dependencies:
     "@actions/core": "npm:^3.0.1"
-    "@docker/actions-toolkit": "npm:^0.106.0"
+    "@docker/actions-toolkit": "npm:^0.107.0"
     "@eslint/js": "npm:^9.39.3"
     "@types/node": "npm:^24.11.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.56.1"
@@ -4029,14 +4036,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^5.4.3":
-  version: 5.4.3
-  resolution: "js-yaml@npm:5.4.3"
+"js-yaml@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "js-yaml@npm:5.5.0"
   dependencies:
-    argparse: "npm:^2.0.1"
+    argparse: "npm:^3.0.3"
   bin:
     js-yaml: bin/js-yaml.mjs
-  checksum: 10/2409d1238efddc29ab62ddb26d70bc7f2e8b58b84eb8d41d09d50fab86f8670aa2fec5dc6c99ef71939acab5d7c0b3526f96bdd0055042aa0136cca749b20afc
+  checksum: 10/c01359a4fe69a1c032e9e57d7387a1cbdfbbd45bc69924885a3c9a9a020e066627dc125f7b46f7b929186b5a65471ae5fa478d3f773e35f7ccdf57d32fcf369f
   languageName: node
   linkType: hard
 
