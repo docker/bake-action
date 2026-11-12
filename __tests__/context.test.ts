@@ -479,7 +479,7 @@ describe('getArgs', () => {
       ]),
       [
         'bake',
-        'https://github.com/docker/bake-action.git?ref=refs/heads/master',
+        'https://github.com/docker/bake-action.git?ref=refs%2Fheads%2Fmaster',
         '--allow', 'fs=*',
         '--file', './foo.hcl',
         '--metadata-file', metadataJson,
